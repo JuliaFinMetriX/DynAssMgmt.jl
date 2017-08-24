@@ -17,51 +17,10 @@ Pkg.add("Rsvg")
 Pkg.add("PDMats")
 Pkg.add("BenchmarkTools")
 
-## load data
 
-# read in raw data from disk
-rawMus = readcsv("inputData/jochenMus.csv")
-rawCovs = readcsv("inputData/jochenCovs.csv")
-rawIdxRets = readcsv("inputData/idxReturns.csv")
-
-## load packages
-
-using DataFrames
-using Plots
-using Gadfly
-using Convex
-using Query
-using PDMats
-using BenchmarkTools
-
-
-function rawInputsToDataFrame(rawMus)
-  # process data a bit
-  colnams = Array{Symbol}(rawMus[1, :])
-  muVals = Array{Float64}(rawMus[2:end, :])
-  muTab = convert(DataFrame, muVals)
-  names!(muTab, colnams)
-
-  # transform Matlab dates to Julia Dates
-  thisDats = muTab[:Date]
-  thisDats = [Date(0000, 1, 1) + Dates.Day(convert(Int, snglDat)) for snglDat in thisDats]
-
-  muTab[:Date] = thisDats
-  return muTab
-end
-
-muTab = rawInputsToDataFrame(rawMus)
-covsTab = rawInputsToDataFrame(rawCovs)
-idxRets = rawInputsToDataFrame(rawIdxRets)
-
-plotlyjs()
 # sadly doesn't work at the moment:
 plot(muTab[:Date], muTab[:govEm_IUS7_GY_JPEICORE])
 
-# get numerical dates for plotting
-function getNumDates(someDates)
-  xDates = [Dates.year(thisDat) + Dates.dayofyear(thisDat)/365 for thisDat in someDates]
-end
 plot(getNumDates(muTab[:Date]), muTab[:govEm_IUS7_GY_JPEICORE])
 
 # or: plot with Gadfly
