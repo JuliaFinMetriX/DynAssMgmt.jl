@@ -2,18 +2,13 @@
 
 cd("/home/chris/scalable/julia/DynAssMgmt/")
 
-using DataFrames
-using Plots
-plotlyjs()
 # using Gadfly
-using Convex
-using DistributedArrays
 # using Query
 # using PDMats
 # using BenchmarkTools
 
 ## set up parallel computation
-addprocs(3)
+addprocs(2)
 
 ## load code
 @everywhere begin
@@ -28,6 +23,10 @@ addprocs(3)
     include("src/pfFuncs.jl")
     include("src/singlePeriodStrats.jl")
 end
+
+##
+
+plotlyjs()
 
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
