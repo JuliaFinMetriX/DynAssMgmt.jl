@@ -39,5 +39,28 @@ function gmvp(thisUniv)
 
     # solve and return solution
     solve!(optProblem)
-    gmvpCvx = optVariables.value
+    gmvpCvx = optVariables.value[:]
+end
+
+"""
+    maxSharpe(thisUniv)
+
+Get maximum Sharpe-ratio portfolio
+"""
+function maxSharpe(thisUniv)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    optVariables = Variable(nAss)
+
+    # set up optimization problem
+    optProblem = minimize(quadform(optVariables, thisUniv.covs))
+    identVector = ones(nAss, 1)
+    optProblem.constraints += thisUniv.mus'*optVariables == 1
+    optProblem.constraints += optVariables .>= 0
+
+    # solve and return solution
+    solve!(optProblem)
+    maxSharpeWgts = optVariables.value / sum(optVariables.value)
+    maxSharpeWgts = maxSharpeWgts[:]
+
 end

@@ -16,6 +16,7 @@ Pkg.add("Query")
 Pkg.add("Rsvg")
 Pkg.add("PDMats")
 Pkg.add("BenchmarkTools")
+Pkg.add("DistributedArrays")
 
 
 # sadly doesn't work at the moment:
