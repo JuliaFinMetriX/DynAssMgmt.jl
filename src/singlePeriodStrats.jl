@@ -47,7 +47,7 @@ end
 
 Get maximum Sharpe-ratio portfolio
 """
-function maxSharpe(thisUniv)
+function maxSharpe(thisUniv::Univ)
     # set up optimization variables
     nAss = size(thisUniv)
     optVariables = Variable(nAss)
@@ -62,5 +62,133 @@ function maxSharpe(thisUniv)
     solve!(optProblem)
     maxSharpeWgts = optVariables.value / sum(optVariables.value)
     maxSharpeWgts = maxSharpeWgts[:]
+
+end
+
+"""
+    sigmaTarget(thisUniv, thisTarget)
+
+Get portfolio with maximum expected return for given target.
+"""
+function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
+
+    # get number of assets
+    nAss = size(thisUniv)
+
+    # if target sigma is too high to be reached
+    maxVal = maximum(sqrt.(diag(thisUniv.covs)))
+    maxInd = findmax(sqrt.(diag(thisUniv.covs)))
+    if sigTarget .>= maxVal
+        xWgts = zeros(1, nAss)
+        xWgts[maxInd] = 1
+        return xWgts
+    end
+
+    # if target sigma lower than lowest asset sigma
+    minVal = minimum(sqrt.(diag(thisUniv.covs)))
+    if sigTarget .<= minVal
+        # if target sigma is too low to be reached
+        xWgts = gmvp(thisUniv) # get gmv portfolio
+        get
+        xxx, gmvSigma = pfMoments(thisUniv, xWgts)
+        if sigTarget < gmvSigma
+            return xWgts
+        end
+    end
+
+    # define optimization variables
+    x = Variable(nAss)
+    y0 = Variable(1)
+    y = Variable(nAss)
+
+    socConstraint = [y, y0] in :SOC # TODO: does not work this way
+    socConstraint2 = norm(y) .<= y0.^2 # TODO: is not DCP compliant this way
+    #xxTestConstraint = diag(y) in :SDP # TODO: correct syntax for SDP
+
+    # get "square-root" of covariance matrix
+    Qsqrt = sqrtm(thisUniv.covs)
+
+    optProblem = maximize(thisUniv.mus'*x) # objective function
+
+    # set up optimization problem
+    identVector = ones(nAss, 1)
+    optProblem.constraints += x .>= 0
+    optProblem.constraints += sum(x) == 1
+    optProblem.constraints += Qsqrt*x - y == 0
+    optProblem.constraints += y0 == sigTarget
+    #optProblem.constraints += xxTestConstraint # TODO: remove
+    optProblem.constraints += socConstraint2
+    solve!(optProblem)
+    xWgts = x.value[:]
+
+end
+
+
+function cappedSigma(thisUniv::Univ, sigTarget::Float64)
+
+    # get number of assets
+    nAss = size(thisUniv)
+
+    # if target sigma is too high to be reached
+    maxVal = maximum(sqrt.(diag(thisUniv.covs)))
+    maxInd = findmax(sqrt.(diag(thisUniv.covs)))
+    if sigTarget .>= maxVal
+        xWgts = zeros(1, nAss)
+        xWgts[maxInd] = 1
+        return xWgts
+    end
+
+    # if target sigma lower than lowest asset sigma
+    minVal = minimum(sqrt.(diag(thisUniv.covs)))
+    if sigTarget .<= minVal
+        # if target sigma is too low to be reached
+        xWgts = gmvp(thisUniv) # get gmv portfolio
+        get
+        xxx, gmvSigma = pfMoments(thisUniv, xWgts)
+        if sigTarget < gmvSigma
+            return xWgts
+        end
+    end
+
+    # define optimization variables
+    x = Variable(nAss)
+    y0 = Variable(1)
+    y = Variable(nAss)
+
+    socConstraint = [y, y0] in :SOC # TODO: does not work this way
+    socConstraint2 = norm(y) .<= y0.^2 # TODO: is not DCP compliant this way
+    #xxTestConstraint = diag(y) in :SDP # TODO: correct syntax for SDP
+
+    # get "square-root" of covariance matrix
+    Qsqrt = sqrtm(thisUniv.covs)
+
+    optProblem = maximize(thisUniv.mus'*x) # objective function
+
+    # set up optimization problem
+    identVector = ones(nAss, 1)
+    optProblem.constraints += x .>= 0
+    optProblem.constraints += sum(x) == 1
+    optProblem.constraints += quadform(x, thisUniv.covs) .== sigTarget.^2
+    solve!(optProblem)
+    xWgts = x.value[:]
+
+end
+
+
+function muTarget(thisUniv::Univ, targetMu::Float64)
+    # get number of assets
+    nAss = size(thisUniv)
+
+    x = Variable(nAss)
+
+    p = minimize(quadform(x, thisUniv.covs))
+
+    p.constraints += x' * thisUniv.mus >= targetMu
+    p.constraints += sum(x) .== 1
+    p.constraints += x .>= 0
+    p.constraints += x .<= 1
+
+    solve!(p)
+    xWgts = x.value[:]
 
 end

@@ -11,6 +11,12 @@ struct Univ
     covs::Array{Float64, 2}
 end
 
+function getUnivExtrema(thisUniv)
+    muRange = extrema(thisUniv.mus)
+    sigRange = extrema(sqrt.(diag(thisUniv.covs)))
+    muRange, sigRange
+    xx = [muRange[1] muRange[2]; sigRange[1] sigRange[2]]
+end
 
 import Base.size
 """

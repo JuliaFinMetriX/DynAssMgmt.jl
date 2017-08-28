@@ -23,3 +23,22 @@ end
     y = transpose(thisUniv.mus*52)
     x, y
 end
+
+##
+
+function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
+    plot(thisUniv)
+
+    # calculate pf moments
+    mu, pfVar = pfMoments(thisUniv, pfWgts)
+
+    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
+end
+
+function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
+
+    # calculate pf moments
+    mu, pfVar = pfMoments(thisUniv, pfWgts)
+
+    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
+end
