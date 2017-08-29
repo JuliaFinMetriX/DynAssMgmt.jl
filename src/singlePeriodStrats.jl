@@ -164,11 +164,13 @@ function cappedSigma(thisUniv::Univ, sigTarget::Float64)
 
     optProblem = maximize(thisUniv.mus'*x) # objective function
 
+    varianceTarget = sigTarget.^2
+
     # set up optimization problem
     identVector = ones(nAss, 1)
     optProblem.constraints += x .>= 0
     optProblem.constraints += sum(x) == 1
-    optProblem.constraints += quadform(x, thisUniv.covs) .== sigTarget.^2
+    optProblem.constraints += quadform(x, thisUniv.covs) .== varianceTarget
     solve!(optProblem)
     xWgts = x.value[:]
 

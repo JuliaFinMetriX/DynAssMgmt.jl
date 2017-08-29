@@ -55,7 +55,8 @@ gmvpWgts = gmvp(thisUniv)
 
 sigTarget = 1.12
 targetSigWgts = cappedSigma(thisUniv, sigTarget)
-pfMoments(thisUniv, targetSigWgts)
+xxMu, xxVar = pfMoments(thisUniv, targetSigWgts)
+sqrt(xxVar)
 
 targetMu = 0.06
 targetMuWgts = muTarget(thisUniv, targetMu)
@@ -88,6 +89,33 @@ sigTarget = 1.12
 @time allSigWgtsDistributed = map(x -> cappedSigma(x, sigTarget), DUnivs)
 allSigWgts = convert(Array, allSigWgtsDistributed)
 allSigWgts = vcat([ii[:]' for ii in allSigWgts]...)
+
+## make area plot for weights
+xxGrid = univHistory.dates
+xxDats = getNumDates(xxGrid)
+xxLabs = univHistory.assetLabels
+
+default(show = true, size=(1400,800))
+p = wgtsOverTime(allSigWgts, xxDats, xxLabs)
+display(p)
+
+# plot first weights
+
+## get portfolio sigma for each day
+
+nObs = size(allSigWgts, 1)
+dailyPfSigs = zeros(Float64, nObs)
+for ii=1:nObs
+    thisUniv = univHistory.universes[ii]
+
+    thisWgts = allSigWgts[ii, :]
+    mu, pfvar = pfMoments(thisUniv, thisWgts[:])
+
+    dailyPfSigs[ii] = sqrt(pfvar)
+
+end
+
+plot(dailyPfSigs)
 
 ## do some checks
 xx = sum(allSigWgts, 2)

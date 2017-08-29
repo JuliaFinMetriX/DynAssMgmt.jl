@@ -28,5 +28,5 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
     end
     mus = allMoments[:, 1]
     vars = allMoments[:, 2]
-    return mus, vars 
+    return mus, vars
 end
