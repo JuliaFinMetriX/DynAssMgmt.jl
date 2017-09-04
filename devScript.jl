@@ -24,6 +24,7 @@ addprocs(2)
     include("src/plotFuncs.jl")
     include("src/pfFuncs.jl")
     include("src/singlePeriodStrats.jl")
+    include("src/spTargets.jl")
 end
 
 ##
@@ -42,20 +43,21 @@ idxRets = rawInputsToDataFrame(rawIdxRets)
 ## get as evolution of universes
 univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
-## do parallel computation
-DUnivs = distribute(univHistory.universes)
+## parallel computation
 
-sigTarget = 1.12
-@time allSigWgtsDistributed = map(x -> sigmaTarget(x, sigTarget), DUnivs)
-allSigWgts = convert(Array, allSigWgtsDistributed)
-allSigWgts = vcat([ii[:]' for ii in allSigWgts]...)
+apply(GMVP(), thisUniv)
+apply(TargetVola(0.6), thisUniv)
+apply(MaxSharpe(), thisUniv)
+apply(TargetMu(0.1), thisUniv)
 
-## without parallel
+@time xx = apply(GMVP(), univHistory)
+
+## without parallel computation -> for enhanced error checking
 
 nObs, nAss = size(univHistory)
-testSigWgts = zeros(Float64, 500, nAss)
+testSigWgts = zeros(Float64, nObs, nAss)
 xxps = []
-for ii=1:500
+for ii=1:nObs
     xx, xxp = sigmaTarget(univHistory.universes[ii], sigTarget)
     testSigWgts[ii, :] = xx'
     push!(xxps, xxp)
@@ -64,9 +66,44 @@ testSigWgts
 
 ##
 
+thisUniv = univHistory.universes[1757]
+sigmaTargetFallback(thisUniv, sigTarget)
+xxWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
+xxWgts = sigmaTarget(thisUniv, sigTarget)
+pfMoments(thisUniv, )
 
-sigmaTarget_biSect_quadForm(univHistory.universes[1], sigTarget)
-sigmaTarget(univHistory.universes[280], sigTarget)
+## visualize given universe
+
+thisUniv = univHistory.universes[1757]
+
+# visualize efficient frontier
+effWgts = effFront(thisUniv)
+vizPfSpectrum(thisUniv, effWgts)
+
+# visualize gmvp
+xxGmvp = gmvp(thisUniv)
+vizPf!(thisUniv, xxGmvp)
+
+# visualize maximum sharpe
+xxMaxSharpe = maxSharpe(thisUniv)
+vizPf!(thisUniv, xxMaxSharpe)
+
+# visualize target sigma
+sigTarget = 1.2
+xxSigWgts = sigmaTarget(thisUniv, sigTarget)
+
+vizPf!(thisUniv, xxSigWgts)
+
+
+plot!(sigTarget*sqrt(52)*ones(Float64, 2), [0; 35], seriestype=:line)
+
+
+##
+effMus, effVars = pfMoments(thisUniv, effWgts)
+
+##
+
+plot(sqrt.(effVars), effMus)
 
 ##
 

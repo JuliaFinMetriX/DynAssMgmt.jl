@@ -84,10 +84,19 @@ function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
 
     xWgts = []
 
-    # if target sigma is too high to be reached
-    maxVal, maxInd = findmax(sqrt.(diag(thisUniv.covs)))
-    if sigTarget .>= maxVal
-        xWgts = zeros(1, nAss)
+    # if target sigma is too high to be reached at all
+    # maxVal, maxInd = findmax(sqrt.(diag(thisUniv.covs)))
+    # if sigTarget .>= maxVal
+    #     xWgts = zeros(1, nAss)
+    #     xWgts[maxInd] = 1
+    #     return xWgts
+    # end
+
+    # if target sigma is too high to be reached efficiently
+    maxMu, maxInd = findmax(thisUniv.mus)
+    maxEffSig = sqrt.(diag(thisUniv.covs))[maxInd]
+    if sigTarget .>= maxEffSig
+        xWgts = zeros(Float64, nAss)
         xWgts[maxInd] = 1
         return xWgts
     end
@@ -150,6 +159,11 @@ function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
         xx, midMuVar = pfMoments(thisUniv, midMuPfWgts)
         midMuSig = sqrt.(midMuVar)
 
+        if upBoundMu - lowBoundMu < 0.0001
+            warn("Extremely horizontal efficient frontier region makes target sigma unreliably, so we stop here")
+            return midMuPfWgts
+        end
+
         # emergency break
         if iterCount .>= iterLimit
             error("Reached maximum number of bisection steps")
@@ -200,10 +214,22 @@ function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
 
     # make test
     xxMu, xxVar = pfMoments(thisUniv, xWgts)
-    if abs(sqrt.(xxVar) - sigTarget) > 0.01
-        warn("Sigma target optimization did fail, using fallback instead")
-        display(optProblem)
-        xWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
+    truePfSig = sqrt.(xxVar)
+    if abs(truePfSig - sigTarget) > 0.01
+        warn("Sigma target optimization did not work well, trying fallback function")
+        display("True sigma is $truePfSig")
+
+        # try fallback
+        xWgts2 = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
+        xxMu, xxVar = pfMoments(thisUniv, xWgts2)
+        truePfSig2 = sqrt.(xxVar)
+
+        if abs(truePfSig - sigTarget) < abs(truePfSig2 - sigTarget)
+            display("No improvement")
+        else
+            xWgts = xWgts2
+            display("Fallback did show improved true sigma value of $truePfSig2")
+        end
     end
     xWgts
 
@@ -283,4 +309,36 @@ function muTarget(thisUniv::Univ, targetMu::Float64)
     solve!(p)
     xWgts = x.value[:]
 
+end
+
+
+"""
+    effFront(thisUniv; nEffPfs = 30)
+
+Get efficient frontier portfolio weights
+"""
+function effFront(thisUniv::Univ; nEffPfs = 30)
+
+    nAss = size(thisUniv)
+
+    # get global minimum variance portfolio
+    wgtsGmvp = gmvp(thisUniv)
+    minMu, xx = pfMoments(thisUniv, wgtsGmvp)
+
+    # get maximum mu
+    maxMu, maxInd = findmax(thisUniv.mus)
+    maxWgts = zeros(Float64, nAss)
+    maxWgts[maxInd] = 1
+
+    muGrid = [linspace(minMu, maxMu, nEffPfs)...]
+
+    effWgts = zeros(Float64, nEffPfs, nAss)
+    effWgts[1, :] = wgtsGmvp
+    effWgts[end, :] = maxWgts
+    for ii=2:(nEffPfs-1)
+        # get associated wgts
+        effWgts[ii, :] = muTarget(thisUniv, muGrid[ii])
+    end
+
+    return effWgts
 end

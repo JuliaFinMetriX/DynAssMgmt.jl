@@ -43,6 +43,25 @@ function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
     plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
 end
 
+function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Float64, 2})
+    plot(thisUniv)
+
+    # calculate pf moments
+    mu, pfVar = pfMoments(thisUniv, pfWgts)
+
+    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:line)
+
+end
+
+function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{Float64, 2})
+
+    # calculate pf moments
+    mu, pfVar = pfMoments(thisUniv, pfWgts)
+
+    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:line)
+
+end
+
 function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs)
 
 # get cumulated weights
