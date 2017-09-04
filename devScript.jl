@@ -17,6 +17,8 @@ addprocs(2)
     using DistributedArrays
     using Plots
 
+    set_default_solver(SCS.SCSSolver(verbose=0))
+
     include("src/utils.jl")
     include("src/assetAllocationTypes.jl")
     include("src/plotFuncs.jl")
@@ -40,10 +42,85 @@ idxRets = rawInputsToDataFrame(rawIdxRets)
 ## get as evolution of universes
 univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
+## do parallel computation
+DUnivs = distribute(univHistory.universes)
+
+sigTarget = 1.12
+@time allSigWgtsDistributed = map(x -> sigmaTarget(x, sigTarget), DUnivs)
+allSigWgts = convert(Array, allSigWgtsDistributed)
+allSigWgts = vcat([ii[:]' for ii in allSigWgts]...)
+
+## without parallel
+
+nObs, nAss = size(univHistory)
+testSigWgts = zeros(Float64, 500, nAss)
+xxps = []
+for ii=1:500
+    xx, xxp = sigmaTarget(univHistory.universes[ii], sigTarget)
+    testSigWgts[ii, :] = xx'
+    push!(xxps, xxp)
+end
+testSigWgts
+
+##
+
+
+sigmaTarget_biSect_quadForm(univHistory.universes[1], sigTarget)
+sigmaTarget(univHistory.universes[280], sigTarget)
+
+##
+
+xxMus, xxVar = pfMoments(univHistory.universes[280], testSigWgts[280, :][:])
+sqrt.(xxVar)
+
+##
+
+absDiffs = sum(abs(testSigWgts .- allSigWgts[1:500, :]), 2)
+
+## evaluate all sigma-target portfolios
+dailyMus, dailyVars = pfMoments(univHistory, allSigWgts)
+
+## check distances to target
+
+xxCloseEnough = abs.(sqrt.(dailyVars) - sigTarget) .<= 0.001
+sum(xxCloseEnough)
+
+##
+# inspect days with too much deviation
+xxIndsToInspect = find(.!xxCloseEnough)
+closeToMaxSigAss = []
+for ii in xxIndsToInspect
+    xxthisUniv = univHistory.universes[ii]
+
+    # find maximum mu
+    xx, xxInd = findmax(xxthisUniv.mus)
+
+    # get associated sigma
+    maxSigAsset = sqrt.(diag(xxthisUniv.covs)[xxInd])
+
+    # compare to sigma target portfolio
+    foundSigma = sqrt.(dailyVars[ii])
+
+    push!(closeToMaxSigAss, abs(foundSigma - maxSigAsset) < 0.01)
+end
+closeToMaxSigAss = convert(BitArray, closeToMaxSigAss)
+indsToInspect = xxIndsToInspect[.!closeToMaxSigAss]
+
+##
+
+indsToInspect = [280, 621, 724, 1633, 1757, 3624]
+sqrt.(dailyVars[indsToInspect])
+
+##
+
+xx1 = sigmaTarget(univHistory.universes[280], sigTarget)
+
 ## visualize universe
-thisUniv = univHistory.universes[end]
+thisUnivInd = 280
+thisUniv = univHistory.universes[thisUnivInd]
 plot(thisUniv)
-plot(thisUniv, univHistory.assetLabels)
+vizPf!(thisUniv, allSigWgts[thisUnivInd, :])
+#plot(thisUniv, univHistory.assetLabels)
 
 ##
 
@@ -53,10 +130,14 @@ plot(thisUniv, univHistory.assetLabels)
 gmvpLevWgts = gmvp_lev(thisUniv)
 gmvpWgts = gmvp(thisUniv)
 
-sigTarget = 1.12
-targetSigWgts = cappedSigma(thisUniv, sigTarget)
+##
+
+sigTarget = 1.7
+targetSigWgts = sigmaTarget(thisUniv, sigTarget)
 xxMu, xxVar = pfMoments(thisUniv, targetSigWgts)
 sqrt(xxVar)
+
+##
 
 targetMu = 0.06
 targetMuWgts = muTarget(thisUniv, targetMu)
@@ -78,9 +159,6 @@ allPfMus, allPfVars = pfMoments(univHistory, gmvpWgts)
 plot!(sqrt.(allPfVars)*sqrt.(52), allPfMus.*52, xaxis="Sigma",
     yaxis="Mu", labels = "GMVP", color=:red)
 
-## do parallel computation
-DUnivs = distribute(univHistory.universes)
-
 @time allGmvpWgtsDistributed = map(x -> gmvp(x), DUnivs)
 allGmvpWgts = convert(Array, allGmvpWgtsDistributed)
 allGmvpWgts = vcat([ii[:]' for ii in allGmvpWgts]...)
@@ -101,19 +179,6 @@ display(p)
 
 # plot first weights
 
-## get portfolio sigma for each day
-
-nObs = size(allSigWgts, 1)
-dailyPfSigs = zeros(Float64, nObs)
-for ii=1:nObs
-    thisUniv = univHistory.universes[ii]
-
-    thisWgts = allSigWgts[ii, :]
-    mu, pfvar = pfMoments(thisUniv, thisWgts[:])
-
-    dailyPfSigs[ii] = sqrt(pfvar)
-
-end
 
 plot(dailyPfSigs)
 

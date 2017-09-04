@@ -32,7 +32,8 @@ function gmvp(thisUniv)
     optVariables = Variable(nAss)
 
     # set up optimization problem
-    optProblem = minimize(quadform(optVariables, thisUniv.covs))
+    numericallyScaledCovMatr = 1 * thisUniv.covs
+    optProblem = minimize(quadform(optVariables, numericallyScaledCovMatr))
     identVector = ones(nAss, 1)
     optProblem.constraints += identVector'*optVariables == 1
     optProblem.constraints += optVariables .>= 0
@@ -53,9 +54,11 @@ function maxSharpe(thisUniv::Univ)
     optVariables = Variable(nAss)
 
     # set up optimization problem
-    optProblem = minimize(quadform(optVariables, thisUniv.covs))
+    numericallyScaledCovMatr = 1.^2 * thisUniv.covs
+    numericallyScaledMus = 1 * thisUniv.mus
+    optProblem = minimize(quadform(optVariables, numericallyScaledCovMatr))
     identVector = ones(nAss, 1)
-    optProblem.constraints += thisUniv.mus'*optVariables == 1
+    optProblem.constraints += numericallyScaledMus'*optVariables == 1
     optProblem.constraints += optVariables .>= 0
 
     # solve and return solution
@@ -71,13 +74,18 @@ end
 Get portfolio with maximum expected return for given target.
 """
 function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
+    xWgts = sigmaTarget_cvx_reformulated(thisUniv, sigTarget)
+    # xWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
+end
 
+function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
     # get number of assets
     nAss = size(thisUniv)
 
+    xWgts = []
+
     # if target sigma is too high to be reached
-    maxVal = maximum(sqrt.(diag(thisUniv.covs)))
-    maxInd = findmax(sqrt.(diag(thisUniv.covs)))
+    maxVal, maxInd = findmax(sqrt.(diag(thisUniv.covs)))
     if sigTarget .>= maxVal
         xWgts = zeros(1, nAss)
         xWgts[maxInd] = 1
@@ -89,12 +97,81 @@ function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
     if sigTarget .<= minVal
         # if target sigma is too low to be reached
         xWgts = gmvp(thisUniv) # get gmv portfolio
-        get
-        xxx, gmvSigma = pfMoments(thisUniv, xWgts)
-        if sigTarget < gmvSigma
+        # get associated variance
+        xxx, gmvVar = pfMoments(thisUniv, xWgts)
+        if sigTarget < sqrt(gmvSigma)
             return xWgts
         end
     end
+
+    return xWgts
+end
+
+function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
+
+    xWgts = sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
+
+    # immediately return if fallback was required and sigma target is out of range
+    if !(isempty(xWgts))
+        return xWgts
+    end
+
+    # get number of assets
+    nAss = size(thisUniv)
+
+    # get mu range
+    upBoundMu = maximum(thisUniv.mus)
+    gmvpWgts = gmvp(thisUniv)
+    lowBoundMu, lowBoundVar = pfMoments(thisUniv, gmvpWgts)
+
+    # get mu mid-point
+    midMu = (upBoundMu + lowBoundMu)./2
+
+    # get associated sigma
+    midMuPfWgts = muTarget(thisUniv, midMu)
+    xx, midMuVar = pfMoments(thisUniv, midMuPfWgts)
+    midMuSig = sqrt.(midMuVar)
+
+    iterCount = 1
+    iterLimit = 150
+    while abs(midMuSig - sigTarget) > 0.004
+        # get new mu bounds
+        if midMuSig <= sigTarget
+            lowBoundMu = midMu
+        elseif midMuSig > sigTarget
+            upBoundMu = midMu
+        end
+
+        # get new mu mid-point
+        midMu = (upBoundMu + lowBoundMu)./2
+
+        # get associated sigma
+        midMuPfWgts = muTarget(thisUniv, midMu)
+        xx, midMuVar = pfMoments(thisUniv, midMuPfWgts)
+        midMuSig = sqrt.(midMuVar)
+
+        # emergency break
+        if iterCount .>= iterLimit
+            error("Reached maximum number of bisection steps")
+        end
+        iterCount += 1
+
+    end
+    xWgts = midMuPfWgts
+
+end
+
+function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
+
+    xWgts = sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
+
+    # immediately return if fallback was required and sigma target is out of range
+    if !(isempty(xWgts))
+        return xWgts
+    end
+
+    # get number of assets
+    nAss = size(thisUniv)
 
     # define optimization variables
     x = Variable(nAss)
@@ -102,7 +179,7 @@ function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
     y = Variable(nAss)
 
     socConstraint = [y, y0] in :SOC # TODO: does not work this way
-    socConstraint2 = norm(y) .<= y0.^2 # TODO: is not DCP compliant this way
+    socConstraint2 = norm(y) .<= y0 # TODO: is not DCP compliant this way
     #xxTestConstraint = diag(y) in :SDP # TODO: correct syntax for SDP
 
     # get "square-root" of covariance matrix
@@ -121,10 +198,19 @@ function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
     solve!(optProblem)
     xWgts = x.value[:]
 
+    # make test
+    xxMu, xxVar = pfMoments(thisUniv, xWgts)
+    if abs(sqrt.(xxVar) - sigTarget) > 0.01
+        warn("Sigma target optimization did fail, using fallback instead")
+        display(optProblem)
+        xWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
+    end
+    xWgts
+
 end
 
 
-function cappedSigma(thisUniv::Univ, sigTarget::Float64)
+function sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
 
     # get number of assets
     nAss = size(thisUniv)
@@ -183,9 +269,13 @@ function muTarget(thisUniv::Univ, targetMu::Float64)
 
     x = Variable(nAss)
 
-    p = minimize(quadform(x, thisUniv.covs))
+    numericallyScaledCovMatr = 1 .* thisUniv.covs
+    numericallyScaledMus = 1 .* thisUniv.mus
+    numericallyScaledTarget = 1 .* targetMu
 
-    p.constraints += x' * thisUniv.mus >= targetMu
+    p = minimize(quadform(x, numericallyScaledCovMatr))
+
+    p.constraints += x' * numericallyScaledMus >= numericallyScaledTarget
     p.constraints += sum(x) .== 1
     p.constraints += x .>= 0
     p.constraints += x .<= 1

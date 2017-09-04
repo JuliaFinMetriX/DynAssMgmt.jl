@@ -30,3 +30,28 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
     vars = allMoments[:, 2]
     return mus, vars
 end
+
+function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
+
+    # get dimensions
+    nObs = size(univHist, 1)
+    nObs2 = size(wgts, 1)
+
+    if nObs != nObs2
+        error("Number of different days must match")
+    end
+
+    dailyPfMus = zeros(Float64, nObs)
+    dailyPfVars = zeros(Float64, nObs)
+    for ii=1:nObs
+        thisUniv = univHistory.universes[ii]
+
+        thisWgts = wgts[ii, :]
+        mu, pfvar = pfMoments(thisUniv, thisWgts[:])
+
+        dailyPfMus[ii] = mu
+        dailyPfVars[ii] = pfvar
+    end
+    return dailyPfMus, dailyPfVars
+
+end
