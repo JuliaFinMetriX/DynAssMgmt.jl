@@ -79,3 +79,30 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
     return dailyPfMus, dailyPfVars
 
 end
+
+function pfDivers(wgts::Array{Float64, 1})
+    # get number of assets
+    nAss = size(wgts, 1)
+
+    # get equal weights
+    eqWgts = ones(Float64, nAss) ./ nAss
+
+    # compute diversification
+    1 - norm(wgts .- eqWgts)
+end
+
+function pfDivers(allWgts::Array{Float64, 2})
+    # get number of assets
+    nPfs, nAss = size(allWgts)
+
+    # get equal weights
+    eqWgts = ones(Float64, nAss) ./ nAss
+
+    # compute diversification
+    allDivs = zeros(Float64, nPfs)
+    for ii=1:nPfs
+        allDivs[ii] = pfDivers(allWgts[ii, :][:])
+    end
+    return allDivs
+
+end

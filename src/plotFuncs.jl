@@ -53,7 +53,7 @@ function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Array{Float64, 1}, 1})
 
 end
 
-function vizPfSpectrum!(thisUniv::Univ, pfWgts::Vector{Float64})
+function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{Array{Float64, 1}, 1})
 
     # calculate pf moments
     mu, pfVar = pfMoments(thisUniv, pfWgts)

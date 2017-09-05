@@ -30,6 +30,7 @@ end
 ##
 
 plotlyjs()
+gr()
 
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
@@ -45,6 +46,58 @@ univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
 xx = univHistory
 univHistoryShort = UnivEvol(xx.universes[1:50], xx.dates[1:50], xx.assetLabels)
+
+## start diversification-aware implementation
+
+thisUniv = univHistory.universes[100]
+
+# define risk aversion parameter and diversification level
+phi = 2.3
+diversTarget = 0.8
+
+xxWgts = diversTargetMuSigmaTradeoff(thisUniv, diversTarget, phi)
+pfDivers(xxWgts)
+
+xxWgts = diversTargetMaxSigma(thisUniv, diversTarget)
+pfDivers(xxWgts)
+xxMu, xxVar = pfMoments(thisUniv, xxWgts)
+
+xxWgts = diversTargetMinSigma(thisUniv, diversTarget)
+pfDivers(xxWgts)
+xxMu, xxVar = pfMoments(thisUniv, xxWgts)
+
+
+sigTarget = 2.0
+diversTarget = 0.5
+xxWgts = sigmaAndDiversTarget(thisUniv, sigTarget, diversTarget)
+
+pfDivers(xxWgts)
+xxMu, xxVar = pfMoments(thisUniv, xxWgts)
+xxSig = sqrt(xxVar)
+
+##
+
+sigTargets = [linspace(0.03, sqrt.(4.2), 10)...]
+diversTarget = 0.8
+diversFrontWgts = sigmaAndDiversTarget(thisUniv, sigTargets, diversTarget)
+
+xxMu, xxVar = pfMoments(thisUniv, diversFrontWgts)
+realizedSigs = sqrt.(xxVar)
+[sigTargets realizedSigs]
+
+pfDivers(diversFrontWgts)
+
+##
+
+sigTargets = [linspace(0.03, sqrt.(4.2), 10)...]
+diversTarget = 0.8
+
+diversFrontWgts = sigmaAndDiversTarget(thisUniv, sigTargets, diversTarget)
+effWgts = effFront(thisUniv)
+
+vizPfSpectrum(thisUniv, effWgts)
+vizPfSpectrum!(thisUniv, diversFrontWgts)
+
 
 ## parallel computation
 thisUniv = univHistory.universes[100]

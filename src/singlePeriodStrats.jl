@@ -346,3 +346,214 @@ function effFront(thisUniv::Univ; nEffPfs = 30)
 
     return effWgts
 end
+
+## implementation of diversification-aware strategies
+function diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+    optVariables = Variable(nAss)
+
+    # set up optimization problem
+    optProblem = maximize(optVariables' * thisUniv.mus - riskAvPhi*quadform(optVariables, thisUniv.covs))
+    identVector = ones(nAss, 1)
+    optProblem.constraints += identVector'*optVariables == 1
+    optProblem.constraints += optVariables .>= 0
+    optProblem.constraints += norm(optVariables .- eqWgts) <= 1 - diversTarget
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+function diversTargetMaxSigma(thisUniv::Univ, diversTarget)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+    optVariables = Variable(nAss)
+
+    # set up optimization problem
+    optProblem = maximize(optVariables' * thisUniv.mus)
+    identVector = ones(nAss, 1)
+    optProblem.constraints += identVector'*optVariables == 1
+    optProblem.constraints += optVariables .>= 0
+    optProblem.constraints += norm(optVariables .- eqWgts) <= 1 - diversTarget
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+function diversTargetMinSigma(thisUniv::Univ, diversTarget)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+    optVariables = Variable(nAss)
+
+    # set up optimization problem
+    optProblem = minimize(quadform(optVariables, thisUniv.covs))
+    identVector = ones(nAss, 1)
+    optProblem.constraints += identVector'*optVariables == 1
+    optProblem.constraints += optVariables .>= 0
+    optProblem.constraints += norm(optVariables .- eqWgts) <= 1 - diversTarget
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+function sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+
+    # define optimization variables
+    optVariables = Variable(nAss)
+    y0 = Variable(1)
+    y = Variable(nAss)
+
+    # second-order conic constraint
+    socConstraint = norm(y) .<= y0
+
+    # get "square-root" of covariance matrix
+    Qsqrt = sqrtm(thisUniv.covs)
+
+    # set up optimization problem
+    optProblem = maximize(optVariables' * thisUniv.mus + diversCoeff*(1 - norm(optVariables .- eqWgts)))
+    optProblem.constraints += sum(optVariables) == 1
+    optProblem.constraints += optVariables .>= 0
+
+    # sigma constraint
+    optProblem.constraints += Qsqrt*optVariables - y == 0
+    optProblem.constraints += y0 == sigTarget
+    optProblem.constraints += socConstraint
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+function sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+
+    # define optimization variables
+    optVariables = Variable(nAss)
+    y0 = Variable(1)
+    y = Variable(nAss)
+
+    # second-order conic constraint
+    socConstraint = norm(y) .<= y0
+
+    # get "square-root" of covariance matrix
+    Qsqrt = sqrtm(thisUniv.covs)
+
+    # set up optimization problem
+    optProblem = maximize(1 - norm(optVariables .- eqWgts))
+    optProblem.constraints += sum(optVariables) == 1
+    optProblem.constraints += optVariables .>= 0
+
+    # sigma constraint
+    optProblem.constraints += Qsqrt*optVariables - y == 0
+    optProblem.constraints += y0 == sigTarget
+    optProblem.constraints += socConstraint
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+function sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
+
+    # set up optimization variables
+    nAss = size(thisUniv)
+    eqWgts = ones(Float64, nAss)./nAss
+
+    # define optimization variables
+    optVariables = Variable(nAss)
+    y0 = Variable(1)
+    y = Variable(nAss)
+
+    # second-order conic constraint
+    socConstraint = norm(y) .<= y0
+
+    # get "square-root" of covariance matrix
+    Qsqrt = sqrtm(thisUniv.covs)
+
+    # set up optimization problem
+    optProblem = maximize(optVariables' * thisUniv.mus)
+
+    # weight constraints
+    optProblem.constraints += sum(optVariables) == 1
+    optProblem.constraints += optVariables .>= 0
+
+    # diversification constraint
+    optProblem.constraints += norm(optVariables .- eqWgts) <= 1 - diversTarget
+
+    # sigma constraint
+    optProblem.constraints += Qsqrt*optVariables - y == 0
+    optProblem.constraints += y0 == sigTarget
+    optProblem.constraints += socConstraint
+
+    # solve and return solution
+    solve!(optProblem)
+    optWgtsCvx = optVariables.value[:]
+
+end
+
+
+function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
+    # get gmvp
+    gmvpWgts = gmvp(thisUniv)
+    xxMu, xxVar = pfMoments(thisUniv, gmvpWgts)
+    gmvpSig = sqrt(xxVar)
+
+    # get minimum sigma on diversification-aware frontier
+    minSigWgts = diversTargetMinSigma(thisUniv, diversTarget)
+    xxMu, xxVar = pfMoments(thisUniv, minSigWgts)
+    diversFrontierMinSig = sqrt(xxVar)
+
+    # get maximum sigma on diversification-aware frontier
+    maxSigWgts = diversTargetMaxSigma(thisUniv, diversTarget)
+    xxMu, xxVar = pfMoments(thisUniv, maxSigWgts)
+    diversFrontierMaxSig = sqrt(xxVar)
+
+    if !(gmvpSig < diversFrontierMinSig)
+        error("GMVP volatility needs to be smaller than any other volatility")
+    end
+
+    if !(diversFrontierMinSig < diversFrontierMaxSig)
+        error("Left end of diversification-aware frontier must have lower volatility than right end")
+    end
+
+    nTargets = length(sigTargets)
+    nAss = size(thisUniv)
+
+
+    allWgts = Array{Float64, 1}[]
+    #allWgts = zeros(Float64, nTargets, nAss)
+    for ii=1:nTargets
+        currTarget = sigTargets[ii]
+
+        if currTarget <= gmvpSig
+            currWgts = gmvpWgts
+        elseif gmvpSig < currTarget <= diversFrontierMinSig
+            currWgts = sigmaTargetMaxDivers(thisUniv, currTarget)
+        elseif diversFrontierMinSig < currTarget <= diversFrontierMaxSig
+            currWgts = sigmaAndDiversTarget_noFallBacks(thisUniv, currTarget, diversTarget)
+        elseif diversFrontierMaxSig < currTarget
+            currWgts = maxSigWgts
+        end
+
+        # store result
+        push!(allWgts, currWgts[:])
+        #allWgts[ii, :] = currWgts'
+    end
+    return allWgts
+end
