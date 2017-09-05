@@ -89,8 +89,8 @@ pfDivers(diversFrontWgts)
 
 ##
 
-sigTargets = [linspace(0.03, sqrt.(4.2), 10)...]
-diversTarget = 0.8
+sigTargets = [linspace(0.03, sqrt.(4.2), 30)...]
+diversTarget = 0.7
 
 diversFrontWgts = sigmaAndDiversTarget(thisUniv, sigTargets, diversTarget)
 effWgts = effFront(thisUniv)
@@ -108,6 +108,40 @@ apply(MaxSharpe(), thisUniv)
 apply(TargetMu(0.1), thisUniv)
 
 @time xx = apply(GMVP(), univHistory)
+
+##
+
+thisTarget = GMVP()
+allPfs = apply(thisTarget, thisUniv)
+allPfs = apply(thisTarget, univHistoryShort)
+
+thisTarget = EffFront(10)
+allPfs = apply(thisTarget, thisUniv)
+
+thisTarget = EffFront(10)
+allPfs = apply(thisTarget, univHistoryShort)
+
+##
+
+firstInv = Invest(allPfs, thisTarget, univHistoryShort.dates, univHistoryShort.assetLabels)
+
+
+
+##
+# investmentPerformances(allPfs, discRets)
+# cumulative (weights .* returns) for each strategy with metadata
+#
+# wgtsEvol
+
+# reshape
+# squeeze
+
+
+
+## plot weights over time
+
+wgtsAsArray = convert(Array{Float64, 2}, allPfs[:, 4])
+wgtsOverTime(wgtsAsArray)
 
 ##
 

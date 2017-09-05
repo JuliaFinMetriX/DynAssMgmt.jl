@@ -10,32 +10,48 @@ struct GMVP <: SinglePeriodTarget
 
 end
 
-apply(xx::GMVP, thisUniv::Univ) = gmvp(thisUniv)
+apply(xx::GMVP, thisUniv::Univ) = PF(gmvp(thisUniv))
 
 struct TargetVola <: SinglePeriodTarget
     Vola::Float64
 end
 
-apply(xx::TargetVola, thisUniv::Univ) = sigmaTarget(thisUniv, xx.Vola)
+apply(xx::TargetVola, thisUniv::Univ) = PF(sigmaTarget(thisUniv, xx.Vola))
+
+# vola relative to efficient frontier (maximum mu / gmvp mu range)
+struct RelativeTargetVola <: SinglePeriodTarget
+    Vola::Float64
+end
 
 struct MaxSharpe <: SinglePeriodTarget
     RiskFree::Float64
 end
 
 MaxSharpe() = MaxSharpe(0.0)
-apply(xx::MaxSharpe, thisUniv::Univ) = maxSharpe(thisUniv)
+apply(xx::MaxSharpe, thisUniv::Univ) = PF(maxSharpe(thisUniv))
 
 struct TargetMu <: SinglePeriodTarget
     Mu::Float64
 end
 
-apply(xx::TargetMu, thisUniv::Univ) = muTarget(thisUniv, xx.Mu)
+apply(xx::TargetMu, thisUniv::Univ) = PF(muTarget(thisUniv, xx.Mu))
 
 struct EffFront <: SinglePeriodSpectrum
     NEffPfs::Int64
 end
 
-apply(xx::EffFront, thisUniv::Univ) = effFront(thisUniv; nEffPfs = xx.NEffPfs)
+function apply(xx::EffFront, thisUniv::Univ)
+    wgtsArray = effFront(thisUniv; nEffPfs = xx.NEffPfs)
+    pfArray = map(x -> PF(x), wgtsArray)
+    pfArray = reshape(pfArray, 1, size(pfArray, 1))
+end
+
+function getSingleTargets(someFront::EffFront)
+    # get number of portfolios
+    nPfs = someFront.NEffPfs
+
+    allSingleStrats = [RelativeTargetVola(ii./nPfs) for ii=1:nPfs]
+end
 
 ## generalization of apply
 
@@ -46,8 +62,8 @@ function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
     nProcesses = nprocs()
 
     if nProcesses == 1
-        allWgts = [apply(thisTarget, x) for x in univHistory.universes]
-        allWgts = vcat([ii[:]' for ii in allWgts]...)
+        allPfs = [apply(thisTarget, x) for x in univHistory.universes]
+        allPfs = reshape(allPfs, size(allPfs, 1), 1)
 
     elseif nProcesses > 1
 
@@ -55,8 +71,9 @@ function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
         DUnivs = distribute(univHistory.universes)
 
         allWgtsDistributed = map(x -> apply(thisTarget, x), DUnivs)
-        allWgts = convert(Array, allWgtsDistributed)
-        allWgts = vcat([ii[:]' for ii in allWgts]...)
+        allPfs = convert(Array, allWgtsDistributed)
+
+        allPfs = reshape(allPfs, size(allPfs, 1), 1)
 
     end
 
@@ -69,9 +86,8 @@ function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
     nProcesses = nprocs()
 
     if nProcesses == 1
-        allWgts = [apply(thisTarget, x) for x in univHistory.universes]
-        allWgts = ( [vcat([allWgts[ii][4]' for ii=1:size(allWgts, 1)]...)
-            for jj=1:size(allWgts[1], 1)] )
+        allPfs = [apply(thisTarget, x) for x in univHistory.universes]
+        allPfs = vcat(allPfs...)
 
     elseif nProcesses > 1
 
@@ -79,10 +95,9 @@ function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
         DUnivs = distribute(univHistory.universes)
 
         allWgtsDistributed = map(x -> apply(thisTarget, x), DUnivs)
-        allWgts = convert(Array, allWgtsDistributed)
-        allWgts = ( [vcat([allWgts[ii][4]' for ii=1:size(allWgts, 1)]...)
-            for jj=1:size(allWgts[1], 1)] )
+        allPfs = convert(Array, allWgtsDistributed)
+        allPfs = vcat(allPfs...)
 
     end
-
+    return allPfs
 end
