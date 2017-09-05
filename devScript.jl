@@ -16,6 +16,7 @@ addprocs(2)
     using Convex
     using DistributedArrays
     using Plots
+    using StatPlots
 
     set_default_solver(SCS.SCSSolver(verbose=0))
 
@@ -57,7 +58,7 @@ diversTarget = 0.7
 divFrontStrats = DivFront(diversTarget, sigTargets)
 effFrontStrats = EffFront(10)
 
-xx = apply(divFrontStrats, thisUniv)
+divFrontWgts = apply(divFrontStrats, thisUniv)
 xx = apply(effFrontStrats, thisUniv)
 
 divFrontInvs = apply(divFrontStrats, univHistoryShort)
@@ -82,6 +83,12 @@ idxRets
 
 vizPfSpectrum(thisUniv, effWgts)
 vizPfSpectrum!(thisUniv, diversFrontWgts)
+
+##
+
+xxWgts = convert(Array{Float64, 2}, divFrontWgts)
+
+groupedbar(xxWgts, bar_position = :stack, bar_width=0.7)
 
 
 ## parallel computation
