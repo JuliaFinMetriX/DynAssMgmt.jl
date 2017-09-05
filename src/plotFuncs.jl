@@ -87,6 +87,19 @@ end
 p
 end
 
+function wgtsOverTime(someInvs::Invest, stratNum::Int)
+    # get PFs as normal Float64 array
+    xxWgts = convert(Array{Float64, 2}, someInvs.pfs[:, stratNum])
+
+    # get dates and labels in appropriate format
+    dats = getNumDates(someInvs.dates)
+    labs = getShortLabels(someInvs.assetLabels)
+
+    # call plot function
+    p = wgtsOverTime(xxWgts, dats, labs)
+
+end
+
 function wgtsOverTime(wgts::Array{Float64, 2})
 
 xxDats = [ii for ii=1:size(wgts, 1)]

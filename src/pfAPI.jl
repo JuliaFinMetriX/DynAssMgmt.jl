@@ -7,9 +7,14 @@ struct PF
         if abs(sum(xx) - 1) > 0.001
             error("Portfolio weights must sum to 1")
         end
-        if any(xx .>= 0)
+        if any(xx .< -0.001)
+            display(xx)
             error("All portfolio weights need to be positive")
         end
+
+        # make perfect weights
+        xx[xx .< 0] = 0
+        xx = xx ./ sum(xx)
 
         return new(xx)
     end
@@ -49,3 +54,29 @@ end
 
 import Base.size
 size(inv::Invest) = (size(inv.dates, 1), size(inv.strategies, 1), size(inv.assetLabels, 1))
+
+
+## make apply generalization to UnivEvols including potential parallelization
+function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
+    # check for multiple processes
+
+    nProcesses = nprocs()
+
+    if nProcesses == 1
+        allPfs = [apply(thisTarget, x) for x in univHistory.universes]
+        allPfs = vcat(allPfs...)
+
+    elseif nProcesses > 1
+
+        # distribute historic universes over processes
+        DUnivs = distribute(univHistory.universes)
+
+        allWgtsDistributed = map(x -> apply(thisTarget, x), DUnivs)
+        allPfs = convert(Array, allWgtsDistributed)
+        allPfs = vcat(allPfs...)
+
+    end
+
+    firstInv = Invest(allPfs, thisTarget, univHistory.dates, univHistory.assetLabels)
+
+end

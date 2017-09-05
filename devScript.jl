@@ -25,6 +25,7 @@ addprocs(2)
     include("src/pfFuncs.jl")
     include("src/singlePeriodStrats.jl")
     include("src/spTargets.jl")
+    include("src/pfAPI.jl")
 end
 
 ##
@@ -46,54 +47,38 @@ univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
 xx = univHistory
 univHistoryShort = UnivEvol(xx.universes[1:50], xx.dates[1:50], xx.assetLabels)
+thisUniv = univHistory.universes[200]
 
-## start diversification-aware implementation
-
-thisUniv = univHistory.universes[100]
-
-# define risk aversion parameter and diversification level
-phi = 2.3
-diversTarget = 0.8
-
-xxWgts = diversTargetMuSigmaTradeoff(thisUniv, diversTarget, phi)
-pfDivers(xxWgts)
-
-xxWgts = diversTargetMaxSigma(thisUniv, diversTarget)
-pfDivers(xxWgts)
-xxMu, xxVar = pfMoments(thisUniv, xxWgts)
-
-xxWgts = diversTargetMinSigma(thisUniv, diversTarget)
-pfDivers(xxWgts)
-xxMu, xxVar = pfMoments(thisUniv, xxWgts)
-
-
-sigTarget = 2.0
-diversTarget = 0.5
-xxWgts = sigmaAndDiversTarget(thisUniv, sigTarget, diversTarget)
-
-pfDivers(xxWgts)
-xxMu, xxVar = pfMoments(thisUniv, xxWgts)
-xxSig = sqrt(xxVar)
-
-##
-
-sigTargets = [linspace(0.03, sqrt.(4.2), 10)...]
-diversTarget = 0.8
-diversFrontWgts = sigmaAndDiversTarget(thisUniv, sigTargets, diversTarget)
-
-xxMu, xxVar = pfMoments(thisUniv, diversFrontWgts)
-realizedSigs = sqrt.(xxVar)
-[sigTargets realizedSigs]
-
-pfDivers(diversFrontWgts)
-
-##
+## some diversification-aware tests
 
 sigTargets = [linspace(0.03, sqrt.(4.2), 30)...]
 diversTarget = 0.7
 
-diversFrontWgts = sigmaAndDiversTarget(thisUniv, sigTargets, diversTarget)
-effWgts = effFront(thisUniv)
+divFrontStrats = DivFront(diversTarget, sigTargets)
+effFrontStrats = EffFront(10)
+
+xx = apply(divFrontStrats, thisUniv)
+xx = apply(effFrontStrats, thisUniv)
+
+divFrontInvs = apply(divFrontStrats, univHistoryShort)
+effFrontInvs = apply(effFrontStrats, univHistoryShort)
+
+# what can we do with investments object?
+# - show weights over time
+# - evaluate performance
+
+wgtsOverTime(divFrontInvs, 12)
+
+## evaluate performance
+# pfPerfs = getPerf(someInvs, rets)
+
+idxRets
+
+## evalute estimated portfolio moments
+# muTab, varTab = pfMoments(someInvs, univHistory)
+
+
+##
 
 vizPfSpectrum(thisUniv, effWgts)
 vizPfSpectrum!(thisUniv, diversFrontWgts)
@@ -123,7 +108,6 @@ allPfs = apply(thisTarget, univHistoryShort)
 
 ##
 
-firstInv = Invest(allPfs, thisTarget, univHistoryShort.dates, univHistoryShort.assetLabels)
 
 
 

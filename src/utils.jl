@@ -30,3 +30,11 @@ only required for plotting.
 function getNumDates(someDates::Array{Date, 1})
   xDates = [Dates.year(thisDat) + Dates.dayofyear(thisDat)/365 for thisDat in someDates]
 end
+
+function getShortLabels(labs::Array{Symbol, 1})
+    shortLabs = String[split(String(xx), "_")[1] for xx in labs]
+end
+
+function getShortLabels(labs::Array{String, 1})
+    shortLabs = String[split(xx, "_")[1] for xx in labs]
+end

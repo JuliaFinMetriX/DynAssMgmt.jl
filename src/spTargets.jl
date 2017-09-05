@@ -53,6 +53,32 @@ function getSingleTargets(someFront::EffFront)
     allSingleStrats = [RelativeTargetVola(ii./nPfs) for ii=1:nPfs]
 end
 
+struct DivFrontSigmaTarget <: SinglePeriodTarget
+    diversTarget::Float64
+    sigTarget::Float64
+end
+
+struct DivFront <: SinglePeriodSpectrum
+    diversTarget::Float64
+    sigTargets::Array{Float64, 1}
+end
+
+function apply(xx::DivFront, thisUniv::Univ)
+    wgtsArray = sigmaAndDiversTarget(thisUniv, xx.sigTargets, xx.diversTarget)
+    pfArray = map(x -> PF(x), wgtsArray)
+    pfArray = reshape(pfArray, 1, size(pfArray, 1))
+end
+
+function getSingleTargets(someDivFront::DivFront)
+    # get number of portfolios
+    sigTargets = someDivFront.sigTargets
+    diversTarget = someDivFront.diversTarget
+
+    nPfs = length(sigTargets)
+    allSingleStrats = [DivFrontSigmaTarget(diversTarget, sigTargets[ii]) for ii=1:nPfs]
+end
+
+
 ## generalization of apply
 
 # make generalization to UnivEvols including potential parallelization
@@ -77,27 +103,4 @@ function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
 
     end
 
-end
-
-# make generalization to UnivEvols including potential parallelization
-function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
-    # check for multiple processes
-
-    nProcesses = nprocs()
-
-    if nProcesses == 1
-        allPfs = [apply(thisTarget, x) for x in univHistory.universes]
-        allPfs = vcat(allPfs...)
-
-    elseif nProcesses > 1
-
-        # distribute historic universes over processes
-        DUnivs = distribute(univHistory.universes)
-
-        allWgtsDistributed = map(x -> apply(thisTarget, x), DUnivs)
-        allPfs = convert(Array, allWgtsDistributed)
-        allPfs = vcat(allPfs...)
-
-    end
-    return allPfs
 end
