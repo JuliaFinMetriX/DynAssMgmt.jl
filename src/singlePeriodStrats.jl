@@ -332,13 +332,17 @@ function effFront(thisUniv::Univ; nEffPfs = 30)
 
     muGrid = [linspace(minMu, maxMu, nEffPfs)...]
 
-    effWgts = zeros(Float64, nEffPfs, nAss)
-    effWgts[1, :] = wgtsGmvp
-    effWgts[end, :] = maxWgts
+    #effWgts = zeros(Float64, nEffPfs, nAss)
+    effWgts = Array{Float64, 1}[]
+    push!(effWgts, wgtsGmvp)
+    #effWgts[1] = wgtsGmvp
+    #effWgts[end] = maxWgts
     for ii=2:(nEffPfs-1)
         # get associated wgts
-        effWgts[ii, :] = muTarget(thisUniv, muGrid[ii])
+        #effWgts[ii] = muTarget(thisUniv, muGrid[ii])
+        push!(effWgts, muTarget(thisUniv, muGrid[ii]))
     end
+    push!(effWgts, maxWgts)
 
     return effWgts
 end

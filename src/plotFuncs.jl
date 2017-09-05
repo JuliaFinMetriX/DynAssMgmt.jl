@@ -43,7 +43,7 @@ function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
     plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
 end
 
-function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Float64, 2})
+function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Array{Float64, 1}, 1})
     plot(thisUniv)
 
     # calculate pf moments
@@ -53,7 +53,7 @@ function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Float64, 2})
 
 end
 
-function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{Float64, 2})
+function vizPfSpectrum!(thisUniv::Univ, pfWgts::Vector{Float64})
 
     # calculate pf moments
     mu, pfVar = pfMoments(thisUniv, pfWgts)

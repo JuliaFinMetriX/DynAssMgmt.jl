@@ -31,6 +31,18 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
     return mus, vars
 end
 
+function pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1})
+    # get dimensions
+    nObs = size(pfWgts, 1)
+
+    pfMus, pfVars = (zeros(Float64, nObs), zeros(Float64, nObs))
+
+    for ii=1:nObs
+        pfMus[ii], pfVars[ii] = pfMoments(univHist, pfWgts[ii][:])
+    end
+    return pfMus, pfVars
+end
+
 function pfMoments(univHist::Univ, wgts::Array{Float64, 2})
     # get dimensions
     nObs, nAss = size(wgts)

@@ -43,7 +43,11 @@ idxRets = rawInputsToDataFrame(rawIdxRets)
 ## get as evolution of universes
 univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
+xx = univHistory
+univHistoryShort = UnivEvol(xx.universes[1:50], xx.dates[1:50], xx.assetLabels)
+
 ## parallel computation
+thisUniv = univHistory.universes[100]
 
 apply(GMVP(), thisUniv)
 apply(TargetVola(0.6), thisUniv)
@@ -51,6 +55,23 @@ apply(MaxSharpe(), thisUniv)
 apply(TargetMu(0.1), thisUniv)
 
 @time xx = apply(GMVP(), univHistory)
+
+##
+
+@time xx = apply(EffFront(10), univHistory)
+
+## define collection of targets
+# - over time
+# - over targets
+# - list of dates
+# - list of assets
+# - list of targets
+#
+# - switch between "cross-section" and "over time" perspective
+# - overTime vs overTargets
+#
+# - nObs x nStrats x nAss,
+#   where nStrats is possibly grouped into sub-groups (e.g. due to spectra)
 
 ## without parallel computation -> for enhanced error checking
 
@@ -78,6 +99,8 @@ thisUniv = univHistory.universes[1757]
 
 # visualize efficient frontier
 effWgts = effFront(thisUniv)
+xx1, xx2 = pfMoments(thisUniv, effWgts)
+
 vizPfSpectrum(thisUniv, effWgts)
 
 # visualize gmvp
