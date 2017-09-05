@@ -24,6 +24,36 @@ end
     x, y
 end
 
+# define default visualization for PF types
+@recipe function f(pf::PF)
+    seriestype  :=  :bar
+    title --> "Asset weights"
+    legend --> false
+    xaxis --> "Asset"
+    yaxis --> "Weight"
+
+    nAss = size(pf)
+    x = [1:nAss][:]
+    y = pf.Wgts[:]
+    x, y
+end
+
+@recipe function f(pf::PF, assLabs::Array{Symbol, 1})
+    seriestype  :=  :bar
+    title --> "Asset weights"
+    legend --> false
+    xaxis --> "Asset"
+    yaxis --> "Weight"
+    labs = getShortLabels(assLabs)
+    label --> labs
+    rotation --> 45
+
+    x = labs[:]
+    y = pf.Wgts[:]
+    x, y
+end
+
+
 ##
 
 function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})

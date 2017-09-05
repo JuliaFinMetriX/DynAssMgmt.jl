@@ -88,7 +88,10 @@ vizPfSpectrum!(thisUniv, diversFrontWgts)
 thisUniv = univHistory.universes[100]
 
 apply(GMVP(), thisUniv)
-apply(TargetVola(0.6), thisUniv)
+xx = apply(TargetVola(0.6), thisUniv)
+plot(xx, univHistoryShort.assetLabels)
+plot(xx)
+
 apply(MaxSharpe(), thisUniv)
 apply(TargetMu(0.1), thisUniv)
 
