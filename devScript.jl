@@ -22,11 +22,11 @@ addprocs(2)
 
     include("src/utils.jl")
     include("src/assetAllocationTypes.jl")
-    include("src/plotFuncs.jl")
     include("src/pfFuncs.jl")
     include("src/singlePeriodStrats.jl")
     include("src/spTargets.jl")
     include("src/pfAPI.jl")
+    include("src/plotFuncs.jl")
 end
 
 ##
@@ -61,7 +61,7 @@ effFrontStrats = EffFront(10)
 divFrontWgts = apply(divFrontStrats, thisUniv)
 xx = apply(effFrontStrats, thisUniv)
 
-divFrontInvs = apply(divFrontStrats, univHistoryShort)
+@time divFrontInvs = apply(divFrontStrats, univHistory)
 effFrontInvs = apply(effFrontStrats, univHistoryShort)
 
 # what can we do with investments object?
@@ -73,7 +73,76 @@ wgtsOverTime(divFrontInvs, 12)
 ## evaluate performance
 # pfPerfs = getPerf(someInvs, rets)
 
-idxRets
+someInvs = divFrontInvs
+discRets = idxRets
+
+function evalPerf(someInvs::Invest, discRets::DataFrame)
+    #
+##
+
+# get common dates
+jointDates = intersect(someInvs.dates, discRets[:Date])
+
+# get dimensions
+nObs = length(jointDates) - 1
+xx, nStrats, xx2 = size(someInvs)
+
+# preallocation
+perfs = zeros(Float64, nObs, nStrats)
+
+# get respective returns
+xxInds = findin(jointDates, discRets[:Date])
+perfDates = discRets[xxInds, :Date]
+associatedRets = discRets[xxInds, someInvs.assetLabels]
+associatedRets = convert(Array{Float64, 2}, associatedRets)
+
+# get respective weight rows
+xxIndsWgts = findin(jointDates, someInvs.dates)
+
+# adjust weights and returns for 1 period time lag
+associatedRets = associatedRets[2:end, :]
+perfDates = perfDates[2:end, :]
+xxIndsWgts = xxIndsWgts[1:end-1]
+
+# get respective weights
+for thisStratInd = 1:nStrats
+    # get respective weights
+    allWgts = convert(Array{Float64, 2}, someInvs.pfs[xxIndsWgts, thisStratInd])
+
+    # calculate performances
+    xxWgtRets = sum(allWgts .* associatedRets, 2)[:]
+    pfVals = exp(cumsum(log(xxWgtRets./100 + 1)))
+
+    # store performances
+    perfs[:, thisStratInd] = pfVals
+end
+
+# get list of strategy names
+
+# export performances with dates and strategy names
+
+Pkg.add("DataTables")
+using DataTables
+
+xx1 = DataTable(Date = perfDates[:])
+xx2 = DataTable(perfs)
+perfsTab = hcat(xx1, xx2)
+
+dats = convert(Array, perfsTab[:Date])
+dats = getNumDates(dats)
+xxVals = convert(Array, perfsTab[:, 2:end])
+plot(dats, xxVals)
+
+df1 = DataFrame(Date = perfDates[:])
+df2 = DataFrame(perfs)
+perfsDf = hcat(df1, df2)
+
+dats = convert(Array, perfsDf[:Date])
+dats = getNumDates(dats)
+xxVals = convert(Array, perfsDf[:, 2:end])
+plot(dats, xxVals)
+
+
 
 ## evalute estimated portfolio moments
 # muTab, varTab = pfMoments(someInvs, univHistory)
@@ -86,10 +155,7 @@ vizPfSpectrum!(thisUniv, diversFrontWgts)
 
 ##
 
-xxWgts = convert(Array{Float64, 2}, divFrontWgts)
-
-groupedbar(xxWgts, bar_position = :stack, bar_width=0.7)
-
+wgtsOverStrategies(divFrontWgts, univHistory.assetLabels)
 
 ## parallel computation
 thisUniv = univHistory.universes[100]

@@ -37,7 +37,6 @@ function convert(::Type{Array{Float64, 2}}, xx::Array{PF, 1})
     return allWgts
 end
 
-
 ## Investments
 
 struct Invest

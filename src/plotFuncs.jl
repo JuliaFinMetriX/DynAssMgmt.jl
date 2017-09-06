@@ -156,3 +156,21 @@ end
 
 p
 end
+
+function wgtsOverStrategies(stratWgts::Array{PF, 2})
+
+    xxWgts = convert(Array{Float64, 2}, stratWgts[:])
+
+    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7)
+
+    p
+end
+
+function wgtsOverStrategies(stratWgts::Array{PF, 2}, assLabs::Array{Symbol, 1})
+    labs = getShortLabels(assLabs)
+    xxWgts = convert(Array{Float64, 2}, stratWgts[:])
+
+    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7, label = hcat(labs...))
+
+    p
+end
