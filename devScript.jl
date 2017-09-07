@@ -9,7 +9,7 @@ cd("/home/chris/scalable/julia/DynAssMgmt/")
 
 ## set up parallel computation
 addprocs(2)
-
+Pkg.add("TimeSeries")
 ## load code
 @everywhere begin
     using DataFrames
@@ -17,6 +17,7 @@ addprocs(2)
     using DistributedArrays
     using Plots
     using StatPlots
+    using TimeSeries
 
     set_default_solver(SCS.SCSSolver(verbose=0))
 
@@ -27,6 +28,7 @@ addprocs(2)
     include("src/spTargets.jl")
     include("src/pfAPI.jl")
     include("src/plotFuncs.jl")
+    include("src/bktest.jl")
 end
 
 ##
@@ -76,73 +78,69 @@ wgtsOverTime(divFrontInvs, 12)
 someInvs = divFrontInvs
 discRets = idxRets
 
-function evalPerf(someInvs::Invest, discRets::DataFrame)
-    #
-##
+perfDf = evalPerf(divFrontInvs, idxRets)
+tsPlot(perfDf)
 
-# get common dates
-jointDates = intersect(someInvs.dates, discRets[:Date])
+# calculate ddowns
+ddowns = evalDDowns(perfDf)
+tsPlot(ddowns)
 
-# get dimensions
-nObs = length(jointDates) - 1
-xx, nStrats, xx2 = size(someInvs)
+## statistics
+# - fullPercPerf
+# - maxDDown
+# - dailyMu
+# - sigma
+# - dailyVaR
+# - annualizedVaR
 
-# preallocation
-perfs = zeros(Float64, nObs, nStrats)
+## test TimeSeries
 
-# get respective returns
-xxInds = findin(jointDates, discRets[:Date])
-perfDates = discRets[xxInds, :Date]
-associatedRets = discRets[xxInds, someInvs.assetLabels]
-associatedRets = convert(Array{Float64, 2}, associatedRets)
+dats = convert(Array{Date, 1}, idxRets[:Date])
+vals = convert(Array, idxRets[:, 2:end])
+nams = names(idxRets[:, 2:end])
+namsStr = [String(symb) for symb in nams]
 
-# get respective weight rows
-xxIndsWgts = findin(jointDates, someInvs.dates)
+xx = TimeArray(dats, vals, namsStr)
 
-# adjust weights and returns for 1 period time lag
-associatedRets = associatedRets[2:end, :]
-perfDates = perfDates[2:end, :]
-xxIndsWgts = xxIndsWgts[1:end-1]
+xx2 = log(xx./100 + 1) .* 100
+TimeSeries.rename(xx2, xx.colnames)
 
-# get respective weights
-for thisStratInd = 1:nStrats
-    # get respective weights
-    allWgts = convert(Array{Float64, 2}, someInvs.pfs[xxIndsWgts, thisStratInd])
+## get backtest outcomes
+# getBtOutcomes(divFrontInvs::Invest, idxRets::DataFrame, dateRange)
+# Invest + idxRets + date range
 
-    # calculate performances
-    xxWgtRets = sum(allWgts .* associatedRets, 2)[:]
-    pfVals = exp(cumsum(log(xxWgtRets./100 + 1)))
+# get performance table
+perfDf = evalPerf(divFrontInvs, idxRets)
 
-    # store performances
-    perfs[:, thisStratInd] = pfVals
+# TODO: determine time period to evaluate
+
+# get Array of perfStats
+(xx, nStrats, xx2) = size(divFrontInvs)
+for ii=1:nStrats
+
 end
 
+# summarize
+
+# export list of strategies and outcomes
+
+
+# add scaled values
+# - daily to annual scaling for mu / sigma
+
+# add annualized values (also requires dates)
+# - get VaR from monthly log returns
+# - get geometric mean
+
+# add yearly / monthly values
+
+singlePerfVals = convert(Array{Float64, 1}, perfDf[:, 25])
+vals, stratNams = evalPerfStats(singlePerfVals)
+
+
+perfStatInstance = PerfStats(vals, stratNams)
+
 # get list of strategy names
-
-# export performances with dates and strategy names
-
-Pkg.add("DataTables")
-using DataTables
-
-xx1 = DataTable(Date = perfDates[:])
-xx2 = DataTable(perfs)
-perfsTab = hcat(xx1, xx2)
-
-dats = convert(Array, perfsTab[:Date])
-dats = getNumDates(dats)
-xxVals = convert(Array, perfsTab[:, 2:end])
-plot(dats, xxVals)
-
-df1 = DataFrame(Date = perfDates[:])
-df2 = DataFrame(perfs)
-perfsDf = hcat(df1, df2)
-
-dats = convert(Array, perfsDf[:Date])
-dats = getNumDates(dats)
-xxVals = convert(Array, perfsDf[:, 2:end])
-plot(dats, xxVals)
-
-
 
 ## evalute estimated portfolio moments
 # muTab, varTab = pfMoments(someInvs, univHistory)
