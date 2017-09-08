@@ -9,7 +9,7 @@ cd("/home/chris/scalable/julia/DynAssMgmt/")
 
 ## set up parallel computation
 addprocs(2)
-Pkg.add("TimeSeries")
+
 ## load code
 @everywhere begin
     using DataFrames
@@ -45,6 +45,12 @@ muTab = rawInputsToDataFrame(rawMus)
 covsTab = rawInputsToDataFrame(rawCovs)
 idxRets = rawInputsToDataFrame(rawIdxRets)
 
+# transform to TimeSeries
+# xx = TimeArray(idxRets, timestamp_column = :Date)
+dats = convert(Array{Date, 1}, idxRets[:Date])
+vals = convert(Array, idxRets[:, 2:end])
+idxRetsTA = TimeArray(dats, vals)
+
 ## get as evolution of universes
 univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
@@ -54,17 +60,19 @@ thisUniv = univHistory.universes[200]
 
 ## some diversification-aware tests
 
-sigTargets = [linspace(0.03, sqrt.(4.2), 30)...]
+sigTargets = [linspace(0.03, sqrt.(4.2), 15)...]
 diversTarget = 0.7
 
 divFrontStrats = DivFront(diversTarget, sigTargets)
 effFrontStrats = EffFront(10)
 
+# apply to single universe as test
 divFrontWgts = apply(divFrontStrats, thisUniv)
 xx = apply(effFrontStrats, thisUniv)
 
+# apply to all historic universes
 @time divFrontInvs = apply(divFrontStrats, univHistory)
-effFrontInvs = apply(effFrontStrats, univHistoryShort)
+@time effFrontInvs = apply(effFrontStrats, univHistoryShort)
 
 # what can we do with investments object?
 # - show weights over time
@@ -73,18 +81,24 @@ effFrontInvs = apply(effFrontStrats, univHistoryShort)
 wgtsOverTime(divFrontInvs, 12)
 
 ## evaluate performance
-# pfPerfs = getPerf(someInvs, rets)
-
-someInvs = divFrontInvs
-discRets = idxRets
-
-perfDf = evalPerf(divFrontInvs, idxRets)
+@profiler perfDf = evalPerf(divFrontInvs, idxRets)
 tsPlot(perfDf)
 
 # calculate ddowns
 ddowns = evalDDowns(perfDf)
 tsPlot(ddowns)
 
+# get performance time array
+dats = convert(Array{Date, 1}, perfDf[:Date])
+vals = convert(Array, perfDf[:, 2:end])
+nams = names(perfDf[:, 2:end])
+namsStr = [String(symb) for symb in nams]
+
+perfTa = TimeArray(dats, vals, namsStr)
+# TimeSeries.rename(xx, xx.colnames)
+
+xxVals = perfTa.values
+divFrontInvs
 ## statistics
 # - fullPercPerf
 # - maxDDown
@@ -93,32 +107,33 @@ tsPlot(ddowns)
 # - dailyVaR
 # - annualizedVaR
 
-## test TimeSeries
-
-dats = convert(Array{Date, 1}, idxRets[:Date])
-vals = convert(Array, idxRets[:, 2:end])
-nams = names(idxRets[:, 2:end])
-namsStr = [String(symb) for symb in nams]
-
-xx = TimeArray(dats, vals, namsStr)
-
-xx2 = log(xx./100 + 1) .* 100
-TimeSeries.rename(xx2, xx.colnames)
-
 ## get backtest outcomes
 # getBtOutcomes(divFrontInvs::Invest, idxRets::DataFrame, dateRange)
 # Invest + idxRets + date range
 
-# get performance table
-perfDf = evalPerf(divFrontInvs, idxRets)
-
 # TODO: determine time period to evaluate
+perfTa
 
 # get Array of perfStats
 (xx, nStrats, xx2) = size(divFrontInvs)
+outcomes = PerfStats[]
 for ii=1:nStrats
+    vals, statisticsNams = evalPerfStats(perfTa.values[:, ii])
+    perfStatisticsInstance = PerfStats(vals, statisticsNams)
 
+    push!(outcomes, perfStatisticsInstance)
 end
+
+outcomes
+divFrontInvs.strategies
+divFrontInvs.assetLabels
+
+outcomes[10]
+
+# additional information to performance statistics:
+# - which strategy (problematic with iterative weight filters)
+# - which universe
+# - which date range
 
 # summarize
 
@@ -133,12 +148,6 @@ end
 # - get geometric mean
 
 # add yearly / monthly values
-
-singlePerfVals = convert(Array{Float64, 1}, perfDf[:, 25])
-vals, stratNams = evalPerfStats(singlePerfVals)
-
-
-perfStatInstance = PerfStats(vals, stratNams)
 
 # get list of strategy names
 
