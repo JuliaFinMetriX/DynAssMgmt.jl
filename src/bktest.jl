@@ -1,5 +1,17 @@
 ## define backtest functions
 
+# - which strategy (problematic with iterative weight filters)
+# - which universe
+# - which date range
+
+struct Bktest
+    strategies
+    assetLabels
+
+end
+
+##
+
 function evalPerf(someInvs::Invest, discRets::DataFrame)
 
     # get common dates

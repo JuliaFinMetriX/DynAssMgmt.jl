@@ -103,13 +103,13 @@ tsPlot(ddowns["_1"])
 # Invest + idxRets + date range
 
 # TODO: determine time period to evaluate
-perfTa
+perfTA
 
 # get Array of perfStats
 (xx, nStrats, xx2) = size(divFrontInvs)
 outcomes = PerfStats[]
 for ii=1:nStrats
-    vals, statisticsNams = evalPerfStats(perfTa.values[:, ii])
+    vals, statisticsNams = evalPerfStats(perfTA.values[:, ii])
     perfStatisticsInstance = PerfStats(vals, statisticsNams)
 
     push!(outcomes, perfStatisticsInstance)
