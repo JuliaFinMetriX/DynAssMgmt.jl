@@ -45,6 +45,52 @@ function evalPerf(someInvs::Invest, discRets::DataFrame)
 
 end
 
+function evalPerf(someInvs::Invest, discRets::TimeArray)
+
+    # get common dates
+    jointDates = intersect(someInvs.dates, discRets.timestamp)
+
+    # get dimensions
+    nObs = length(jointDates) - 1
+    xx, nStrats, xx2 = size(someInvs)
+
+    # preallocation
+    perfs = zeros(Float64, nObs, nStrats)
+
+    assLabs = symb2str(someInvs.assetLabels)
+
+    # get respective returns
+    xx = discRets[jointDates]
+    xx = xx[assLabs...]
+    perfDates = xx.timestamp
+    associatedRets = xx.values
+
+    # get respective weight rows
+    xxIndsWgts = findin(jointDates, someInvs.dates)
+
+    # adjust weights and returns for 1 period time lag
+    associatedRets = associatedRets[2:end, :]
+    perfDates = perfDates[2:end, :]
+    xxIndsWgts = xxIndsWgts[1:end-1]
+
+    # get respective weights
+    for thisStratInd = 1:nStrats
+        # get respective weights
+        allWgts = convert(Array{Float64, 2}, someInvs.pfs[xxIndsWgts, thisStratInd])
+
+        # calculate performances
+        xxWgtRets = sum(allWgts .* associatedRets, 2)[:]
+        pfVals = exp(cumsum(log(xxWgtRets./100 + 1)))
+
+        # store performances
+        perfs[:, thisStratInd] = pfVals
+    end
+
+    perfsTimeArray = TimeArray(perfDates[:], perfs)
+
+end
+
+
 # ddowns
 function evalDDowns(perfDf::DataFrame)
     # get asset names without dates
@@ -69,6 +115,20 @@ function evalDDowns(perfDf::DataFrame)
     ddownsDf = df[:, names(perfDf)]
 
 end
+
+function evalDDowns(perfTA::TimeArray)
+    # get values only
+    perfVals = perfTA.values
+
+    ddownsVals = zeros(Float64, size(perfVals))
+    for ii=1:size(perfVals, 2)
+        ddownsVals[:, ii] = evalDDowns(perfVals[:, ii])
+    end
+
+    # build TimeArray again
+    return TimeArray(perfTA.timestamp, ddownsVals, perfTA.colnames)
+end
+
 
 function evalDDowns(perfVals::Array{Float64, 1})
     cumMaxPrices = cummax(perfVals)

@@ -41,24 +41,24 @@ rawMus = readcsv("inputData/jochenMus.csv")
 rawCovs = readcsv("inputData/jochenCovs.csv")
 rawIdxRets = readcsv("inputData/idxReturns.csv")
 
+# get moments as evolution of universes
 muTab = rawInputsToDataFrame(rawMus)
 covsTab = rawInputsToDataFrame(rawCovs)
-idxRets = rawInputsToDataFrame(rawIdxRets)
-
-# transform to TimeSeries
-# xx = TimeArray(idxRets, timestamp_column = :Date)
-dats = convert(Array{Date, 1}, idxRets[:Date])
-vals = convert(Array, idxRets[:, 2:end])
-idxRetsTA = TimeArray(dats, vals)
-
-## get as evolution of universes
 univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 
+# get returns as TimeArray
+idxRets = rawInputsToTimeArray(rawIdxRets)
+
+## create subsets of universes
+
+# shorter history
 xx = univHistory
 univHistoryShort = UnivEvol(xx.universes[1:50], xx.dates[1:50], xx.assetLabels)
+
+# single universe
 thisUniv = univHistory.universes[200]
 
-## some diversification-aware tests
+## apply some strategy spectrums over time
 
 sigTargets = [linspace(0.03, sqrt.(4.2), 15)...]
 diversTarget = 0.7
@@ -81,24 +81,15 @@ xx = apply(effFrontStrats, thisUniv)
 wgtsOverTime(divFrontInvs, 12)
 
 ## evaluate performance
-@profiler perfDf = evalPerf(divFrontInvs, idxRets)
+@time perfTA = evalPerf(divFrontInvs, idxRets)
 tsPlot(perfDf)
 
 # calculate ddowns
-ddowns = evalDDowns(perfDf)
+ddowns = evalDDowns(perfTA)
 tsPlot(ddowns)
 
-# get performance time array
-dats = convert(Array{Date, 1}, perfDf[:Date])
-vals = convert(Array, perfDf[:, 2:end])
-nams = names(perfDf[:, 2:end])
-namsStr = [String(symb) for symb in nams]
+tsPlot(ddowns["_1"])
 
-perfTa = TimeArray(dats, vals, namsStr)
-# TimeSeries.rename(xx, xx.colnames)
-
-xxVals = perfTa.values
-divFrontInvs
 ## statistics
 # - fullPercPerf
 # - maxDDown

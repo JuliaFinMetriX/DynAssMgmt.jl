@@ -190,3 +190,17 @@ function tsPlot(df::DataFrame)
     p = plot(dats, xxVals, label = assNams)
 
 end
+
+function tsPlot(ta::TimeArray)
+    # get dates column and convert to numbers
+    dats = getNumDates(ta.timestamp)
+
+    # get values
+    xxVals = ta.values
+
+    # get labels
+    assNams = ta.colnames
+
+    p = plot(dats, xxVals, label = assNams)
+
+end
