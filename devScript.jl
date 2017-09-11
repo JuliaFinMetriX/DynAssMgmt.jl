@@ -1,6 +1,7 @@
 # test types / code during development
 
 cd("/home/chris/scalable/julia/DynAssMgmt/")
+using DynAssMgmt
 
 # using Gadfly
 # using Query
@@ -12,23 +13,7 @@ addprocs(2)
 
 ## load code
 @everywhere begin
-    using DataFrames
-    using Convex
-    using DistributedArrays
-    using Plots
-    using StatPlots
-    using TimeSeries
-
-    set_default_solver(SCS.SCSSolver(verbose=0))
-
-    include("src/utils.jl")
-    include("src/assetAllocationTypes.jl")
-    include("src/pfFuncs.jl")
-    include("src/singlePeriodStrats.jl")
-    include("src/spTargets.jl")
-    include("src/pfAPI.jl")
-    include("src/plotFuncs.jl")
-    include("src/bktest.jl")
+    using DynAssMgmt
 end
 
 ##
