@@ -1,6 +1,6 @@
 module DynAssMgmt
 
-export Invest, gmvp, gmvp_lev, getUnivEvolFromMatlabFormat, Univ
+export Invest, gmvp, gmvp_lev, getUnivEvolFromMatlabFormat, Univ, UnivEvol
 
 using DataFrames
 using Convex
