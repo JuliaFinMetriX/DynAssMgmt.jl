@@ -9,7 +9,10 @@ Univ,
 UnivEvol,
 pfMoments,
 pfVariance,
-pfDivers
+pfDivers,
+sigmaTarget,
+muTarget,
+gmvp
 
 using DataFrames
 using Convex

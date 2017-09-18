@@ -1,8 +1,8 @@
 # here are the single period tests
 
 ## set up test data
-xxCovs = readdlm("test/testData/testCovs.csv")
-xxMus = readdlm("test/testData/testMus.csv")
+xxCovs = readdlm("testData/testCovs.csv")
+xxMus = readdlm("testData/testMus.csv")
 xxMus = xxMus[:]
 
 xxthisUniv = Univ(xxMus, xxCovs)
