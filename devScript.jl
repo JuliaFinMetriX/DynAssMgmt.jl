@@ -19,7 +19,7 @@ end
 ##
 
 plotlyjs()
-gr()
+Plots.gr()
 
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
