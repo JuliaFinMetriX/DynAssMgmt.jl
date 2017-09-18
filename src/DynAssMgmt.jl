@@ -8,7 +8,8 @@ getUnivEvolFromMatlabFormat,
 Univ,
 UnivEvol,
 pfMoments,
-pfVariance
+pfVariance,
+pfDivers
 
 using DataFrames
 using Convex

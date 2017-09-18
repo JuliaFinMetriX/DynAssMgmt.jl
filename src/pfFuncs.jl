@@ -25,13 +25,11 @@ end
 
 """
 ```julia
-pfMoments(mus, covs, wgts)
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
 ```
 
 Compute portfolio variance and expectation without any re-scaling or
 annualization.
-
-# Methods
 
 ## Single universe, single weights
 
@@ -59,16 +57,6 @@ pfMoments(univHist::Univ, wgts::Array{Float64, 2})
 pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
 ```
 
-"""
-function pfMoments(mus, covs, wgts)
-    pfMu(mus, wgts), pfVariance(covs, wgts)
-end
-
-"""
-    pfMoments(mus, covs, wgts)
-
-Compute portfolio variance and expectation without any re-scaling or
-annualization.
 """
 function pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
     pfMu(mus, wgts), pfVariance(covs, wgts)
@@ -168,7 +156,9 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
 end
 
 """
-    pfDivers(wgts)
+```julia
+pfDivers(wgts::Array{Float64, 1})
+```
 
 Compute portfolio diversification as
 
@@ -187,7 +177,9 @@ end
 
 
 """
-    pfDivers(allWgts::Array{Float64, 2})
+```julia
+pfDivers(allWgts::Array{Float64, 2})
+```
 
 Applies to series of portfolio weights, with individual weights
 given in rows.
