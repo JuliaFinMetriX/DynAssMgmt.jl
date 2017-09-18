@@ -1,7 +1,9 @@
 # portfolio moments
 
 """
-    pfVariance(covs, wgts)
+```julia
+pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
+```    
 
 Compute the portfolio variance without any re-scaling or annualization.
 """ 
@@ -10,7 +12,9 @@ function pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
 end
 
 """
-    pfMu(mus, wgts)
+```julia
+pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
+```
 
 Compute the portfolio expectation without any re-scaling or annualization.
 """
@@ -20,34 +24,36 @@ end
 
 
 """
-    pfMoments(mus, covs, wgts)
+```julia
+pfMoments(mus, covs, wgts)
+```
 
 Compute portfolio variance and expectation without any re-scaling or
 annualization.
 
 # Methods
 
-Single universe, single weights:
+## Single universe, single weights
 
 ```julia
 pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
 pfMoments(thisUniv::Univ, wgts::Array{Float64, 1})
 ```
 
-Multiple universes, single weights:
+## Multiple universes, single weights
 
 ```julia
 pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
 ```
 
-Single universe, multiple weights:
+## Single universe, multiple weights
 
 ```julia
 pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1})
 pfMoments(univHist::Univ, wgts::Array{Float64, 2})
 ```
 
-Multiple universes, multiple weights:
+## Multiple universes, multiple weights
 
 ```julia
 pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
