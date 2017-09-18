@@ -17,6 +17,7 @@ script:
   - julia -e 'Pkg.clone(pwd())'
   - julia -e julia -e 'Pkg.add("DataFrames")'
   - julia -e julia -e 'Pkg.add("Convex")'
+  - julia -e julia -e 'Pkg.add("SCS")'
   - julia -e julia -e 'Pkg.add("DistributedArrays")'
   - julia -e julia -e 'Pkg.add("Plots")'
   - julia -e julia -e 'Pkg.add("StatPlots")'
