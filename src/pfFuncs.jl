@@ -162,7 +162,10 @@ pfDivers(wgts::Array{Float64, 1})
 
 Compute portfolio diversification as
 
-``\mathcal{D}=\sqrt{\sum_{i=1}^{d}|w_{i} - frac{1}{d}|^2}``
+```math
+\\mathcal{D}=1 - \\sqrt{\\sum_{i=1}^{d}\\left|w_{i} - \\frac{1}{d}\\right|^2}
+```
+
 """
 function pfDivers(wgts::Array{Float64, 1})
     # get number of assets
