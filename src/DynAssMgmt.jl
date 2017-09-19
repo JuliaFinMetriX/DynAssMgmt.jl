@@ -2,6 +2,9 @@ module DynAssMgmt
 
 export
     Invest,
+    PF,
+    SinglePeriodTarget,
+    SinglePeriodSpectrum,
     Univ,
     UnivEvol,
     GMVP,

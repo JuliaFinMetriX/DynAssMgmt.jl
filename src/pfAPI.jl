@@ -1,5 +1,13 @@
 ## define Portfolio API
 
+"""
+```julia
+PF(wgts::Array{Float64, 1})
+```    
+
+Implementation of a single portfolio. Weights have to be
+positive (short-selling is not allowed) and need to add up to 1.
+"""
 struct PF
     Wgts::Array{Float64, 1}
 
@@ -39,6 +47,15 @@ end
 
 ## Investments
 
+"""
+```julia
+Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{Symbol, 1})
+```    
+
+Implementation of investments as collection of portfolios. Portfolios
+are equipped with additional descriptive meta-data: which strategies were used,
+which universe and which time period.
+"""
 struct Invest
     pfs::Array{PF, 2}
     strategies::Array{SinglePeriodTarget, 1}
