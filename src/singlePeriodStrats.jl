@@ -8,7 +8,9 @@
 
 # get global minimum variance portfolio
 """
-    gmvp_lev(thisUniv)
+```julia
+gmvp_lev(thisUniv::Univ)
+```
 
 Get global minimum variance portfolio without any constraints on
 short-selling -> leverage allowed
@@ -22,7 +24,9 @@ end
 
 
 """
-    gmvp(thisUniv)
+```julia
+gmvp(thisUniv::Univ)
+```
 
 Get global minimum variance portfolio without short-selling.
 """
@@ -44,9 +48,11 @@ function gmvp(thisUniv)
 end
 
 """
-    maxSharpe(thisUniv)
+```julia
+maxSharpe(thisUniv::Univ)
+```    
 
-Get maximum Sharpe-ratio portfolio
+Compute portfolio with maximum Sharpe-ratio.
 """
 function maxSharpe(thisUniv::Univ)
     # set up optimization variables
@@ -69,15 +75,25 @@ function maxSharpe(thisUniv::Univ)
 end
 
 """
-    sigmaTarget(thisUniv, thisTarget)
+```julia
+sigmaTarget(thisUniv::Univ, sigTarget::Float64)
+```    
 
-Get portfolio with maximum expected return for given target.
+Compute portfolio with maximum expected return for a given volatility target.
 """
 function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
     xWgts = sigmaTarget_cvx_reformulated(thisUniv, sigTarget)
     # xWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
 end
 
+"""
+```julia
+sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
+```    
+
+Compute portfolio with maximum expected return for a given volatility target.
+Allow fallback in case that volatility target can not be reached.
+"""
 function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
     # get number of assets
     nAss = size(thisUniv)
@@ -116,6 +132,15 @@ function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
     return xWgts
 end
 
+"""
+```julia
+sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
+```    
+
+Compute portfolio with maximum expected return for a given volatility target.
+Use bisection and iterative mu target optimizations in order to find
+optimal portfolio.
+"""
 function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
 
     xWgts = sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
@@ -175,6 +200,14 @@ function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
 
 end
 
+"""
+```julia
+sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
+```    
+
+Compute portfolio with maximum expected return for a given volatility target.
+Use re-formulation as convex optimization problem for computation.
+"""
 function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
 
     xWgts = sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
@@ -236,6 +269,15 @@ function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
 end
 
 
+"""
+```julia
+sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
+```    
+
+Compute portfolio with maximum expected return for a given volatility target.
+Try to use convex optimization directly without any re-formulation. This
+does not work currently.
+"""
 function sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
 
     # get number of assets
@@ -288,7 +330,13 @@ function sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
 
 end
 
+"""
+```julia
+muTarget(thisUniv::Univ, targetMu::Float64)
+```    
 
+Compute portfolio with minimum volatility for a given target expectation.
+"""
 function muTarget(thisUniv::Univ, targetMu::Float64)
     # get number of assets
     nAss = size(thisUniv)
