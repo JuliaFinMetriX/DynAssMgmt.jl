@@ -13,7 +13,7 @@ gmvp_lev(thisUniv::Univ)
 ```
 
 Get global minimum variance portfolio without any constraints on
-short-selling -> leverage allowed
+short-selling. In other words: leverage is allowed.
 """
 function gmvp_lev(thisUniv::Univ)
   nObs = size(thisUniv)
@@ -29,8 +29,9 @@ gmvp(thisUniv::Univ)
 ```
 
 Get global minimum variance portfolio without short-selling.
+Leverage is not allowed.
 """
-function gmvp(thisUniv)
+function gmvp(thisUniv::Univ)
     # set up optimization variables
     nAss = size(thisUniv)
     optVariables = Variable(nAss)

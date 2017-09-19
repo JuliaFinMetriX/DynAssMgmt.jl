@@ -16,6 +16,10 @@ pfDivers
 ## Single period strategies
 
 ```@docs
+apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
+```
+
+```@docs
 GMVP
 TargetVola
 RelativeTargetVola

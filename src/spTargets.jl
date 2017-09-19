@@ -135,6 +135,14 @@ end
 ## generalization of apply
 
 # make generalization to UnivEvols including potential parallelization
+"""
+```julia
+apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
+```    
+
+Apply some single-period strategy to multiple universes. Automatically uses
+parallelization when multiple processes are running.
+"""
 function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
     # check for multiple processes
 
