@@ -6,12 +6,26 @@
 abstract type SinglePeriodTarget end
 abstract type SinglePeriodSpectrum end
 
+"""
+```julia
+GMVP()
+```    
+
+Global minimum variance portfolio strategy.
+"""
 struct GMVP <: SinglePeriodTarget
 
 end
 
 apply(xx::GMVP, thisUniv::Univ) = PF(gmvp(thisUniv))
 
+"""
+```julia
+TargetVola(vol::Float64)
+```    
+
+Target portfolio volatility strategy.
+"""
 struct TargetVola <: SinglePeriodTarget
     Vola::Float64
 end
@@ -19,10 +33,27 @@ end
 apply(xx::TargetVola, thisUniv::Univ) = PF(sigmaTarget(thisUniv, xx.Vola))
 
 # vola relative to efficient frontier (maximum mu / gmvp mu range)
+"""
+```julia
+RelativeTargetVola(vol::Float64)
+```    
+
+Target portfolio volatility strategy, with volatility target given in relative
+terms. Target is relative with regards to maximum mu and gmvp.
+"""
 struct RelativeTargetVola <: SinglePeriodTarget
     Vola::Float64
 end
 
+"""
+```julia
+MaxSharpe()
+MaxSharpe(rf::Float64)
+```    
+
+Maximum Sharpe-ratio portfolio strategy. Optional input can be used to specify
+the risk-free rate.
+"""
 struct MaxSharpe <: SinglePeriodTarget
     RiskFree::Float64
 end
@@ -30,12 +61,27 @@ end
 MaxSharpe() = MaxSharpe(0.0)
 apply(xx::MaxSharpe, thisUniv::Univ) = PF(maxSharpe(thisUniv))
 
+"""
+```julia
+TargetMu(mu::Float64)
+```    
+
+Target portfolio expectation strategy.
+"""
 struct TargetMu <: SinglePeriodTarget
     Mu::Float64
 end
 
 apply(xx::TargetMu, thisUniv::Univ) = PF(muTarget(thisUniv, xx.Mu))
 
+"""
+```julia
+EffFront(npfs::Int64)
+```    
+
+Efficient frontier portfolio spectrum. Single input determines the number of
+portfolios on the efficient frontier.
+"""
 struct EffFront <: SinglePeriodSpectrum
     NEffPfs::Int64
 end
@@ -53,6 +99,13 @@ function getSingleTargets(someFront::EffFront)
     allSingleStrats = [RelativeTargetVola(ii./nPfs) for ii=1:nPfs]
 end
 
+"""
+```julia
+DivFrontSigmaTarget(divTarget::Float64, sigTarget::Float64)
+```    
+
+Portfolio strategy with target diversification level and target volatility.
+"""
 struct DivFrontSigmaTarget <: SinglePeriodTarget
     diversTarget::Float64
     sigTarget::Float64

@@ -16,6 +16,17 @@ pfDivers
 ## Single period strategies
 
 ```@docs
+GMVP
+TargetVola
+RelativeTargetVola
+MaxSharpe
+TargetMu
+EffFront
+DivFrontSigmaTarget
+DivFront
+```
+
+```@docs
 DynAssMgmt.gmvp(thisUniv)
 ```
 

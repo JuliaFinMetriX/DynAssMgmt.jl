@@ -9,6 +9,7 @@ export
     RelativeTargetVola,
     MaxSharpe,
     TargetMu,
+    EffFront,
     DivFrontSigmaTarget,
     DivFront,
     apply,
