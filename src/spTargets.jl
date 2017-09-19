@@ -111,6 +111,14 @@ struct DivFrontSigmaTarget <: SinglePeriodTarget
     sigTarget::Float64
 end
 
+"""
+```julia
+DivFront(divTarget::Float64, sigTarget::Array{Float64, 1})
+```    
+
+Multiple portfolios with target diversification level and multiple
+volatility targets.
+"""
 struct DivFront <: SinglePeriodSpectrum
     diversTarget::Float64
     sigTargets::Array{Float64, 1}

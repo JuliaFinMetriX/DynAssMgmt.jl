@@ -51,20 +51,21 @@ DivFrontSigmaTarget
 DivFront
 ```
 
-```@docs
-DynAssMgmt.gmvp(thisUniv)
-```
-
-```@docs
-DynAssMgmt.gmvp_lev(thisUniv::Univ)
-```
-
 ## Internal
 
 ```@docs
 DynAssMgmt.pfVariance
 DynAssMgmt.pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
 ```
+
+```@docs
+DynAssMgmt.gmvp(thisUniv::Univ)
+```
+
+```@docs
+DynAssMgmt.gmvp_lev(thisUniv::Univ)
+```
+
 
 
 ## Index
