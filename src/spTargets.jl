@@ -122,6 +122,14 @@ function apply(xx::DivFront, thisUniv::Univ)
     pfArray = reshape(pfArray, 1, size(pfArray, 1))
 end
 
+"""
+```julia
+getSingleTargets(someDivFront::DivFront)
+```    
+
+Transform a spectrum of single-period portfolio strategies into an array of
+`SinglePeriodTarget`.
+"""
 function getSingleTargets(someDivFront::DivFront)
     # get number of portfolios
     sigTargets = someDivFront.sigTargets

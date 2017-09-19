@@ -21,12 +21,33 @@ apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
 
 ```@docs
 GMVP
+```
+
+```@docs
 TargetVola
+```
+
+```@docs
 RelativeTargetVola
+```
+
+```@docs
 MaxSharpe
+```
+
+```@docs
 TargetMu
+```
+
+```@docs
 EffFront
+```
+
+```@docs
 DivFrontSigmaTarget
+```
+
+```@docs
 DivFront
 ```
 
