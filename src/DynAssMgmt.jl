@@ -1,18 +1,19 @@
 module DynAssMgmt
 
 export
-Invest,
-gmvp,
-gmvp_lev,
-getUnivEvolFromMatlabFormat,
-Univ,
-UnivEvol,
-pfMoments,
-pfVariance,
-pfDivers,
-sigmaTarget,
-muTarget,
-gmvp
+    Invest,
+    Univ,
+    UnivEvol,
+    GMVP,
+    TargetVola,
+    RelativeTargetVola,
+    MaxSharpe,
+    TargetMu,
+    DivFrontSigmaTarget,
+    DivFront,
+    apply,
+    pfMoments,
+    pfDivers
 
 using DataFrames
 using Convex

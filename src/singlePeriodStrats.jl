@@ -361,9 +361,11 @@ end
 
 
 """
-    effFront(thisUniv; nEffPfs = 30)
+```julia
+effFront(thisUniv::Univ; nEffPfs = 30)
+```    
 
-Get efficient frontier portfolio weights
+Compute efficient frontier portfolios.
 """
 function effFront(thisUniv::Univ; nEffPfs = 30)
 
@@ -396,6 +398,14 @@ function effFront(thisUniv::Univ; nEffPfs = 30)
 end
 
 ## implementation of diversification-aware strategies
+
+
+"""
+```julia
+diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
+```    
+
+"""
 function diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
     # set up optimization variables
     nAss = size(thisUniv)
@@ -415,6 +425,12 @@ function diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, risk
 
 end
 
+"""
+```julia
+diversTargetMaxSigma(thisUniv::Univ, diversTarget)
+```    
+
+"""
 function diversTargetMaxSigma(thisUniv::Univ, diversTarget)
     # set up optimization variables
     nAss = size(thisUniv)
@@ -434,6 +450,12 @@ function diversTargetMaxSigma(thisUniv::Univ, diversTarget)
 
 end
 
+"""
+```julia
+diversTargetMinSigma(thisUniv::Univ, diversTarget)
+```    
+
+"""
 function diversTargetMinSigma(thisUniv::Univ, diversTarget)
     # set up optimization variables
     nAss = size(thisUniv)
@@ -453,6 +475,13 @@ function diversTargetMinSigma(thisUniv::Univ, diversTarget)
 
 end
 
+
+"""
+```julia
+sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
+```    
+
+"""
 function sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
     # set up optimization variables
     nAss = size(thisUniv)
@@ -485,6 +514,12 @@ function sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversC
 
 end
 
+"""
+```julia
+sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
+```    
+
+"""
 function sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
     # set up optimization variables
     nAss = size(thisUniv)
@@ -517,6 +552,12 @@ function sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
 
 end
 
+"""
+```julia
+sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
+```    
+
+"""
 function sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
 
     # set up optimization variables
@@ -555,7 +596,12 @@ function sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, di
 
 end
 
+"""
+```julia
+sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
+```    
 
+"""
 function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
     # get gmvp
     gmvpWgts = gmvp(thisUniv)

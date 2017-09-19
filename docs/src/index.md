@@ -9,31 +9,27 @@ management strategies.
 ## Portfolio functions
 
 ```@docs
-pfVariance
-```
-
-```@docs
-DynAssMgmt.pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
-```
-
-```@docs
 pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
-```
-
-
-```@docs
-DynAssMgmt.pfDivers
+pfDivers
 ```
 
 ## Single period strategies
 
 ```@docs
-gmvp(thisUniv)
+DynAssMgmt.gmvp(thisUniv)
 ```
 
 ```@docs
-gmvp_lev(thisUniv::Univ)
+DynAssMgmt.gmvp_lev(thisUniv::Univ)
 ```
+
+## Internal
+
+```@docs
+DynAssMgmt.pfVariance
+DynAssMgmt.pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
+```
+
 
 ## Index
 
