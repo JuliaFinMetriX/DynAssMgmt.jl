@@ -68,3 +68,57 @@ end
 function str2symb(strArr::Array{String, 1})
     return convert(Array{Symbol, 1}, strArr)
 end
+
+"""
+    loadTestData(dataName::String)
+
+Load one of the predefined test data.
+
+fx / Fx:
+
+"Garch" dataset from "Ecdat" R package (https://cran.r-project.org/web/packages/Ecdat/Ecdat.pdf).
+
+Daily observations of exchange rate data from 1980–01 to 1987–05–21.
+Following exchange rates are part of it:
+
+- dm: exchange rate Dollar/Deutsch Mark
+- bp: exchange rate of Dollar/British Pound
+- cd: exchange rate of Dollar/Canadian Dollar
+- dy: exchange rate of Dollar/Yen
+- sf: exchange rate of Dollar/Swiss Franc
+"""
+function loadTestData(dataName::String)
+
+    allDatasets = ["fx", "Fx"]
+
+    if !(dataName in allDatasets)
+        error("Test data with name $dataName does not exist. Allowed datasets are $allDatasets")
+    end
+
+    testData = []
+    if dataName == "fx"
+        testData = loadTestData_fx()
+    elseif dataName == "Fx"
+        testData = loadTestData_fx()
+    end
+
+    return testData
+end
+
+function loadTestData_fx()
+    # load exchange rate test data as TimeArray
+
+    # load as DataFrame
+    fxRates = dataset("Ecdat", "Garch")
+
+    # fixe dates
+    dats = [Date(*("19", string(thisDat)), "yyyymmdd") for thisDat in fxRates[:Date]]
+    fxRates[:Date] = dats
+
+    # remove unrequired columns
+    fxRates = fxRates[:, [:Date, :DM, :BP, :CD, :DY, :SF]]
+
+    # convert to TimeArray
+    fxTimeArray = TimeArray(fxRates, timestamp_column=:Date)
+
+end

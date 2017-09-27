@@ -25,6 +25,8 @@ using DistributedArrays
 using Plots
 using StatPlots
 using TimeSeries
+using IterableTables
+using RDatasets
 
 #set_default_solver(SCS.SCSSolver(verbose=0))
 
