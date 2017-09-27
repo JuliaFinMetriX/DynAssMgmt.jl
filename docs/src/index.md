@@ -69,7 +69,7 @@ DynAssMgmt.gmvp_lev(thisUniv::Univ)
 ## Utilities
 
 ```@docs
-loadTestData(dataName::String)
+DynAssMgmt.loadTestData(dataName::String)
 ```
 
 

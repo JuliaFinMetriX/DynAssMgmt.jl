@@ -21,6 +21,13 @@ end
 plotlyjs()
 Plots.gr()
 
+## load test data
+fxRates = DynAssMgmt.loadTestData("fx")
+
+##
+
+DynAssMgmt.tsPlot(fxRates)
+
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
 rawCovs = readcsv("inputData/jochenCovs.csv")
