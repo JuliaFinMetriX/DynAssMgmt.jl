@@ -74,9 +74,9 @@ end
 
 Load one of the predefined test data.
 
-fx / Fx:
+## fx / Fx:
 
-"Garch" dataset from "Ecdat" R package (https://cran.r-project.org/web/packages/Ecdat/Ecdat.pdf).
+**Garch** dataset from [Ecdat R package](https://cran.r-project.org/web/packages/Ecdat/Ecdat.pdf).
 
 Daily observations of exchange rate data from 1980–01 to 1987–05–21.
 Following exchange rates are part of it:
