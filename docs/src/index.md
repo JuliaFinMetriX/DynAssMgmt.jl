@@ -66,6 +66,11 @@ DynAssMgmt.gmvp(thisUniv::Univ)
 DynAssMgmt.gmvp_lev(thisUniv::Univ)
 ```
 
+## Utilities
+
+```@docs
+loadTestData(dataName::String)
+```
 
 
 ## Index
