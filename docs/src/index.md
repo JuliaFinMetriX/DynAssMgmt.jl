@@ -72,6 +72,12 @@ DynAssMgmt.gmvp_lev(thisUniv::Univ)
 DynAssMgmt.loadTestData(dataName::String)
 ```
 
+```@docs
+DynAssMgmt.locf!
+DynAssMgmt.locf
+DynAssMgmt.nocb!
+DynAssMgmt.nocb
+```
 
 ## Index
 

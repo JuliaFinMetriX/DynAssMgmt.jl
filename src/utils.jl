@@ -122,3 +122,56 @@ function loadTestData_fx()
     fxTimeArray = TimeArray(fxRates, timestamp_column=:Date)
 
 end
+
+
+## basic imputation functions
+"""
+    locf!(xx::Array{Float64, 1})
+
+Replacing `NaN` according to *last observation carried forward*.
+"""
+function locf!(xx::Array{Float64, 1})
+    nObs = size(xx, 1)
+    for ii=2:nObs
+        if isnan(xx[ii])
+            xx[ii] = xx[ii-1]
+        end
+    end
+    return xx
+end
+
+"""
+    locf(xx::Array{Float64, 1})
+
+Replacing `NaN` according to *last observation carried forward*.
+"""
+function locf(xx::Array{Float64, 1})
+    imputedVals = copy(xx)
+    return locf!(imputedVals)
+end
+
+"""
+    nocb!(xx::Array{Float64, 1})
+
+Replacing `NaN` according to *next observation carried backward*.
+"""
+function nocb!(xx::Array{Float64, 1})
+    # next observation carried backward
+    nObs = size(xx, 1)
+    for ii=(nObs-1):-1:1
+        if isnan(xx[ii])
+            xx[ii] = xx[ii+1]
+        end
+    end
+    return xx
+end
+
+"""
+    nocb(xx::Array{Float64, 1})
+
+Replacing `NaN` according to *next observation carried backward*.
+"""
+function nocb(xx::Array{Float64, 1})
+    imputedVals = copy(xx)
+    return nocb!(imputedVals)
+end
