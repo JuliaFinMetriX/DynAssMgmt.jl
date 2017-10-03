@@ -197,3 +197,66 @@ function nocb(xx::Array{Float64, 1})
     imputedVals = copy(xx)
     return nocb!(imputedVals)
 end
+
+
+"""
+    nocb(xx::Array{Float64, 2})
+"""
+function nocb(xx::Array{Float64, 2})
+    ncols = size(xx, 2)
+    for ii=1:ncols
+        xx[:, ii] = nocb(xx[:, ii])
+    end
+    return xx
+end
+
+"""
+    nocb(xx::TimeArray)
+"""
+function nocb(xx::TimeSeries.TimeArray)
+    # get values
+    transformedValues = locf(xx.values)
+
+    # put together TimeArray again
+    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues)
+end
+
+## normalize prices
+
+"""
+    normalizePrices(xx::Array{Float64, 1})
+
+Rescale prices such that first observation starts at 1.
+"""
+function normalizePrices(prices::Array{Float64, 1})
+    nObs = size(prices, 1)
+
+    # make sure that first observation is not NaN
+    imputedPrices = DynAssMgmt.nocb(DynAssMgmt.locf(prices))
+
+    repeatedInitVals = imputedPrices[1] .* ones(Float64, nObs)
+    normedValues = prices ./ repeatedInitVals
+end
+
+"""
+    normalizePrices(xx::Array{Float64, 2})
+"""
+function normalizePrices(prices::Array{Float64, 2})
+    nrows, ncols = size(prices)
+    normedValues = copy(prices)
+    for ii=1:ncols
+        normedValues[:, ii] = normalizePrices(prices[:, ii])
+    end
+    return normedValues
+end
+
+"""
+    normalizePrices(xx::TimeArray)
+"""
+function normalizePrices(prices::TimeSeries.TimeArray)
+    # get normalized values
+    normedPrices = normalizePrices(prices.values)
+
+    # put together TimeArray again
+    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices)
+end

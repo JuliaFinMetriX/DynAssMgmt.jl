@@ -17,7 +17,8 @@ export
     DivFront,
     apply,
     pfMoments,
-    pfDivers
+    pfDivers,
+    normalizePrices
 
 using DataFrames
 using Convex

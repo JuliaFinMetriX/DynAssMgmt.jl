@@ -77,7 +77,9 @@ DynAssMgmt.locf!
 DynAssMgmt.locf
 DynAssMgmt.nocb!
 DynAssMgmt.nocb
+normalizePrices
 ```
+
 
 ## Index
 
