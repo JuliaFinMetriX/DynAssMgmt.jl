@@ -191,12 +191,17 @@ function tsPlot(df::DataFrame)
 
 end
 
-function tsPlot(ta::TimeArray)
+function tsPlot(ta::TimeArray; doNorm = false)
     # get dates column and convert to numbers
     dats = getNumDates(ta.timestamp)
 
     # get values
     xxVals = ta.values
+
+    # optionally normalize prices
+    if doNorm
+        xxVals = normalizePrices(xxVals)
+    end
 
     # get labels
     assNams = ta.colnames

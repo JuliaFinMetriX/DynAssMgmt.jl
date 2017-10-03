@@ -26,7 +26,11 @@ fxRates = DynAssMgmt.loadTestData("fx")
 
 ##
 
-DynAssMgmt.tsPlot(fxRates)
+normedFxRates = normalizePrices(fxRates)
+
+##
+
+DynAssMgmt.tsPlot(fxRates, doNorm = true)
 
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
