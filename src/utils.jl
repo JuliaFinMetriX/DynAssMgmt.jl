@@ -151,6 +151,28 @@ function locf(xx::Array{Float64, 1})
 end
 
 """
+    locf(xx::Array{Float64, 2})
+"""
+function locf(xx::Array{Float64, 2})
+    ncols = size(xx, 2)
+    for ii=1:ncols
+        xx[:, ii] = locf(xx[:, ii])
+    end
+    return xx
+end
+
+"""
+    locf(xx::TimeArray)
+"""
+function locf(xx::TimeSeries.TimeArray)
+    # get values
+    transformedValues = locf(xx.values)
+
+    # put together TimeArray again
+    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues)
+end
+
+"""
     nocb!(xx::Array{Float64, 1})
 
 Replacing `NaN` according to *next observation carried backward*.
