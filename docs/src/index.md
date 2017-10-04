@@ -9,7 +9,7 @@ management strategies.
 ## Portfolio functions
 
 ```@docs
-pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
 pfDivers
 ```
 

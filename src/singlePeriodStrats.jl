@@ -51,7 +51,7 @@ end
 """
 ```julia
 maxSharpe(thisUniv::Univ)
-```    
+```
 
 Compute portfolio with maximum Sharpe-ratio.
 """
@@ -78,7 +78,7 @@ end
 """
 ```julia
 sigmaTarget(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 Compute portfolio with maximum expected return for a given volatility target.
 """
@@ -90,7 +90,7 @@ end
 """
 ```julia
 sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 Compute portfolio with maximum expected return for a given volatility target.
 Allow fallback in case that volatility target can not be reached.
@@ -124,8 +124,8 @@ function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
         # if target sigma is too low to be reached
         xWgts = gmvp(thisUniv) # get gmv portfolio
         # get associated variance
-        xxx, gmvVar = pfMoments(thisUniv, xWgts)
-        if sigTarget < sqrt(gmvSigma)
+        xxx, gmvStd = pfMoments(thisUniv, xWgts, "std")
+        if sigTarget < gmvStd
             return xWgts
         end
     end
@@ -136,7 +136,7 @@ end
 """
 ```julia
 sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 Compute portfolio with maximum expected return for a given volatility target.
 Use bisection and iterative mu target optimizations in order to find
@@ -157,15 +157,14 @@ function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
     # get mu range
     upBoundMu = maximum(thisUniv.mus)
     gmvpWgts = gmvp(thisUniv)
-    lowBoundMu, lowBoundVar = pfMoments(thisUniv, gmvpWgts)
+    lowBoundMu, lowBoundStd = pfMoments(thisUniv, gmvpWgts, "std")
 
     # get mu mid-point
     midMu = (upBoundMu + lowBoundMu)./2
 
     # get associated sigma
     midMuPfWgts = muTarget(thisUniv, midMu)
-    xx, midMuVar = pfMoments(thisUniv, midMuPfWgts)
-    midMuSig = sqrt.(midMuVar)
+    xx, midMuSig = pfMoments(thisUniv, midMuPfWgts, "std")
 
     iterCount = 1
     iterLimit = 150
@@ -182,8 +181,7 @@ function sigmaTarget_biSect_quadForm(thisUniv::Univ, sigTarget::Float64)
 
         # get associated sigma
         midMuPfWgts = muTarget(thisUniv, midMu)
-        xx, midMuVar = pfMoments(thisUniv, midMuPfWgts)
-        midMuSig = sqrt.(midMuVar)
+        xx, midMuSig = pfMoments(thisUniv, midMuPfWgts, "std")
 
         if upBoundMu - lowBoundMu < 0.0001
             warn("Extremely horizontal efficient frontier region makes target sigma unreliably, so we stop here")
@@ -204,7 +202,7 @@ end
 """
 ```julia
 sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 Compute portfolio with maximum expected return for a given volatility target.
 Use re-formulation as convex optimization problem for computation.
@@ -247,16 +245,14 @@ function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
     xWgts = x.value[:]
 
     # make test
-    xxMu, xxVar = pfMoments(thisUniv, xWgts)
-    truePfSig = sqrt.(xxVar)
+    xxMu, truePfSig = pfMoments(thisUniv, xWgts, "std")
     if abs(truePfSig - sigTarget) > 0.01
         warn("Sigma target optimization did not work well, trying fallback function")
         display("True sigma is $truePfSig")
 
         # try fallback
         xWgts2 = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
-        xxMu, xxVar = pfMoments(thisUniv, xWgts2)
-        truePfSig2 = sqrt.(xxVar)
+        xxMu, truePfSig2 = pfMoments(thisUniv, xWgts2, "std")
 
         if abs(truePfSig - sigTarget) < abs(truePfSig2 - sigTarget)
             display("No improvement")
@@ -273,7 +269,7 @@ end
 """
 ```julia
 sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 Compute portfolio with maximum expected return for a given volatility target.
 Try to use convex optimization directly without any re-formulation. This
@@ -299,7 +295,7 @@ function sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
         # if target sigma is too low to be reached
         xWgts = gmvp(thisUniv) # get gmv portfolio
         get
-        xxx, gmvSigma = pfMoments(thisUniv, xWgts)
+        xxx, gmvSigma = pfMoments(thisUniv, xWgts, "std")
         if sigTarget < gmvSigma
             return xWgts
         end
@@ -334,7 +330,7 @@ end
 """
 ```julia
 muTarget(thisUniv::Univ, targetMu::Float64)
-```    
+```
 
 Compute portfolio with minimum volatility for a given target expectation.
 """
@@ -364,7 +360,7 @@ end
 """
 ```julia
 effFront(thisUniv::Univ; nEffPfs = 30)
-```    
+```
 
 Compute efficient frontier portfolios.
 """
@@ -374,7 +370,7 @@ function effFront(thisUniv::Univ; nEffPfs = 30)
 
     # get global minimum variance portfolio
     wgtsGmvp = gmvp(thisUniv)
-    minMu, xx = pfMoments(thisUniv, wgtsGmvp)
+    minMu, xx = pfMoments(thisUniv, wgtsGmvp, "std")
 
     # get maximum mu
     maxMu, maxInd = findmax(thisUniv.mus)
@@ -404,7 +400,7 @@ end
 """
 ```julia
 diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
-```    
+```
 
 """
 function diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
@@ -429,7 +425,7 @@ end
 """
 ```julia
 diversTargetMaxSigma(thisUniv::Univ, diversTarget)
-```    
+```
 
 """
 function diversTargetMaxSigma(thisUniv::Univ, diversTarget)
@@ -454,7 +450,7 @@ end
 """
 ```julia
 diversTargetMinSigma(thisUniv::Univ, diversTarget)
-```    
+```
 
 """
 function diversTargetMinSigma(thisUniv::Univ, diversTarget)
@@ -480,7 +476,7 @@ end
 """
 ```julia
 sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
-```    
+```
 
 """
 function sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
@@ -518,7 +514,7 @@ end
 """
 ```julia
 sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
-```    
+```
 
 """
 function sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
@@ -556,7 +552,7 @@ end
 """
 ```julia
 sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
-```    
+```
 
 """
 function sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
@@ -600,24 +596,21 @@ end
 """
 ```julia
 sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
-```    
+```
 
 """
 function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
     # get gmvp
     gmvpWgts = gmvp(thisUniv)
-    xxMu, xxVar = pfMoments(thisUniv, gmvpWgts)
-    gmvpSig = sqrt(xxVar)
+    xxMu, gmvpSig = pfMoments(thisUniv, gmvpWgts, "std")
 
     # get minimum sigma on diversification-aware frontier
     minSigWgts = diversTargetMinSigma(thisUniv, diversTarget)
-    xxMu, xxVar = pfMoments(thisUniv, minSigWgts)
-    diversFrontierMinSig = sqrt(xxVar)
+    xxMu, diversFrontierMinSig = pfMoments(thisUniv, minSigWgts, "std")
 
     # get maximum sigma on diversification-aware frontier
     maxSigWgts = diversTargetMaxSigma(thisUniv, diversTarget)
-    xxMu, xxVar = pfMoments(thisUniv, maxSigWgts)
-    diversFrontierMaxSig = sqrt(xxVar)
+    xxMu, diversFrontierMaxSig = pfMoments(thisUniv, maxSigWgts, "std")
 
     if !(gmvpSig < diversFrontierMinSig)
         error("GMVP volatility needs to be smaller than any other volatility")

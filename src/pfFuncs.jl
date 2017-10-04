@@ -3,10 +3,10 @@
 """
 ```julia
 pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
-```    
+```
 
 Compute the portfolio variance without any re-scaling or annualization.
-""" 
+"""
 function pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
     wgts'*covs*wgts
 end
@@ -25,112 +25,117 @@ end
 
 """
 ```julia
-pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
 ```
 
-Compute portfolio variance and expectation without any re-scaling or
-annualization.
+Compute portfolio expectation and variance or standard deviation
+without any re-scaling or annualization. Allowed risk type keywords are
+`std` and `var`.
 
 ## Single universe, single weights
 
 ```julia
-pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
-pfMoments(thisUniv::Univ, wgts::Array{Float64, 1})
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
+pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
 ```
 
 ## Multiple universes, single weights
 
 ```julia
-pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
+pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1}, riskType::String)
 ```
 
 ## Single universe, multiple weights
 
 ```julia
-pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1})
-pfMoments(univHist::Univ, wgts::Array{Float64, 2})
+pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1}, riskType::String)
+pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)
 ```
 
 ## Multiple universes, multiple weights
 
 ```julia
-pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
+pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)
 ```
 
 """
-function pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1})
-    pfMu(mus, wgts), pfVariance(covs, wgts)
+function pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
+    riskOut = pfVariance(covs, wgts)
+    if riskType == "std"
+        riskOut = sqrt(riskOut)
+    end
+    pfMu(mus, wgts), riskOut
 end
 
 """
-    pfMoments(thisUniv::Univ, wgts::Array{Float64, 1})
+    pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
 
 Applies to moments given as Univ type.
 """
-function pfMoments(thisUniv::Univ, wgts::Array{Float64, 1})
-    pfMoments(thisUniv.mus, thisUniv.covs, wgts)
+function pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
+    pfMoments(thisUniv.mus, thisUniv.covs, wgts, riskType)
 end
 
 """
-    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
+    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1}, riskType::String)
 
 Applies to multiple universes that are given as UnivEvol.
 """
-function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1})
+function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1}, riskType::String)
     # preallocation
     nObs, nAss = size(univHist)
     allMoments = zeros(nObs, 2)
 
     for ii=1:nObs
-        thisMu, thisVariance = pfMoments(univHist.universes[ii], wgts)
-        allMoments[ii, :] = [thisMu thisVariance]
+        thisMu, thisRisk = pfMoments(univHist.universes[ii], wgts, riskType)
+        allMoments[ii, :] = [thisMu thisRisk]
     end
     mus = allMoments[:, 1]
-    vars = allMoments[:, 2]
-    return mus, vars
+    risks = allMoments[:, 2]
+    return mus, risks
 end
 
 """
-    pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1})
+    pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1}, riskType::String)
 
 Applies to single universe given as type Univ and a series
 of portfolio weights.
 """
-function pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1})
+function pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1}, riskType::String)
     # get dimensions
     nObs = size(pfWgts, 1)
 
-    pfMus, pfVars = (zeros(Float64, nObs), zeros(Float64, nObs))
+    pfMus, pfRisks = (zeros(Float64, nObs), zeros(Float64, nObs))
 
     for ii=1:nObs
-        pfMus[ii], pfVars[ii] = pfMoments(univHist, pfWgts[ii][:])
+        pfMus[ii], pfRisks[ii] = pfMoments(univHist, pfWgts[ii][:], riskType)
     end
-    return pfMus, pfVars
+    return pfMus, pfRisks
 end
 
 """
-    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
+    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)
 
 Applies to single universe and multiple portfolio weights.
 """
-function pfMoments(univHist::Univ, wgts::Array{Float64, 2})
+function pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)
     # get dimensions
     nObs, nAss = size(wgts)
 
-    pfMus, pfVars = (zeros(Float64, nObs), zeros(Float64, nObs))
+    pfMus, pfRisks = (zeros(Float64, nObs), zeros(Float64, nObs))
 
     for ii=1:nObs
-        pfMus[ii], pfVars[ii] = pfMoments(univHist, wgts[ii, :][:])
+        pfMus[ii], pfRisks[ii] = pfMoments(univHist, wgts[ii, :][:], riskType)
     end
-    return pfMus, pfVars
+    return pfMus, pfRisks
 end
 
 """
-    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
+    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)
 
 Applies to multiple universes and multiple portfolio weights.
 """
-function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
+function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)
 
     # get dimensions
     nObs = size(univHist, 1)
@@ -141,17 +146,17 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2})
     end
 
     dailyPfMus = zeros(Float64, nObs)
-    dailyPfVars = zeros(Float64, nObs)
+    dailyPfRisks = zeros(Float64, nObs)
     for ii=1:nObs
         thisUniv = univHistory.universes[ii]
 
         thisWgts = wgts[ii, :]
-        mu, pfvar = pfMoments(thisUniv, thisWgts[:])
+        mu, pfrisk = pfMoments(thisUniv, thisWgts[:], riskType)
 
         dailyPfMus[ii] = mu
-        dailyPfVars[ii] = pfvar
+        dailyPfRisks[ii] = pfrisks
     end
-    return dailyPfMus, dailyPfVars
+    return dailyPfMus, dailyPfRisks
 
 end
 

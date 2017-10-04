@@ -60,35 +60,35 @@ function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
     plot(thisUniv)
 
     # calculate pf moments
-    mu, pfVar = pfMoments(thisUniv, pfWgts)
+    mu, pfvola = pfMoments(thisUniv, pfWgts, "std")
 
-    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
+    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:scatter)
 end
 
 function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
 
     # calculate pf moments
-    mu, pfVar = pfMoments(thisUniv, pfWgts)
+    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
 
-    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:scatter)
+    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:scatter)
 end
 
 function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{Array{Float64, 1}, 1})
     plot(thisUniv)
 
     # calculate pf moments
-    mu, pfVar = pfMoments(thisUniv, pfWgts)
+    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
 
-    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:line)
+    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:line)
 
 end
 
 function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{Array{Float64, 1}, 1})
 
     # calculate pf moments
-    mu, pfVar = pfMoments(thisUniv, pfWgts)
+    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
 
-    plot!([sqrt.(pfVar)*sqrt.(52)], [mu.*52], seriestype=:line)
+    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:line)
 
 end
 

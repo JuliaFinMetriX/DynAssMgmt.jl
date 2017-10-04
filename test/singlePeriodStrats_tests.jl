@@ -11,27 +11,27 @@ xxthisUniv = Univ(xxMus, xxCovs)
 
 sigTarget = 1.7
 targetSigWgts = DynAssMgmt.sigmaTarget(xxthisUniv, sigTarget)
-xxMu, xxVar = pfMoments(xxthisUniv, targetSigWgts)
-@test abs(sqrt(xxVar) - sigTarget) < 0.01
+xxMu, xxSig = pfMoments(xxthisUniv, targetSigWgts, "std")
+@test abs(xxSig - sigTarget) < 0.01
 
 sigTarget = 0.3
 targetSigWgts = DynAssMgmt.sigmaTarget(xxthisUniv, sigTarget)
-xxMu, xxVar = pfMoments(xxthisUniv, targetSigWgts)
-@test abs(sqrt(xxVar) - sigTarget) < 0.01
+xxMu, xxSig = pfMoments(xxthisUniv, targetSigWgts, "std")
+@test abs(xxSig - sigTarget) < 0.01
 
 ## test mu target
 xxmuTarget = 0.1
 xxWgts = DynAssMgmt.muTarget(xxthisUniv, xxmuTarget)
-xxMu, xxVar = pfMoments(xxthisUniv, xxWgts)
+xxMu, xxVar = pfMoments(xxthisUniv, xxWgts, "var")
 @test abs(xxMu - xxmuTarget) < 0.0001
 
 xxmuTarget = 0.02
 xxWgts = DynAssMgmt.muTarget(xxthisUniv, xxmuTarget)
-xxMu, xxVar = pfMoments(xxthisUniv, xxWgts)
+xxMu, xxVar = pfMoments(xxthisUniv, xxWgts, "var")
 @test abs(xxMu - xxmuTarget) < 0.0001
 
 
 ## test gmvp
 xxgmvp = DynAssMgmt.gmvp(xxthisUniv)
-xxMu, xxVar = pfMoments(xxthisUniv, xxgmvp)
+xxMu, xxVar = pfMoments(xxthisUniv, xxgmvp, "var")
 @test all(xxVar .<= diag(xxthisUniv.covs) + 0.0001)
