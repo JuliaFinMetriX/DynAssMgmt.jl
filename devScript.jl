@@ -24,11 +24,17 @@ Plots.gr()
 ## load test data
 fxRates = DynAssMgmt.loadTestData("fx")
 
-##
+fxRates
 
-normedFxRates = normalizePrices(fxRates)
+TimeSeries.colnames(fxRates)
+data = fxRates["CD"].values
+lambdaVal = 0.98
+## dev of ewma estimators
 
-##
+getEwmaStd(data, lambdaVal)
+getEwmaStd(fxRates.values, lambdaVal)
+
+## plot normalized prices
 
 DynAssMgmt.tsPlot(fxRates, doNorm = true)
 

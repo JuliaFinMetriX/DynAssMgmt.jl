@@ -34,6 +34,7 @@ using RDatasets
 include("utils.jl")
 include("assetAllocationTypes.jl")
 include("pfFuncs.jl")
+include("baseEconMetrics.jl")
 include("singlePeriodStrats.jl")
 include("spTargets.jl")
 include("pfAPI.jl")
