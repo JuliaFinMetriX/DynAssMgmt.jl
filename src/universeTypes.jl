@@ -68,7 +68,7 @@ struct EWMA
     covPersistence::Float64
 end
 
-function apply(thisEstimator::UnivEstimator, discRets::TimeSeries.TimeArray})
+function apply(thisEstimator::UnivEstimator, discRets::TimeSeries.TimeArray)
 
 
 end
