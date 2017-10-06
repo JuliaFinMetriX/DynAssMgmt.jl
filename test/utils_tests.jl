@@ -34,15 +34,3 @@ xx = DynAssMgmt.locf(fxRates)
 # nocb!
 xx = [NaN; 6.5; 4.3; NaN; NaN; 8.0]
 @test DynAssMgmt.nocb!(xx) == [6.5; 6.5; 4.3; 8.0; 8.0; 8.0]
-
-# normalizePrices
-xx = [100; 120; 200.0]
-expOut = [1; 1.2; 2]
-@test normalizePrices(xx) == expOut
-
-# with missing observation at beginning
-xx = [NaN; 100; 120; 200.0]
-expOut = [NaN; 1; 1.2; 2]
-actOut = normalizePrices(xx)
-@test isnan(actOut[1])
-@test actOut[2:end] == expOut[2:end]

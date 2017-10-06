@@ -25,6 +25,19 @@ perfs = DynAssMgmt.aggregateReturns(discRets)
 fullRet = (data[end] - data[1])./data[1]
 @test perfs[end] ≈ fullRet
 
+# normalizePrices
+xx = [100; 120; 200.0]
+expOut = [1; 1.2; 2]
+@test normalizePrices(xx) == expOut
+
+# with missing observation at beginning
+xx = [NaN; 100; 120; 200.0]
+expOut = [NaN; 1; 1.2; 2]
+actOut = normalizePrices(xx)
+@test isnan(actOut[1])
+@test actOut[2:end] == expOut[2:end]
+
+
 
 # test that results of different input types are consistent
 fxRets = DynAssMgmt.computeReturns(fxRates)

@@ -155,6 +155,46 @@ function aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
 end
 
 
+## normalize prices
+
+"""
+    normalizePrices(xx::Array{Float64, 1})
+
+Rescale prices such that first observation starts at 1.
+"""
+function normalizePrices(prices::Array{Float64, 1})
+    nObs = size(prices, 1)
+
+    # make sure that first observation is not NaN
+    imputedPrices = DynAssMgmt.nocb(DynAssMgmt.locf(prices))
+
+    repeatedInitVals = imputedPrices[1] .* ones(Float64, nObs)
+    normedValues = prices ./ repeatedInitVals
+end
+
+"""
+    normalizePrices(xx::Array{Float64, 2})
+"""
+function normalizePrices(prices::Array{Float64, 2})
+    nrows, ncols = size(prices)
+    normedValues = copy(prices)
+    for ii=1:ncols
+        normedValues[:, ii] = normalizePrices(prices[:, ii])
+    end
+    return normedValues
+end
+
+"""
+    normalizePrices(xx::TimeArray)
+"""
+function normalizePrices(prices::TimeSeries.TimeArray)
+    # get normalized values
+    normedPrices = normalizePrices(prices.values)
+
+    # put together TimeArray again
+    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
+end
+
 """
     getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
