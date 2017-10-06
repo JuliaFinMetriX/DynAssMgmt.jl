@@ -22,4 +22,9 @@ docs_dir: 'build'
 
 pages:
 - Introduction: index.md
-
+- Types:
+  - Return data: types/dataTypes.md
+  - Moment estimators: types/estimatorTypes.md
+  - Asset moments: types/universeTypes.md
+  - Investments: types/investmentTypes.md
+  - Performance: types/bktestTypes.md

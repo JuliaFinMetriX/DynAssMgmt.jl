@@ -6,6 +6,20 @@ management strategies.
 ```@contents
 ```
 
+## API types
+
+```
+{contents}
+Pages = [
+	   "types/dataTypes.md"
+		"types/estimatorTypes.md"
+		"types/universeTypes.md"
+		"types/investmentTypes.md"
+		"types/bktestTypes.md"
+    ]
+Depth = 2
+```
+
 ## Portfolio functions
 
 ```@docs
