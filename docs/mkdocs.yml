@@ -26,5 +26,6 @@ pages:
   - Return data: types/dataTypes.md
   - Moment estimators: types/estimatorTypes.md
   - Asset moments: types/universeTypes.md
+  - Strategies: types/strategies.md
   - Investments: types/investmentTypes.md
   - Performance: types/bktestTypes.md

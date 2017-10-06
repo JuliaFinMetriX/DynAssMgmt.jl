@@ -8,51 +8,13 @@ management strategies.
 
 ## API types
 
-[Type relations](../pics/type_interactions.png)
+[Type relations](https://github.com/cgroll/DynAssMgmt/blob/master/docs/pics/type_interactions.png)
 
 ## Portfolio functions
 
 ```@docs
 pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
 pfDivers
-```
-
-## Single period strategies
-
-```@docs
-apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
-```
-
-```@docs
-GMVP
-```
-
-```@docs
-TargetVola
-```
-
-```@docs
-RelativeTargetVola
-```
-
-```@docs
-MaxSharpe
-```
-
-```@docs
-TargetMu
-```
-
-```@docs
-EffFront
-```
-
-```@docs
-DivFrontSigmaTarget
-```
-
-```@docs
-DivFront
 ```
 
 ## Internal
