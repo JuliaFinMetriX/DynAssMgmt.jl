@@ -24,7 +24,7 @@ end
     computeReturns(prices::Array{Float64, 2})
 """
 function computeReturns(prices::Array{Float64, 2})
-    nObs, ncols = size(data)
+    nObs, ncols = size(prices)
 
     discRets = zeros(Float64, nObs-1, ncols)
 

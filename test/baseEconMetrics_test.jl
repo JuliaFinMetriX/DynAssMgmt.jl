@@ -27,10 +27,12 @@ fullRet = (data[end] - data[1])./data[1]
 
 
 # test that results of different input types are consistent
+fxRets = DynAssMgmt.computeReturns(fxRates)
+data = fxRets["CD"].values
 lambdaVal = 0.8
 xx = DynAssMgmt.getEwmaStd(data, lambdaVal)
-xx2 = DynAssMgmt.getEwmaStd(fxRates.values, lambdaVal)
-xx3 = DynAssMgmt.getEwmaStd(fxRates, lambdaVal)
+xx2 = DynAssMgmt.getEwmaStd(fxRets.values, lambdaVal)
+xx3 = DynAssMgmt.getEwmaStd(fxRets, lambdaVal)
 
 @test xx ≈ xx2[colInd][1]
 @test xx ≈ xx3[colInd][1]
@@ -38,12 +40,25 @@ xx3 = DynAssMgmt.getEwmaStd(fxRates, lambdaVal)
 
 # test values themselves
 lambdaVal = 0.9999
-xx = DynAssMgmt.getEwmaStd(fxRates, lambdaVal)
-xx2 = std(fxRates.values, 1)
-@test xx ≈ xx2 atol=0.008
+xx = DynAssMgmt.getEwmaStd(fxRets, lambdaVal)
+xx2 = std(fxRets.values, 1)
+@test xx ≈ xx2 atol=0.0001
 
 # test values for ewma mean
 lambdaVal = 0.9999
-xx = DynAssMgmt.getEwmaMean(fxRates, lambdaVal)
-xx2 = mean(fxRates.values, 1)
-@test xx ≈ xx2 atol=0.02
+xx = DynAssMgmt.getEwmaMean(fxRets, lambdaVal)
+xx2 = mean(fxRets.values, 1)
+@test xx ≈ xx2 atol=0.0001
+
+# test values for covariance matrix
+lambdaVal = 0.9999
+xx = DynAssMgmt.getEwmaCov(fxRets, lambdaVal)
+xx2 = cov(fxRets.values, 1)
+@test xx ≈ xx2 atol=0.0001
+
+# cross-checks
+lambdaVal = 0.8
+xx = DynAssMgmt.getEwmaCov(fxRets, lambdaVal)
+xxStd1 = sqrt.(diag(xx))
+xxStd2 = DynAssMgmt.getEwmaStd(fxRets, lambdaVal)
+@test xxStd1[:] ≈ xxStd2[:]
