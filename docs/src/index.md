@@ -3,12 +3,11 @@
 This package implements a framework to set up and test dynamic asset
 management strategies.
 
-```@contents
-```
 
 ## API types
 
-[Type relations](https://github.com/cgroll/DynAssMgmt/blob/master/docs/pics/type_interactions.png)
+![Type relations](https://github.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
+
 
 ## Portfolio functions
 
