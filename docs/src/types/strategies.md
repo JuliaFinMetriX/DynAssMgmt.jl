@@ -8,6 +8,11 @@ apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
 ```
 
 ```@docs
+SinglePeriodTarget
+SinglePeriodSpectrum
+```
+
+```@docs
 GMVP
 ```
 
