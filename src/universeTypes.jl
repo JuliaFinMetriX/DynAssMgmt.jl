@@ -1,4 +1,6 @@
-# define types
+# types and functions relating to the financial environment
+# - mu / sigma / covariance container
+# - mu / sigma / covariance estimator
 
 """
     Univ(mus, covs)
@@ -49,6 +51,30 @@ Number of dates x number of assets of universe evolution
 function size(thisUnivEvol::UnivEvol)
     (length(thisUnivEvol.dates), length(thisUnivEvol.assetLabels))
 end
+
+## estimator types
+
+abstract type UnivEstimator end
+
+"""
+    EWMA(muPersistence::Float64, covPersistence::Float64)
+
+Exponential weighted moving average estimator of asset moments.
+`muPersistence` is the lambda value of the estimator of mean asset returns,
+and `covPersistence` is the lambda value for the covariance matrix.
+"""
+struct EWMA
+    muPersistence::Float64
+    covPersistence::Float64
+end
+
+function apply(thisEstimator::UnivEstimator, discRets::TimeSeries.TimeArray})
+
+
+end
+
+
+## derive series of financial environments from matlab .csv files
 
 """
     getUnivEvolFromMatlabFormat(musTab, covsTab)

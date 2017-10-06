@@ -24,15 +24,19 @@ Plots.gr()
 ## load test data
 fxRates = DynAssMgmt.loadTestData("fx")
 
-fxRates
+## dev
 
-TimeSeries.colnames(fxRates)
-data = fxRates["CD"].values
-lambdaVal = 0.98
-## dev of ewma estimators
+# 
+univList = []
 
-getEwmaStd(data, lambdaVal)
-getEwmaStd(fxRates.values, lambdaVal)
+# set up universe
+thisUniv = Univ(muVals, covVals)
+
+# push to list of universes
+push!(univList, thisUniv)
+
+# put all components together
+histEnv = UnivEvol(univList, allDats, assNames)
 
 ## plot normalized prices
 
