@@ -6,3 +6,16 @@ PF
 Invest
 ```
 
+## Portfolio functions
+
+```@docs
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
+pfDivers
+```
+
+## Internal
+
+```@docs
+DynAssMgmt.pfVariance
+DynAssMgmt.pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
+```

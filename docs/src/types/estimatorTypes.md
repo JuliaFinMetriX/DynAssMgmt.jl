@@ -5,3 +5,8 @@ DynAssMgmt.UnivEstimator
 EWMA
 ```
 
+```@docs
+getEwmaMean
+getEwmaStd
+getEwmaCov
+```

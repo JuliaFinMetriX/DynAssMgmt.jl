@@ -44,3 +44,12 @@ DivFrontSigmaTarget
 DivFront
 ```
 
+## Internal
+
+```@docs
+DynAssMgmt.gmvp(thisUniv::Univ)
+```
+
+```@docs
+DynAssMgmt.gmvp_lev(thisUniv::Univ)
+```
