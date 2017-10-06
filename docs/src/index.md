@@ -7,7 +7,9 @@ management strategies.
 ## API types
 
 ![Type relations](https://github.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
-
+![Type relations](https://raw.githubusercontent.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
+![Type relations](https://raw.githubusercontent.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
+![Type relations](https://github.com/cgroll/DynAssMgmt/blob/master/docs/pics/type_interactions.png)
 
 ## Portfolio functions
 
