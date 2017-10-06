@@ -10,6 +10,7 @@ management strategies.
 ![Type relations](https://raw.githubusercontent.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
 ![Type relations](https://raw.githubusercontent.com/cgroll/DynAssMgmt/docs/pics/type_interactions.png)
 ![Type relations](https://github.com/cgroll/DynAssMgmt/blob/master/docs/pics/type_interactions.png)
+![Type relations](https://raw.github.com/cgroll/DynAssMgmt/master/docs/pics/type_interactions.png)
 
 ## Portfolio functions
 
