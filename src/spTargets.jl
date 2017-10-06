@@ -3,13 +3,24 @@
 # TODO: create super type!
 # TODO: create collection of targets
 
+"""
+    SinglePeriodTarget
+
+Abstract super type for single-period strategies.
+"""
 abstract type SinglePeriodTarget end
+
+"""
+    SinglePeriodSpectrum
+
+Abstract super type for multiple single-period strategies in the cross-section.
+"""
 abstract type SinglePeriodSpectrum end
 
 """
 ```julia
 GMVP()
-```    
+```
 
 Global minimum variance portfolio strategy.
 """
@@ -22,7 +33,7 @@ apply(xx::GMVP, thisUniv::Univ) = PF(gmvp(thisUniv))
 """
 ```julia
 TargetVola(vol::Float64)
-```    
+```
 
 Target portfolio volatility strategy.
 """
@@ -36,7 +47,7 @@ apply(xx::TargetVola, thisUniv::Univ) = PF(sigmaTarget(thisUniv, xx.Vola))
 """
 ```julia
 RelativeTargetVola(vol::Float64)
-```    
+```
 
 Target portfolio volatility strategy, with volatility target given in relative
 terms. Target is relative with regards to maximum mu and gmvp.
@@ -49,7 +60,7 @@ end
 ```julia
 MaxSharpe()
 MaxSharpe(rf::Float64)
-```    
+```
 
 Maximum Sharpe-ratio portfolio strategy. Optional input can be used to specify
 the risk-free rate.
@@ -64,7 +75,7 @@ apply(xx::MaxSharpe, thisUniv::Univ) = PF(maxSharpe(thisUniv))
 """
 ```julia
 TargetMu(mu::Float64)
-```    
+```
 
 Target portfolio expectation strategy.
 """
@@ -77,7 +88,7 @@ apply(xx::TargetMu, thisUniv::Univ) = PF(muTarget(thisUniv, xx.Mu))
 """
 ```julia
 EffFront(npfs::Int64)
-```    
+```
 
 Efficient frontier portfolio spectrum. Single input determines the number of
 portfolios on the efficient frontier.
@@ -102,7 +113,7 @@ end
 """
 ```julia
 DivFrontSigmaTarget(divTarget::Float64, sigTarget::Float64)
-```    
+```
 
 Portfolio strategy with target diversification level and target volatility.
 """
@@ -114,7 +125,7 @@ end
 """
 ```julia
 DivFront(divTarget::Float64, sigTarget::Array{Float64, 1})
-```    
+```
 
 Multiple portfolios with target diversification level and multiple
 volatility targets.
@@ -133,7 +144,7 @@ end
 """
 ```julia
 getSingleTargets(someDivFront::DivFront)
-```    
+```
 
 Transform a spectrum of single-period portfolio strategies into an array of
 `SinglePeriodTarget`.
@@ -154,7 +165,7 @@ end
 """
 ```julia
 apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
-```    
+```
 
 Apply some single-period strategy to multiple universes. Automatically uses
 parallelization when multiple processes are running.

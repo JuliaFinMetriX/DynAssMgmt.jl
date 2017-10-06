@@ -54,6 +54,11 @@ end
 
 ## estimator types
 
+"""
+    UnivEstimator
+
+Abstract super type for asset moment estimators.
+"""
 abstract type UnivEstimator end
 
 """
