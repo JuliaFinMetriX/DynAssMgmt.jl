@@ -8,8 +8,8 @@ apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
 ```
 
 ```@docs
-SinglePeriodTarget
-SinglePeriodSpectrum
+DynAssMgmt.SinglePeriodTarget
+DynAssMgmt.SinglePeriodSpectrum
 ```
 
 ```@docs
