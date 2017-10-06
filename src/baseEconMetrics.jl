@@ -4,6 +4,95 @@
 # - price2ret
 
 """
+    computeReturns(prices::Array{Float64, 1})
+
+Compute returns from prices. The function uses default settings
+for return calculations:
+
+- discrete returns (not logarithmic)
+- fractional returns (not percentage)
+- single-period returns (not multi-period)
+- net returns (not gross returns)
+- straight-forward application to `NaN`s also
+
+"""
+function computeReturns(prices::Array{Float64, 1})
+    return (prices[2:end] - prices[1:end-1]) ./ prices[1:end-1]
+end
+
+"""
+    computeReturns(prices::Array{Float64, 2})
+"""
+function computeReturns(prices::Array{Float64, 2})
+    nObs, ncols = size(data)
+
+    discRets = zeros(Float64, nObs-1, ncols)
+
+    for ii=1:ncols
+        discRets[:, ii] = computeReturns(prices[:, ii])
+    end
+    return discRets
+end
+
+
+"""
+    computeReturns(xx::TimeSeries.TimeArray)
+"""
+function computeReturns(xx::TimeSeries.TimeArray)
+    # get values
+    discRets = computeReturns(xx.values)
+
+    # put together TimeArray again
+    xx = TimeSeries.TimeArray(xx.timestamp[2:end], discRets, xx.colnames)
+end
+
+
+## aggregate returns
+"""
+    aggregateReturns(rets::Array{Float64, 1})
+
+Aggregate returns to performances (not prices). The function uses default types
+of returns:
+
+- discrete returns (not logarithmic)
+- fractional returns (not percentage)
+- single-period returns (not multi-period)
+- net returns (not gross returns)
+- convention for how to deal with `NaN`s still needs to be defined
+
+"""
+function aggregateReturns(discRets::Array{Float64, 1})
+    # transform to log returns
+    logRets = log.(1 + discRets)
+
+    # aggregate in log world
+    logPerf = cumsum(logRets)
+
+    # transform back to discrete world
+    perfVals = exp.(logPerf) - 1
+
+end
+
+"""
+    rets2prices(discRets::Array{Float64, 1})
+
+Aggregate returns to prices (not performances). The function uses default types
+of returns:
+
+- discrete returns (not logarithmic)
+- fractional returns (not percentage)
+- single-period returns (not multi-period)
+- net returns (not gross returns)
+- convention for how to deal with `NaN`s still needs to be defined
+
+"""
+function rets2prices(discRets::Array{Float64, 1})
+    perfVals = aggregateReturns(discRets)
+    prices = perfVals + 1
+end
+
+
+"""
     getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
 EWMA estimator of standard deviation. `persistenceVal` defines how

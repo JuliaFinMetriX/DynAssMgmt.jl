@@ -2,10 +2,24 @@ using Base.Test
 
 fxRates = DynAssMgmt.loadTestData("fx")
 
-# pick single column as vector
+# pick single column for vector tests
 colNam = "CD"
 colInd = find(fxRates.colnames .== colNam)
 data = fxRates["CD"].values
+
+## computeReturns
+discRets = DynAssMgmt.computeReturns(data)
+@test size(discRets, 1) == (size(data, 1) - 1)
+
+normedPrices1 = DynAssMgmt.rets2prices(discRets)
+normedPrices2 = DynAssMgmt.normalizePrices(data)
+@test normedPrices1 ≈ normedPrices2[2:end]
+
+perfs = DynAssMgmt.aggregateReturns(discRets)
+fullRet = (data[end] - data[1])./data[1]
+@test perfs[end] ≈ fullRet
+
+
 
 # test that results of different input types are consistent
 lambdaVal = 0.8

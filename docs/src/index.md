@@ -81,6 +81,9 @@ normalizePrices
 getEwmaMean
 getEwmaStd
 getEwmaCov
+computeReturns
+aggregateReturns
+rets2prices
 ```
 
 

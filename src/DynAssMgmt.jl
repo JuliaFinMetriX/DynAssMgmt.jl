@@ -21,7 +21,10 @@ export
     normalizePrices,
     getEwmaMean,
     getEwmaStd,
-    getEwmaCov
+    getEwmaCov,
+    computeReturns,
+    aggregateReturns,
+    rets2prices
 
 using DataFrames
 using Convex
