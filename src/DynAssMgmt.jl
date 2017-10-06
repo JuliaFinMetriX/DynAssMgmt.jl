@@ -38,7 +38,7 @@ using RDatasets
 #set_default_solver(SCS.SCSSolver(verbose=0))
 
 include("utils.jl")
-include("assetAllocationTypes.jl")
+include("universeTypes.jl")
 include("pfFuncs.jl")
 include("baseEconMetrics.jl")
 include("singlePeriodStrats.jl")
