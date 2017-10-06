@@ -7,7 +7,7 @@ colNam = "CD"
 colInd = find(fxRates.colnames .== colNam)
 data = fxRates["CD"].values
 
-## computeReturns
+## computeReturns, aggregateReturns and rets2prices
 discRets = DynAssMgmt.computeReturns(data)
 @test size(discRets, 1) == (size(data, 1) - 1)
 
@@ -15,10 +15,15 @@ normedPrices1 = DynAssMgmt.rets2prices(discRets)
 normedPrices2 = DynAssMgmt.normalizePrices(data)
 @test normedPrices1 ≈ normedPrices2[2:end]
 
+normedPrices1 = DynAssMgmt.rets2prices(discRets, 1.0, true)
+@test normedPrices1 ≈ normedPrices2
+
+origPrices = DynAssMgmt.rets2prices(discRets, data[1], true)
+@test origPrices ≈ data
+
 perfs = DynAssMgmt.aggregateReturns(discRets)
 fullRet = (data[end] - data[1])./data[1]
 @test perfs[end] ≈ fullRet
-
 
 
 # test that results of different input types are consistent

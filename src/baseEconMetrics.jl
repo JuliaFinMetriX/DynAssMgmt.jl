@@ -47,6 +47,74 @@ function computeReturns(xx::TimeSeries.TimeArray)
 end
 
 
+"""
+    rets2prices(discRets::Array{Float64, 1}, startPrice=1., prependStart=false)
+
+Aggregate returns to prices (not performances). The function uses default types
+of returns:
+
+- discrete returns (not logarithmic)
+- fractional returns (not percentage)
+- single-period returns (not multi-period)
+- net returns (not gross returns)
+- convention for how to deal with `NaN`s still needs to be defined
+
+"""
+function rets2prices(discRets::Array{Float64, 1}, startPrice=1., prependStart=false)
+    # transform to log returns
+    logRets = log.(1 + discRets)
+
+    # aggregate in log world
+    logPerf = cumsum(logRets) + log.(startPrice)
+
+    # transform back to discrete world
+    prices = exp.(logPerf)
+
+    if prependStart
+        prices = [startPrice; prices]
+    end
+
+    return prices
+end
+
+"""
+    rets2prices(discRets::Array{Float64, 2})
+"""
+function rets2prices(discRets::Array{Float64, 2}, startPrice=1., prependStart=false)
+    nObs, ncols = size(discRets)
+
+    if prependStart
+        prices = zeros(Float64, nObs, ncols)
+    else
+        prices = zeros(Float64, nObs-1, ncols)
+    end
+
+    for ii=1:ncols
+        prices[:, ii] = rets2prices(discRets[:, ii], startPrice, prependStart)
+    end
+
+    return prices
+end
+
+
+"""
+    rets2prices(discRets::TimeSeries.TimeArray, startPrice=1., prependStart=false)
+"""
+function rets2prices(discRets::TimeSeries.TimeArray, startPrice=1., prependStart=false)
+    # get values
+    prices = rets2prices(discRets.values, startPrice, prependStart)
+
+    if prependStart
+        dats = [discRets.timestamp[1] - Dates.Day(1); discRets.timestamp]
+        prices = TimeSeries.TimeArray(dats, prices, discRets.colnames)
+    else
+        prices = TimeSeries.TimeArray(discRets.timestamp, prices, discRets.colnames)
+    end
+
+    return prices
+end
+
+
 ## aggregate returns
 """
     aggregateReturns(rets::Array{Float64, 1})
@@ -61,34 +129,29 @@ of returns:
 - convention for how to deal with `NaN`s still needs to be defined
 
 """
-function aggregateReturns(discRets::Array{Float64, 1})
-    # transform to log returns
-    logRets = log.(1 + discRets)
+function aggregateReturns(discRets::Array{Float64, 1}, prependStart=false)
+    prices = rets2prices(discRets, 1.0, prependStart)
+    perfVals = prices - 1
+end
 
-    # aggregate in log world
-    logPerf = cumsum(logRets)
 
-    # transform back to discrete world
-    perfVals = exp.(logPerf) - 1
+"""
+    aggregateReturns(discRets::Array{Float64, 2}, prependStart=false)
 
+"""
+function aggregateReturns(discRets::Array{Float64, 2}, prependStart=false)
+    prices = rets2prices(discRets, 1.0, prependStart)
+    perfVals = prices - 1
 end
 
 """
-    rets2prices(discRets::Array{Float64, 1})
-
-Aggregate returns to prices (not performances). The function uses default types
-of returns:
-
-- discrete returns (not logarithmic)
-- fractional returns (not percentage)
-- single-period returns (not multi-period)
-- net returns (not gross returns)
-- convention for how to deal with `NaN`s still needs to be defined
+    aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
 
 """
-function rets2prices(discRets::Array{Float64, 1})
-    perfVals = aggregateReturns(discRets)
-    prices = perfVals + 1
+function aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
+    prices = rets2prices(discRets, 1.0, prependStart)
+    prices.values = prices.values - 1
+    return prices
 end
 
 
