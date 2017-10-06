@@ -169,7 +169,7 @@ function locf(xx::TimeSeries.TimeArray)
     transformedValues = locf(xx.values)
 
     # put together TimeArray again
-    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues)
+    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues, xx.colnames)
 end
 
 """
@@ -218,7 +218,7 @@ function nocb(xx::TimeSeries.TimeArray)
     transformedValues = locf(xx.values)
 
     # put together TimeArray again
-    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues)
+    xx2 = TimeSeries.TimeArray(xx.timestamp, transformedValues, xx.colnames)
 end
 
 ## normalize prices
@@ -258,5 +258,5 @@ function normalizePrices(prices::TimeSeries.TimeArray)
     normedPrices = normalizePrices(prices.values)
 
     # put together TimeArray again
-    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices)
+    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
 end

@@ -78,6 +78,9 @@ DynAssMgmt.locf
 DynAssMgmt.nocb!
 DynAssMgmt.nocb
 normalizePrices
+getEwmaMean
+getEwmaStd
+getEwmaCov
 ```
 
 

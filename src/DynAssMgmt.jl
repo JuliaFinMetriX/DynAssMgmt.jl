@@ -18,7 +18,10 @@ export
     apply,
     pfMoments,
     pfDivers,
-    normalizePrices
+    normalizePrices,
+    getEwmaMean,
+    getEwmaStd,
+    getEwmaCov
 
 using DataFrames
 using Convex
