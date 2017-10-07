@@ -36,7 +36,9 @@ without any re-scaling or annualization. Allowed risk type keywords are
 
 ```julia
 pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
+pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, pf::PF, riskType::String)
 pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
+pfMoments(thisUniv::Univ, pf::PF, riskType::String)
 ```
 
 ## Multiple universes, single weights
@@ -67,6 +69,17 @@ function pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{
     pfMu(mus, wgts), riskOut
 end
 
+
+
+"""
+    pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, pf::PF, riskType::String)
+
+"""
+function pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, pf::PF, riskType::String)
+    pfMoments(mus, covs, pf.Wgts, riskType)
+end
+
+
 """
     pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
 
@@ -74,6 +87,14 @@ Applies to moments given as Univ type.
 """
 function pfMoments(thisUniv::Univ, wgts::Array{Float64, 1}, riskType::String)
     pfMoments(thisUniv.mus, thisUniv.covs, wgts, riskType)
+end
+
+"""
+    pfMoments(thisUniv::Univ, pf::PF, riskType::String)
+
+"""
+function pfMoments(thisUniv::Univ, pf::PF, riskType::String)
+    pfMoments(thisUniv, pf.Wgts, riskType)
 end
 
 """
@@ -96,19 +117,27 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 1}, riskType::String
 end
 
 """
-    pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1}, riskType::String)
+    pfMoments(univHist::UnivEvol, pf::PF, riskType::String)
+
+"""
+function pfMoments(univHist::UnivEvol, pf::PF, riskType::String)
+    pfMoments(univHist, pf.Wgts, riskType)
+end
+
+"""
+    pfMoments(univHist::Univ, pfWgts::Array{PF, 1}, riskType::String)
 
 Applies to single universe given as type Univ and a series
 of portfolio weights.
 """
-function pfMoments(univHist::Univ, pfWgts::Array{Array{Float64, 1}, 1}, riskType::String)
+function pfMoments(univHist::Univ, pfWgts::Array{PF, 1}, riskType::String)
     # get dimensions
-    nObs = size(pfWgts, 1)
+    nObs = length(pfWgts)
 
     pfMus, pfRisks = (zeros(Float64, nObs), zeros(Float64, nObs))
 
     for ii=1:nObs
-        pfMus[ii], pfRisks[ii] = pfMoments(univHist, pfWgts[ii][:], riskType)
+        pfMus[ii], pfRisks[ii] = pfMoments(univHist, pfWgts[ii], riskType)
     end
     return pfMus, pfRisks
 end

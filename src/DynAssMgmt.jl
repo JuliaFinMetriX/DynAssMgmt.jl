@@ -40,11 +40,11 @@ using RDatasets
 
 include("utils.jl")
 include("universeTypes.jl")
-include("pfFuncs.jl")
-include("baseEconMetrics.jl")
 include("singlePeriodStrats.jl")
 include("spTargets.jl")
 include("pfAPI.jl")
+include("pfFuncs.jl")
+include("baseEconMetrics.jl")
 include("plotFuncs.jl")
 include("bktest.jl")
 
