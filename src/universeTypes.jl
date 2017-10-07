@@ -73,11 +73,35 @@ struct EWMA
     covPersistence::Float64
 end
 
-function apply(thisEstimator::UnivEstimator, discRets::TimeSeries.TimeArray)
+function apply(thisEstimator::EWMA, discRets::TimeSeries.TimeArray)
+    nObs = size(discRets.values, 1)
 
+    # get observation weights
+    obsPowers = DynAssMgmt.ewmaObsWgtPower(nObs)
 
+    musHat = getEwmaMean(discRets.values, thisEstimator.muPersistence, obsPowers)
+    covsHat = getEwmaCov(discRets.values, thisEstimator.covPersistence, obsPowers)
+
+    return Univ(musHat[:], covsHat)
 end
 
+function applyOverTime(thisEstimator::EWMA, discRets::TimeSeries.TimeArray,
+    minObs::Int)
+
+    univList = []
+    nStartInd = minObs
+    nObs = size(discRets.values, 1)
+    for ii=nStartInd:nObs
+        # apply estimator
+        thisUniv = apply(thisEstimator, discRets[1:ii])
+
+        # push to list of universes
+        push!(univList, thisUniv)
+    end
+
+    # put all components together
+    histEnv = UnivEvol(univList, discRets.timestamp[nStartInd:nObs], discRets.colnames)
+end
 
 ## derive series of financial environments from matlab .csv files
 

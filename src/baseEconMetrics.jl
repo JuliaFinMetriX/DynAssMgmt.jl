@@ -195,6 +195,16 @@ function normalizePrices(prices::TimeSeries.TimeArray)
     normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
 end
 
+function ewmaObsWgtPower(nObs::Int)
+    return Int[ii for ii=nObs-1:-1:0]
+end
+
+function ewmaObsWgts(obsPowers::Array{Int, 1}, persistenceVal::Float64)
+    wgts = persistenceVal.^obsPowers
+    obsWgts = wgts ./ sum(wgts)
+    return obsWgts
+end
+
 """
     getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
@@ -206,9 +216,8 @@ function getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
     nObs = length(data)
 
     # get observation weights
-    powVec = [(nObs-1 : -1 : 0)...]
-    wgts = persistenceVal.^powVec
-    wgts = wgts ./ sum(wgts)
+    obsPowers = ewmaObsWgtPower(nObs)
+    wgts = ewmaObsWgt(obsPowers, persistenceVal)
 
     # adjust observations for mean value
     meanVal = mean(data)
@@ -291,9 +300,8 @@ function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
     nObs, nAss = size(data)
 
     # get observation weights
-    powVec = [(nObs-1 : -1 : 0)...]
-    wgts = persistenceVal.^powVec
-    wgts = wgts ./ sum(wgts)
+    obsPowers = ewmaObsWgtPower(nObs)
+    wgts = ewmaObsWgt(obsPowers, persistenceVal)
 
     # adjust observations for mean value
     meanVal = mean(data, 1)
