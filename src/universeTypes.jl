@@ -74,13 +74,8 @@ struct EWMA
 end
 
 function apply(thisEstimator::EWMA, discRets::TimeSeries.TimeArray)
-    nObs = size(discRets.values, 1)
-
-    # get observation weights
-    obsPowers = DynAssMgmt.ewmaObsWgtPower(nObs)
-
-    musHat = getEwmaMean(discRets.values, thisEstimator.muPersistence, obsPowers)
-    covsHat = getEwmaCov(discRets.values, thisEstimator.covPersistence, obsPowers)
+    musHat = getEwmaMean(discRets.values, thisEstimator.muPersistence)
+    covsHat = getEwmaCov(discRets.values, thisEstimator.covPersistence)
 
     return Univ(musHat[:], covsHat)
 end

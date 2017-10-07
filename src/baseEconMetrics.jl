@@ -258,9 +258,8 @@ function getEwmaMean(data::Array{Float64, 1}, persistenceVal::Float64)
     nObs = length(data)
 
     # get observation weights
-    powVec = [(nObs-1 : -1 : 0)...]
-    wgts = persistenceVal.^powVec
-    wgts = wgts ./ sum(wgts)
+    obsPowers = ewmaObsWgtPower(nObs)
+    wgts = ewmaObsWgts(obsPowers, persistenceVal)
 
     ewmaVal = sum(data .* wgts)
 end
@@ -301,7 +300,7 @@ function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
 
     # get observation weights
     obsPowers = ewmaObsWgtPower(nObs)
-    wgts = ewmaObsWgt(obsPowers, persistenceVal)
+    wgts = ewmaObsWgts(obsPowers, persistenceVal)
 
     # adjust observations for mean value
     meanVal = mean(data, 1)
