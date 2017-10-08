@@ -5,7 +5,8 @@ Return data always needs to be associated with meta-data:
 - percentage or not
 
 ```@repl fieldNams
-fieldnames(DynAssMgmt.ReturnType)
+using DynAssMgmt
+fieldnames(ReturnType)
 ```
 
 ```@repl TestArray
@@ -13,6 +14,7 @@ fieldnames(Date)
 ```
 
 ```@example 1
+using DynAssMgmt
 fieldnames(ReturnType)
 ```
 
