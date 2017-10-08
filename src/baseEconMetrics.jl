@@ -188,7 +188,7 @@ end
 
 ## aggregate returns
 """
-    aggregateReturns(rets::Array{Float64, 1})
+    aggregateReturns(rets::Array{Float64, 1}, retType::ReturnType, prependStart=false)
 
 Aggregate returns to performances (not prices). The function uses default types
 of returns:
@@ -207,7 +207,7 @@ end
 
 
 """
-    aggregateReturns(discRets::Array{Float64, 2}, prependStart=false)
+    aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prependStart=false)
 
 """
 function aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prependStart=false)
@@ -215,7 +215,7 @@ function aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prep
 end
 
 """
-    aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
+    aggregateReturns(discRets::TimeSeries.TimeArray, retType::ReturnType, prependStart=false)
 
 """
 function aggregateReturns(discRets::TimeSeries.TimeArray, retType::ReturnType, prependStart=false)
@@ -315,7 +315,7 @@ function getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
     # get observation weights
     obsPowers = ewmaObsWgtPower(nObs)
-    wgts = ewmaObsWgt(obsPowers, persistenceVal)
+    wgts = ewmaObsWgts(obsPowers, persistenceVal)
 
     # adjust observations for mean value
     meanVal = mean(data)
@@ -344,6 +344,14 @@ end
 function getEwmaStd(data::TimeArray, persistenceVal::Float64)
     return getEwmaStd(data.values, persistenceVal)
 end
+
+"""
+    getEwmaStd(data::Returns, persistenceVal::Float64)
+"""
+function getEwmaStd(data::Returns, persistenceVal::Float64)
+    return getEwmaStd(data.data, persistenceVal)
+end
+
 
 """
     getEwmaMean(data::Array{Float64, 1}, persistenceVal::Float64)
@@ -383,7 +391,12 @@ function getEwmaMean(data::TimeArray, persistenceVal::Float64)
     return getEwmaMean(data.values, persistenceVal)
 end
 
-
+"""
+    getEwmaMean(data::Returns, persistenceVal::Float64)
+"""
+function getEwmaMean(data::Returns, persistenceVal::Float64)
+    return getEwmaMean(data.data, persistenceVal)
+end
 
 
 """
@@ -417,4 +430,11 @@ end
 """
 function getEwmaCov(data::TimeArray, persistenceVal::Float64)
     return getEwmaCov(data.values, persistenceVal)
+end
+
+"""
+    getEwmaCov(data::Returns, persistenceVal::Float64)
+"""
+function getEwmaCov(data::Returns, persistenceVal::Float64)
+    return getEwmaCov(data.data, persistenceVal)
 end
