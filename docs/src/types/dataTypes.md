@@ -5,15 +5,15 @@ Return data always needs to be associated with meta-data:
 - percentage or not
 
 
-```@example TestArray
+```@repl TestArray
 fieldnames(Date)
 ```
 
-```@example ReturnType
+```@example 1
 fieldnames(ReturnType)
 ```
 
-```@example ReturnType2
+```@example 2
 fieldnames(DynAssMgmt.ReturnType)
 ```
 
