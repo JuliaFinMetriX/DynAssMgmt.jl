@@ -12,6 +12,19 @@ DynAssMgmt.SinglePeriodTarget
 DynAssMgmt.SinglePeriodSpectrum
 ```
 
+```@repl strategyTypeFieldNames
+using DynAssMgmt
+fieldnames(GMVP)
+fieldnames(TargetVola)
+fieldnames(RelativeTargetVola)
+fieldnames(MaxSharpe)
+fieldnames(TargetMu)
+fieldnames(EffFront)
+fieldnames(DivFrontSigmaTarget)
+fieldnames(DivFront)
+```
+
+
 ```@docs
 GMVP
 ```

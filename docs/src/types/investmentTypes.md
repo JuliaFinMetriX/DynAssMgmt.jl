@@ -6,6 +6,13 @@ PF
 Invest
 ```
 
+```@repl investTypeFieldNames
+using DynAssMgmt
+fieldnames(PF)
+fieldnames(Invest)
+```
+
+
 ## Portfolio functions
 
 ```@docs

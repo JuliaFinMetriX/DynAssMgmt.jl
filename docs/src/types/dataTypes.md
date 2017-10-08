@@ -4,20 +4,11 @@ Return data always needs to be associated with meta-data:
 - discrete or logarithmic
 - percentage or not
 
-```@repl fieldNams
+```@repl returnTypeFieldNames
 using DynAssMgmt
 fieldnames(ReturnType)
+fieldnames(Returns)
 ```
-
-```@repl TestArray
-fieldnames(Date)
-```
-
-```@example 1
-using DynAssMgmt
-fieldnames(ReturnType)
-```
-
 
 ```@docs
 DynAssMgmt.locf!

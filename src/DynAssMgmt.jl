@@ -9,6 +9,7 @@ export
     SinglePeriodSpectrum,
     Univ,
     UnivEvol,
+    UnivEstimator,
     EWMA,
     GMVP,
     TargetVola,
