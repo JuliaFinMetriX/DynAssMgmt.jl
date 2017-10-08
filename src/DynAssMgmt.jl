@@ -42,12 +42,12 @@ using RDatasets
 #set_default_solver(SCS.SCSSolver(verbose=0))
 
 include("utils.jl")
+include("baseEconMetrics.jl")
 include("universeTypes.jl")
 include("singlePeriodStrats.jl")
 include("spTargets.jl")
 include("pfAPI.jl")
 include("pfFuncs.jl")
-include("baseEconMetrics.jl")
 include("plotFuncs.jl")
 include("bktest.jl")
 

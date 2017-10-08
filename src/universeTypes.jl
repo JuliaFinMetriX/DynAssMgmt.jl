@@ -80,6 +80,10 @@ function apply(thisEstimator::EWMA, discRets::TimeSeries.TimeArray)
     return Univ(musHat[:], covsHat)
 end
 
+function apply(thisEstimator::EWMA, rets::Returns)
+    apply(thisEstimator, rets.data)
+end
+
 function applyOverTime(thisEstimator::EWMA, discRets::TimeSeries.TimeArray,
     minObs::Int)
 
@@ -96,6 +100,10 @@ function applyOverTime(thisEstimator::EWMA, discRets::TimeSeries.TimeArray,
 
     # put all components together
     histEnv = UnivEvol(univList, discRets.timestamp[nStartInd:nObs], discRets.colnames)
+end
+
+function applyOverTime(thisEstimator::EWMA, rets::Returns, minObs::Int)
+    applyOverTime(thisEstimator, rets.data, minObs)
 end
 
 ## derive series of financial environments from matlab .csv files
