@@ -69,12 +69,12 @@ end
 function computeReturns(prices::Array{Float64, 2}, retType = ReturnType())
     nObs, ncols = size(prices)
 
-    discRets = zeros(Float64, nObs-1, ncols)
+    rets = zeros(Float64, nObs-1, ncols)
 
     for ii=1:ncols
-        discRets[:, ii] = computeReturns(prices[:, ii])
+        rets[:, ii] = computeReturns(prices[:, ii], retType)
     end
-    return discRets
+    return rets
 end
 
 
@@ -83,10 +83,10 @@ end
 """
 function computeReturns(xx::TimeSeries.TimeArray, retType = ReturnType())
     # get values
-    discRets = computeReturns(xx.values)
+    rets = computeReturns(xx.values, retType)
 
     # put together TimeArray again
-    xx = TimeSeries.TimeArray(xx.timestamp[2:end], discRets, xx.colnames)
+    xx = TimeSeries.TimeArray(xx.timestamp[2:end], rets, xx.colnames)
 
     # create Returns type
     return Returns(xx, retType)
@@ -94,7 +94,7 @@ end
 
 
 """
-    rets2prices(discRets::Array{Float64, 1}, startPrice=1., prependStart=false)
+    rets2prices(rets::Array{Float64, 1}, retType::ReturnType, startPrice=1., prependStart=false)
 
 Aggregate returns to prices (not performances). The function uses default types
 of returns:
@@ -106,19 +106,19 @@ of returns:
 - convention for how to deal with `NaN`s still needs to be defined
 
 """
-function rets2prices(discRets::Array{Float64, 1}, retType::ReturnType, startPrice=1., prependStart=false)
+function rets2prices(rets::Array{Float64, 1}, retType::ReturnType, startPrice=1., prependStart=false)
 
     if retType.isGross
-        discRets = discRets - 1
+        rets = rets - 1
     end
 
     if retType.isPercent
-        discRets = discRets ./ 100
+        rets = rets ./ 100
     end
 
     if !retType.isLog
         # transform to log returns
-        logRets = log.(1 + discRets)
+        logRets = log.(1 + rets)
     end
 
     # aggregate in log world
@@ -135,16 +135,17 @@ function rets2prices(discRets::Array{Float64, 1}, retType::ReturnType, startPric
 end
 
 """
-    rets2prices(discRets::Array{Float64, 2})
+    rets2prices(rets::Array{Float64, 2}, retType::ReturnType)
 """
-function rets2prices(discRets::Array{Float64, 2}, retType::ReturnType, startPrice=1., prependStart=false)
-    nObs, ncols = size(discRets)
+function rets2prices(rets::Array{Float64, 2}, retType::ReturnType, startPrice=1., prependStart=false)
+    nObs, ncols = size(rets)
 
     if prependStart
         prices = zeros(Float64, nObs, ncols)
     else
         prices = zeros(Float64, nObs-1, ncols)
-    prices[:, ii] = rets2prices(discRets[:, ii], retType, startPrice, prependStart)
+    end
+    prices[:, ii] = rets2prices(rets[:, ii], retType, startPrice, prependStart)
 
     return prices
 end
@@ -255,12 +256,12 @@ end
     normalizePrices(xx::Array{Float64, 2})
 """
 function normalizePrices(prices::Array{Float64, 2})
-    nrows,ay, prependStart=fals ncols = size(prices)
+    nrows, ncols = size(prices)
     normedValues = copy(prices)
     for ii=1:ncols
         normedValues[:, ii] = normalizePrices(prices[:, ii])
     end
-    reretType, turn normedValues
+    return normedValues
 end
 
 """
@@ -282,6 +283,7 @@ function ewmaObsWgts(obsPowers::Array{Int, 1}, persistenceVal::Float64)
     wgts = persistenceVal.^obsPowers
     obsWgts = wgts ./ sum(wgts)
     return obsWgts
+end
 
 function normalizePrices(prices::TimeSeries.TimeArray)
     # get normalized rets
