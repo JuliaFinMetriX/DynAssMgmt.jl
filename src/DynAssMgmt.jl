@@ -1,6 +1,8 @@
 module DynAssMgmt
 
 export
+    ReturnType,
+    Returns,
     Invest,
     PF,
     SinglePeriodTarget,

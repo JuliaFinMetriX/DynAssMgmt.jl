@@ -3,8 +3,34 @@
 # - sampleMean (regular, exp. weighted)
 # - price2ret
 
+struct ReturnType
+    isPercent::Bool
+    isLog::Bool
+    period::Base.Dates.DatePeriod
+    isGross::Bool
+
+    function ReturnType(isPercent, isLog, somePeriod, isGross)
+        if isLog & isGross
+            error("Logarithmic returns can not be gross returns")
+        end
+
+        if isPercent & isGross
+            error("Gross returns can not be percentage returns")
+        end
+
+        return new(isPercent, isLog, somePeriod, isGross)
+    end
+end
+
+ReturnType() = ReturnType(false, false, Dates.Day(1), false)
+
+struct Returns
+    data::TimeSeries.TimeArray
+    retType::ReturnType
+end
+
 """
-    computeReturns(prices::Array{Float64, 1})
+    computeReturns(prices::Array{Float64, 1}, retType = ReturnType())
 
 Compute returns from prices. The function uses default settings
 for return calculations:
@@ -16,14 +42,31 @@ for return calculations:
 - straight-forward application to `NaN`s also
 
 """
-function computeReturns(prices::Array{Float64, 1})
-    return (prices[2:end] - prices[1:end-1]) ./ prices[1:end-1]
+function computeReturns(prices::Array{Float64, 1}, retType = ReturnType())
+
+    # get discrete net returns
+    rets = (prices[2:end] - prices[1:end-1]) ./ prices[1:end-1]
+
+    if retType.isLog
+        rets = log.(rets + 1)
+    end
+
+    if retType.isPercent
+        rets = rets * 100
+    end
+
+    if retType.isGross
+        rets = rets + 1
+    end
+
+    # hand back Returns type
+    return rets
 end
 
 """
-    computeReturns(prices::Array{Float64, 2})
+    computeReturns(prices::Array{Float64, 2}, retType = ReturnType())
 """
-function computeReturns(prices::Array{Float64, 2})
+function computeReturns(prices::Array{Float64, 2}, retType = ReturnType())
     nObs, ncols = size(prices)
 
     discRets = zeros(Float64, nObs-1, ncols)
@@ -36,14 +79,17 @@ end
 
 
 """
-    computeReturns(xx::TimeSeries.TimeArray)
+    computeReturns(xx::TimeSeries.TimeArray, retType = ReturnType())
 """
-function computeReturns(xx::TimeSeries.TimeArray)
+function computeReturns(xx::TimeSeries.TimeArray, retType = ReturnType())
     # get values
     discRets = computeReturns(xx.values)
 
     # put together TimeArray again
     xx = TimeSeries.TimeArray(xx.timestamp[2:end], discRets, xx.colnames)
+
+    # create Returns type
+    return Returns(xx, retType)
 end
 
 
@@ -60,9 +106,20 @@ of returns:
 - convention for how to deal with `NaN`s still needs to be defined
 
 """
-function rets2prices(discRets::Array{Float64, 1}, startPrice=1., prependStart=false)
-    # transform to log returns
-    logRets = log.(1 + discRets)
+function rets2prices(discRets::Array{Float64, 1}, retType::ReturnType, startPrice=1., prependStart=false)
+
+    if retType.isGross
+        discRets = discRets - 1
+    end
+
+    if retType.isPercent
+        discRets = discRets ./ 100
+    end
+
+    if !retType.isLog
+        # transform to log returns
+        logRets = log.(1 + discRets)
+    end
 
     # aggregate in log world
     logPerf = cumsum(logRets) + log.(startPrice)
@@ -80,35 +137,48 @@ end
 """
     rets2prices(discRets::Array{Float64, 2})
 """
-function rets2prices(discRets::Array{Float64, 2}, startPrice=1., prependStart=false)
+function rets2prices(discRets::Array{Float64, 2}, retType::ReturnType, startPrice=1., prependStart=false)
     nObs, ncols = size(discRets)
 
     if prependStart
         prices = zeros(Float64, nObs, ncols)
     else
         prices = zeros(Float64, nObs-1, ncols)
-    end
-
-    for ii=1:ncols
-        prices[:, ii] = rets2prices(discRets[:, ii], startPrice, prependStart)
-    end
+    prices[:, ii] = rets2prices(discRets[:, ii], retType, startPrice, prependStart)
 
     return prices
 end
 
 
 """
-    rets2prices(discRets::TimeSeries.TimeArray, startPrice=1., prependStart=false)
+    rets2prices(rets::TimeSeries.TimeArray, retType::ReturnType, startPrice=1., prependStart=false)
 """
-function rets2prices(discRets::TimeSeries.TimeArray, startPrice=1., prependStart=false)
+function rets2prices(rets::TimeSeries.TimeArray, retType::ReturnType, startPrice=1., prependStart=false)
     # get values
-    prices = rets2prices(discRets.values, startPrice, prependStart)
+    prices = rets2prices(rets.values, retType, startPrice, prependStart)
 
     if prependStart
-        dats = [discRets.timestamp[1] - Dates.Day(1); discRets.timestamp]
-        prices = TimeSeries.TimeArray(dats, prices, discRets.colnames)
+        dats = [rets.timestamp[1] - Dates.Day(1); rets.timestamp]
+        prices = TimeSeries.TimeArray(dats, prices, rets.colnames)
     else
-        prices = TimeSeries.TimeArray(discRets.timestamp, prices, discRets.colnames)
+        prices = TimeSeries.TimeArray(rets.timestamp, prices, rets.colnames)
+    end
+
+    return prices
+end
+
+"""
+    rets2prices(rets::Returns, startPrice=1., prependStart=false)
+"""
+function rets2prices(rets::Returns, startPrice=1., prependStart=false)
+    # get values
+    prices = rets2prices(rets.data, rets.retType, startPrice, prependStart)
+
+    if prependStart
+        dats = [rets.timestamp[1] - Dates.Day(1); rets.timestamp]
+        prices = TimeSeries.TimeArray(dats, prices, rets.colnames)
+    else
+        prices = TimeSeries.TimeArray(rets.timestamp, prices, rets.colnames)
     end
 
     return prices
@@ -129,8 +199,8 @@ of returns:
 - convention for how to deal with `NaN`s still needs to be defined
 
 """
-function aggregateReturns(discRets::Array{Float64, 1}, prependStart=false)
-    prices = rets2prices(discRets, 1.0, prependStart)
+function aggregateReturns(discRets::Array{Float64, 1}, retType::ReturnType, prependStart=false)
+    prices = rets2prices(discRets, retType, 1.0, prependStart)
     perfVals = prices - 1
 end
 
@@ -139,17 +209,26 @@ end
     aggregateReturns(discRets::Array{Float64, 2}, prependStart=false)
 
 """
-function aggregateReturns(discRets::Array{Float64, 2}, prependStart=false)
-    prices = rets2prices(discRets, 1.0, prependStart)
-    perfVals = prices - 1
+function aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prependStart=false)
+    prices = rets2prices(discRets, retType, 1.0, prependStart)
 end
 
 """
     aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
 
 """
-function aggregateReturns(discRets::TimeSeries.TimeArray, prependStart=false)
-    prices = rets2prices(discRets, 1.0, prependStart)
+function aggregateReturns(discRets::TimeSeries.TimeArray, retType::ReturnType, prependStart=false)
+    prices = rets2prices(discRets, retType, 1.0, prependStart)
+    prices.values = prices.values - 1
+    return prices
+end
+
+"""
+    aggregateReturns(rets::Returns, prependStart=false)
+
+"""
+function aggregateReturns(rets::Returns, prependStart=false)
+    prices = rets2prices(rets.data, rets.retType, 1.0, prependStart)
     prices.values = prices.values - 1
     return prices
 end
@@ -176,12 +255,12 @@ end
     normalizePrices(xx::Array{Float64, 2})
 """
 function normalizePrices(prices::Array{Float64, 2})
-    nrows, ncols = size(prices)
+    nrows,ay, prependStart=fals ncols = size(prices)
     normedValues = copy(prices)
     for ii=1:ncols
         normedValues[:, ii] = normalizePrices(prices[:, ii])
     end
-    return normedValues
+    reretType, turn normedValues
 end
 
 """
@@ -189,10 +268,27 @@ end
 """
 function normalizePrices(prices::TimeSeries.TimeArray)
     # get normalized values
-    normedPrices = normalizePrices(prices.values)
+    normedPrices = normalizePrretType::ReturnType, ices(prices.values)
 
     # put together TimeArray again
-    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
+    normedPrices = Timeay, prependStart=falsSeries.TimeArray(prices.timestamp, normedPricretType, es, prices.colnames)
+end
+
+function ewmaObsWgtPower(nObs::Int)
+    return Int[ii for ii=nObs-1:-1:0]
+end
+
+function ewmaObsWgts(obsPowers::Array{Int, 1}, persistenceVal::Float64)
+    wgts = persistenceVal.^obsPowers
+    obsWgts = wgts ./ sum(wgts)
+    return obsWgts
+
+function normalizePrices(prices::TimeSeries.TimeArray)
+    # get normalized rets
+    ReturnsrmalizePrices(prices.values)
+
+    # put together TimeArray again
+    normedPrices = Timeay, prependStart=falsSeries.TimeArray(prices.timestamp, normedPricretType, es, prices.colnames)
 end
 
 function ewmaObsWgtPower(nObs::Int)
