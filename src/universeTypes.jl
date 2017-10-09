@@ -11,6 +11,7 @@ discrete asset moments: mus and covs.
 struct Univ
     mus::Array{Float64, 1}
     covs::Array{Float64, 2}
+    retType::ReturnType
 end
 
 function getUnivExtrema(thisUniv)
@@ -73,37 +74,37 @@ struct EWMA
     covPersistence::Float64
 end
 
-function apply(thisEstimator::EWMA, discRets::TimeSeries.TimeArray)
-    musHat = getEwmaMean(discRets.values, thisEstimator.muPersistence)
-    covsHat = getEwmaCov(discRets.values, thisEstimator.covPersistence)
+function apply(thisEstimator::EWMA, rets::TimeSeries.TimeArray, retType::ReturnType)
+    musHat = getEwmaMean(rets.values, thisEstimator.muPersistence)
+    covsHat = getEwmaCov(rets.values, thisEstimator.covPersistence)
 
-    return Univ(musHat[:], covsHat)
+    return Univ(musHat[:], covsHat, retType)
 end
 
 function apply(thisEstimator::EWMA, rets::Returns)
-    apply(thisEstimator, rets.data)
+    apply(thisEstimator, rets.data, rets.retType)
 end
 
-function applyOverTime(thisEstimator::EWMA, discRets::TimeSeries.TimeArray,
-    minObs::Int)
+function applyOverTime(thisEstimator::EWMA, rets::TimeSeries.TimeArray,
+    retType::ReturnType, minObs::Int)
 
     univList = []
     nStartInd = minObs
-    nObs = size(discRets.values, 1)
+    nObs = size(rets.values, 1)
     for ii=nStartInd:nObs
         # apply estimator
-        thisUniv = apply(thisEstimator, discRets[1:ii])
+        thisUniv = apply(thisEstimator, rets[1:ii], retType)
 
         # push to list of universes
         push!(univList, thisUniv)
     end
 
     # put all components together
-    histEnv = UnivEvol(univList, discRets.timestamp[nStartInd:nObs], discRets.colnames)
+    histEnv = UnivEvol(univList, rets.timestamp[nStartInd:nObs], rets.colnames)
 end
 
 function applyOverTime(thisEstimator::EWMA, rets::Returns, minObs::Int)
-    applyOverTime(thisEstimator, rets.data, minObs)
+    applyOverTime(thisEstimator, rets.data, rets.retType, minObs)
 end
 
 ## derive series of financial environments from matlab .csv files
