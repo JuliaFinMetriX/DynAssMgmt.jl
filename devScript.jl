@@ -23,20 +23,92 @@ Plots.gr()
 
 ## load test data
 fxRates = DynAssMgmt.loadTestData("fx")
+fxRets = computeReturns(fxRates, ReturnType())
 
-## dev
+## estimate moments
 
-# 
-univList = []
+ewmaEstimator = EWMA(0.95, 0.99)
+univList = DynAssMgmt.applyOverTime(ewmaEstimator, fxRets, 300)
 
-# set up universe
-thisUniv = Univ(muVals, covVals)
+## get subsets
 
-# push to list of universes
-push!(univList, thisUniv)
+univHistoryShort = UnivEvol(univList.universes[1:50], univList.dates[1:50],
+    univList.assetLabels)
+thisUniv = univList.universes[end]
 
-# put all components together
-histEnv = UnivEvol(univList, allDats, assNames)
+## dev inPercentages
+
+function getInPercentages(thisUniv::Univ)
+
+    retType = thisUniv.retType
+
+    if retType.isPercent
+        return thisUniv
+    else
+        if retType.isGross
+            error("Gross returns can not be percentage returns")
+        end
+
+        newMus = thisUniv.mus * 100
+        newCovs = thisUniv.covs * 100^2
+
+        newRetType = ReturnType(true, retType.isLog, retType.period, retType.isGross)
+        newUniv = Univ(newMus, newCovs, newRetType)
+
+        return newUniv
+    end
+end
+
+percUniv = getInPercentages(thisUniv)
+percUniv2 = getInPercentages(percUniv)
+
+## dev: risk-return scaling
+
+
+
+## define efficient frontier / diversfication frontier strategies
+DynAssMgmt.getUnivExtrema(thisUniv)
+sigTargets = [linspace(0.003, 0.0083, 15)...]
+diversTarget = 0.4
+
+divFrontStrats = DivFront(diversTarget, sigTargets)
+effFrontStrats = EffFront(10)
+
+# apply to single universe as test
+divFrontWgts = apply(divFrontStrats, thisUniv)
+effFrontWgts = apply(effFrontStrats, thisUniv)
+
+convert(Array{Float64, 2}, divFrontStrats)
+
+pfMoments(thisUniv, divFrontWgts[:], "std")
+#
+
+DynAssMgmt.vizPf(thisUniv, divFrontWgts[1])
+
+DynAssMgmt.vizPfSpectrum(thisUniv, effFrontWgts[:])
+DynAssMgmt.vizPfSpectrum!(thisUniv, divFrontWgts[:])
+
+gmvpPf = apply(GMVP(), thisUniv)
+DynAssMgmt.vizPf(thisUniv, divFrontWgts[1])
+pfMoments(thisUniv, gmvpPf, "std")
+minimum(sqrt.(diag(thisUniv.covs)))
+
+
+scalFact = 100
+newMus = thisUniv.mus
+newMus = newMus*scalFact
+
+thisUnivScaled = Univ(newMus, thisUniv.covs*scalFact^2)
+minimum(sqrt.(diag(thisUnivScaled.covs)))
+gmvpPf = apply(GMVP(), thisUnivScaled)
+pfMoments(thisUnivScaled, gmvpPf, "std")
+
+DynAssMgmt.vizPf(thisUnivScaled, gmvpPf)
+
+# apply to all historic universes
+@time divFrontInvs = apply(divFrontStrats, univHistory)
+@time effFrontInvs = apply(effFrontStrats, univHistoryShort)
+
 
 ## plot normalized prices
 
@@ -55,30 +127,8 @@ univHistory = getUnivEvolFromMatlabFormat(muTab, covsTab)
 # get returns as TimeArray
 idxRets = rawInputsToTimeArray(rawIdxRets)
 
-## create subsets of universes
-
-# shorter history
-xx = univHistory
-univHistoryShort = UnivEvol(xx.universes[1:50], xx.dates[1:50], xx.assetLabels)
-
-# single universe
-thisUniv = univHistory.universes[200]
-
 ## apply some strategy spectrums over time
 
-sigTargets = [linspace(0.03, sqrt.(4.2), 15)...]
-diversTarget = 0.7
-
-divFrontStrats = DivFront(diversTarget, sigTargets)
-effFrontStrats = EffFront(10)
-
-# apply to single universe as test
-divFrontWgts = apply(divFrontStrats, thisUniv)
-xx = apply(effFrontStrats, thisUniv)
-
-# apply to all historic universes
-@time divFrontInvs = apply(divFrontStrats, univHistory)
-@time effFrontInvs = apply(effFrontStrats, univHistoryShort)
 
 # what can we do with investments object?
 # - show weights over time
@@ -154,8 +204,6 @@ outcomes[10]
 
 ##
 
-vizPfSpectrum(thisUniv, effWgts)
-vizPfSpectrum!(thisUniv, diversFrontWgts)
 
 ##
 
