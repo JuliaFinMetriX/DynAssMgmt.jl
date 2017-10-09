@@ -1,16 +1,7 @@
 For given asset moments, there are several strategies to select an
 optimal portfolio.
 
-## Single period strategies
-
-```@docs
-apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
-```
-
-```@docs
-DynAssMgmt.SinglePeriodTarget
-DynAssMgmt.SinglePeriodSpectrum
-```
+### Fields of composite types
 
 ```@repl strategyTypeFieldNames
 using DynAssMgmt
@@ -24,6 +15,22 @@ fieldnames(DivFrontSigmaTarget)
 fieldnames(DivFront)
 ```
 
+## Single period strategies
+
+### Usage
+
+```@docs
+apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
+```
+
+### Abstract types
+
+```@docs
+DynAssMgmt.SinglePeriodTarget
+DynAssMgmt.SinglePeriodSpectrum
+```
+
+### Composite types
 
 ```@docs
 GMVP

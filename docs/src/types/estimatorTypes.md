@@ -12,11 +12,14 @@ DynAssMgmt.UnivEstimator
 DynAssMgmt.EWMA
 ```
 
+### Fields of composite types
+
 ```@repl estimatorTypeFieldNames
 using DynAssMgmt
 fieldnames(EWMA)
 ```
 
+## Functions
 
 ```@docs
 getEwmaMean

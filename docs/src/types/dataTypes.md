@@ -4,11 +4,21 @@ Return data always needs to be associated with meta-data:
 - discrete or logarithmic
 - percentage or not
 
+## Composite types
+
+```@docs
+ReturnType
+Returns
+```
+### Fields of composite types
+
 ```@repl returnTypeFieldNames
 using DynAssMgmt
 fieldnames(ReturnType)
 fieldnames(Returns)
 ```
+
+## Functions
 
 ```@docs
 DynAssMgmt.locf!
