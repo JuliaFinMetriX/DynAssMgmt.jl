@@ -107,6 +107,89 @@ function applyOverTime(thisEstimator::EWMA, rets::Returns, minObs::Int)
     applyOverTime(thisEstimator, rets.data, rets.retType, minObs)
 end
 
+## percentage scaling
+function getStdInPercentages(thisStd::Float64, retType::ReturnType)
+
+    if retType.isPercent
+        return thisStd
+    else
+        return thisStd * 100
+    end
+end
+
+function getMuInPercentages(thisMu::Float64, retType::ReturnType)
+
+    if retType.isPercent
+        return thisMu
+    else
+        return thisMu * 100
+    end
+end
+
+function getInPercentages(thisUniv::Univ)
+
+    retType = thisUniv.retType
+
+    if retType.isPercent
+        return thisUniv
+    else
+        if retType.isGross
+            error("Gross returns can not be percentage returns")
+        end
+
+        newMus = thisUniv.mus * 100
+        newCovs = thisUniv.covs * 100^2
+
+        newRetType = ReturnType(true, retType.isLog, retType.period, retType.isGross)
+        newUniv = Univ(newMus, newCovs, newRetType)
+
+        return newUniv
+    end
+end
+
+function annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)
+    if retType.isPercent
+        mu = mu / 100;
+        sig = sig / 100;
+    end
+
+    if retType.isLog
+        if retType.period == Base.Dates.Day(1)
+            mu = mu * 252
+            sig = sig * sqrt.(252)
+        end
+    else
+        if retType.period == Base.Dates.Day(1)
+            mu = mu * 252
+            sig = sig * sqrt.(252)
+        end
+        # error("Discrete return annualization is not implemented yet.")
+    end
+
+    if retType.isPercent
+        mu = mu * 100;
+        sig = sig * 100;
+    end
+
+    return mu, sig
+end
+
+function annualizeRiskReturn(mus::Array{Float64, 1}, sigs::Array{Float64, 1}, retType::ReturnType)
+    # preallocation
+    nVals = length(mus)
+
+    scaledMus = zeros(Float64, nVals)
+    scaledSigs = zeros(Float64, nVals)
+    for ii=1:nVals
+        scaledMus[ii], scaledSigs[ii] = annualizeRiskReturn(mus[ii], sigs[ii], retType)
+    end
+
+    return scaledMus, scaledSigs
+end
+
+
+
+
 ## derive series of financial environments from matlab .csv files
 
 """

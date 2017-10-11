@@ -16,10 +16,12 @@ Get global minimum variance portfolio without any constraints on
 short-selling. In other words: leverage is allowed.
 """
 function gmvp_lev(thisUniv::Univ)
-  nObs = size(thisUniv)
-  identVector = ones(nObs, 1)
-  invMatr = inv(thisUniv.covs)
-  gmvpWgts = vec((invMatr * identVector) ./ (identVector'*invMatr*identVector))
+    thisUniv = getInPercentages(thisUniv)
+
+    nObs = size(thisUniv)
+    identVector = ones(nObs, 1)
+    invMatr = inv(thisUniv.covs)
+    gmvpWgts = vec((invMatr * identVector) ./ (identVector'*invMatr*identVector))
 end
 
 
@@ -32,6 +34,9 @@ Get global minimum variance portfolio without short-selling.
 Leverage is not allowed.
 """
 function gmvp(thisUniv::Univ)
+
+    thisUniv = getInPercentages(thisUniv)
+
     # set up optimization variables
     nAss = size(thisUniv)
     optVariables = Variable(nAss)
@@ -56,6 +61,9 @@ maxSharpe(thisUniv::Univ)
 Compute portfolio with maximum Sharpe-ratio.
 """
 function maxSharpe(thisUniv::Univ)
+
+    thisUniv = getInPercentages(thisUniv)
+
     # set up optimization variables
     nAss = size(thisUniv)
     optVariables = Variable(nAss)
@@ -83,6 +91,7 @@ sigmaTarget(thisUniv::Univ, sigTarget::Float64)
 Compute portfolio with maximum expected return for a given volatility target.
 """
 function sigmaTarget(thisUniv::Univ, sigTarget::Float64)
+
     xWgts = sigmaTarget_cvx_reformulated(thisUniv, sigTarget)
     # xWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
 end
@@ -95,7 +104,10 @@ sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
 Compute portfolio with maximum expected return for a given volatility target.
 Allow fallback in case that volatility target can not be reached.
 """
-function sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
+function sigmaTargetFallback(origUniv::Univ, sigTarget::Float64)
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
+
     # get number of assets
     nAss = size(thisUniv)
 
@@ -207,9 +219,11 @@ sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
 Compute portfolio with maximum expected return for a given volatility target.
 Use re-formulation as convex optimization problem for computation.
 """
-function sigmaTarget_cvx_reformulated(thisUniv::Univ, sigTarget::Float64)
+function sigmaTarget_cvx_reformulated(origUniv::Univ, sigTarget::Float64)
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
 
-    xWgts = sigmaTargetFallback(thisUniv::Univ, sigTarget::Float64)
+    xWgts = sigmaTargetFallback(thisUniv, sigTarget)
 
     # immediately return if fallback was required and sigma target is out of range
     if !(isempty(xWgts))
@@ -275,7 +289,10 @@ Compute portfolio with maximum expected return for a given volatility target.
 Try to use convex optimization directly without any re-formulation. This
 does not work currently.
 """
-function sigmaTarget_cvx_direct(thisUniv::Univ, sigTarget::Float64)
+function sigmaTarget_cvx_direct(origUniv::Univ, sigTarget::Float64)
+
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
 
     # get number of assets
     nAss = size(thisUniv)
@@ -334,19 +351,18 @@ muTarget(thisUniv::Univ, targetMu::Float64)
 
 Compute portfolio with minimum volatility for a given target expectation.
 """
-function muTarget(thisUniv::Univ, targetMu::Float64)
+function muTarget(origUniv::Univ, targetMu::Float64)
+    thisUniv = DynAssMgmt.getInPercentages(origUniv)
+    percTargetMu = DynAssMgmt.getMuInPercentages(targetMu, origUniv.retType)
+
     # get number of assets
     nAss = size(thisUniv)
 
     x = Variable(nAss)
 
-    numericallyScaledCovMatr = 1 .* thisUniv.covs
-    numericallyScaledMus = 1 .* thisUniv.mus
-    numericallyScaledTarget = 1 .* targetMu
+    p = minimize(quadform(x, thisUniv.covs))
 
-    p = minimize(quadform(x, numericallyScaledCovMatr))
-
-    p.constraints += x' * numericallyScaledMus >= numericallyScaledTarget
+    p.constraints += x' * thisUniv.mus >= percTargetMu
     p.constraints += sum(x) .== 1
     p.constraints += x .>= 0
     p.constraints += x .<= 1
@@ -404,6 +420,8 @@ diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Fl
 
 """
 function diversTargetMuSigmaTradeoff(thisUniv::Univ, diversTarget::Float64, riskAvPhi::Float64)
+    thisUniv = getInPercentages(thisUniv)
+
     # set up optimization variables
     nAss = size(thisUniv)
     eqWgts = ones(Float64, nAss)./nAss
@@ -429,6 +447,8 @@ diversTargetMaxSigma(thisUniv::Univ, diversTarget)
 
 """
 function diversTargetMaxSigma(thisUniv::Univ, diversTarget)
+    thisUniv = getInPercentages(thisUniv)
+
     # set up optimization variables
     nAss = size(thisUniv)
     eqWgts = ones(Float64, nAss)./nAss
@@ -454,6 +474,8 @@ diversTargetMinSigma(thisUniv::Univ, diversTarget)
 
 """
 function diversTargetMinSigma(thisUniv::Univ, diversTarget)
+    thisUniv = getInPercentages(thisUniv)
+
     # set up optimization variables
     nAss = size(thisUniv)
     eqWgts = ones(Float64, nAss)./nAss
@@ -479,7 +501,10 @@ sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Flo
 ```
 
 """
-function sigmaTargetMuDiversTradeoff(thisUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
+function sigmaTargetMuDiversTradeoff(origUniv::Univ, sigTarget::Float64, diversCoeff::Float64)
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
+
     # set up optimization variables
     nAss = size(thisUniv)
     eqWgts = ones(Float64, nAss)./nAss
@@ -517,7 +542,10 @@ sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
 ```
 
 """
-function sigmaTargetMaxDivers(thisUniv::Univ, sigTarget::Float64)
+function sigmaTargetMaxDivers(origUniv::Univ, sigTarget::Float64)
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
+
     # set up optimization variables
     nAss = size(thisUniv)
     eqWgts = ones(Float64, nAss)./nAss
@@ -555,7 +583,9 @@ sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarge
 ```
 
 """
-function sigmaAndDiversTarget_noFallBacks(thisUniv::Univ, sigTarget::Float64, diversTarget::Float64)
+function sigmaAndDiversTarget_noFallBacks(origUniv::Univ, sigTarget::Float64, diversTarget::Float64)
+    thisUniv = getInPercentages(origUniv)
+    sigTarget = getStdInPercentages(sigTarget, origUniv.retType)
 
     # set up optimization variables
     nAss = size(thisUniv)
@@ -600,6 +630,7 @@ sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget
 
 """
 function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, diversTarget::Float64)
+
     # get gmvp
     gmvpWgts = gmvp(thisUniv)
     xxMu, gmvpSig = pfMoments(thisUniv, gmvpWgts, "std")

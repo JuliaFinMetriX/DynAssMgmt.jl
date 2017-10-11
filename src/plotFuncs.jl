@@ -7,8 +7,9 @@
     legend --> false
     xaxis --> "Sigma"
     yaxis --> "Mu"
-    x = sqrt.(diag(thisUniv.covs))*sqrt(52)
-    y = thisUniv.mus*52
+
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
     x, y
 end
 
@@ -19,8 +20,9 @@ end
     label --> hcat(assLabs...)
     xaxis --> "Sigma"
     yaxis --> "Mu"
-    x = transpose(sqrt.(diag(thisUniv.covs))*sqrt(52))
-    y = transpose(thisUniv.mus*52)
+
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
     x, y
 end
 

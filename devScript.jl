@@ -38,27 +38,6 @@ thisUniv = univList.universes[end]
 
 ## dev inPercentages
 
-function getInPercentages(thisUniv::Univ)
-
-    retType = thisUniv.retType
-
-    if retType.isPercent
-        return thisUniv
-    else
-        if retType.isGross
-            error("Gross returns can not be percentage returns")
-        end
-
-        newMus = thisUniv.mus * 100
-        newCovs = thisUniv.covs * 100^2
-
-        newRetType = ReturnType(true, retType.isLog, retType.period, retType.isGross)
-        newUniv = Univ(newMus, newCovs, newRetType)
-
-        return newUniv
-    end
-end
-
 percUniv = getInPercentages(thisUniv)
 percUniv2 = getInPercentages(percUniv)
 
