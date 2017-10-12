@@ -38,17 +38,17 @@ thisUniv = univList.universes[end]
 
 ## dev inPercentages
 
-percUniv = getInPercentages(thisUniv)
-percUniv2 = getInPercentages(percUniv)
+percUniv = DynAssMgmt.getInPercentages(thisUniv)
+percUniv2 = DynAssMgmt.getInPercentages(percUniv)
 
 ## dev: risk-return scaling
 
-
+Plots.plot(percUniv, fxRets.data.colnames)
 
 ## define efficient frontier / diversfication frontier strategies
 DynAssMgmt.getUnivExtrema(thisUniv)
 sigTargets = [linspace(0.003, 0.0083, 15)...]
-diversTarget = 0.4
+diversTarget = 0.8
 
 divFrontStrats = DivFront(diversTarget, sigTargets)
 effFrontStrats = EffFront(10)
@@ -57,21 +57,21 @@ effFrontStrats = EffFront(10)
 divFrontWgts = apply(divFrontStrats, thisUniv)
 effFrontWgts = apply(effFrontStrats, thisUniv)
 
-convert(Array{Float64, 2}, divFrontStrats)
 
-pfMoments(thisUniv, divFrontWgts[:], "std")
-#
-
-DynAssMgmt.vizPf(thisUniv, divFrontWgts[1])
+assLabs = fxRets.data.colnames
+DynAssMgmt.vizPf(thisUniv, divFrontWgts[end])
+Plots.plot(thisUniv)
+Plots.plot(divFrontWgts[end], assLabs)
 
 DynAssMgmt.vizPfSpectrum(thisUniv, effFrontWgts[:])
 DynAssMgmt.vizPfSpectrum!(thisUniv, divFrontWgts[:])
 
 gmvpPf = apply(GMVP(), thisUniv)
-DynAssMgmt.vizPf(thisUniv, divFrontWgts[1])
+DynAssMgmt.vizPf!(thisUniv, gmvpPf)
 pfMoments(thisUniv, gmvpPf, "std")
 minimum(sqrt.(diag(thisUniv.covs)))
 
+Plots.plot(gmvpPf)
 
 scalFact = 100
 newMus = thisUniv.mus

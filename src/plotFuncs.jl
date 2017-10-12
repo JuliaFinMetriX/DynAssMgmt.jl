@@ -10,7 +10,7 @@
 
     percUniv = DynAssMgmt.getInPercentages(thisUniv)
     y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
-    x, y
+    transpose(x), transpose(y)
 end
 
 @recipe function f(thisUniv::Univ, assLabs::Array{Symbol, 1})
@@ -23,8 +23,22 @@ end
 
     percUniv = DynAssMgmt.getInPercentages(thisUniv)
     y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
-    x, y
+    transpose(x), transpose(y)
 end
+
+@recipe function f(thisUniv::Univ, assLabs::Array{String, 1})
+    linecolor   --> :blue
+    seriestype  :=  :scatter
+    title --> "Asset moments"
+    label --> hcat(assLabs...)
+    xaxis --> "Sigma"
+    yaxis --> "Mu"
+
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
+    transpose(x), transpose(y)
+end
+
 
 # define default visualization for PF types
 @recipe function f(pf::PF)
@@ -55,6 +69,21 @@ end
     x, y
 end
 
+@recipe function f(pf::PF, assLabs::Array{String, 1})
+    seriestype  :=  :bar
+    title --> "Asset weights"
+    legend --> false
+    xaxis --> "Asset"
+    yaxis --> "Weight"
+    labs = getShortLabels(assLabs)
+    label --> labs
+    rotation --> 45
+
+    x = labs[:]
+    y = pf.Wgts[:]
+    x, y
+end
+
 
 ##
 
@@ -62,9 +91,11 @@ function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
     plot(thisUniv)
 
     # calculate pf moments
-    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
+    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
 
-    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:scatter)
+    plot!([pfVola], [mu], seriestype=:scatter)
 end
 
 function vizPf(thisUniv::Univ, pf::PF)
@@ -72,11 +103,12 @@ function vizPf(thisUniv::Univ, pf::PF)
 end
 
 function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
-
     # calculate pf moments
-    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
+    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
 
-    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:scatter)
+    plot!([pfVola], [mu], seriestype=:scatter)
 end
 
 function vizPf!(thisUniv::Univ, pf::PF)
@@ -87,18 +119,22 @@ function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{PF, 1})
     plot(thisUniv)
 
     # calculate pf moments
-    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
+    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
 
-    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:line)
+    plot!([pfVola], [mu], seriestype=:line)
 
 end
 
 function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{PF, 1})
 
     # calculate pf moments
-    mu, pfVola = pfMoments(thisUniv, pfWgts, "std")
+    percUniv = DynAssMgmt.getInPercentages(thisUniv)
+    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
+    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
 
-    plot!([pfVola*sqrt.(52)], [mu.*52], seriestype=:line)
+    plot!([pfVola], [mu], seriestype=:line)
 
 end
 
