@@ -3,7 +3,7 @@
 # - mu / sigma / covariance estimator
 
 """
-    Univ(mus, covs)
+    Univ(mus::Array{Float64, 1}, covs::Array{Float64, 2}, retType::ReturnType)
 
 Universe type, built on Float64 arrays. The universe specifies
 discrete asset moments: mus and covs.
@@ -14,7 +14,13 @@ struct Univ
     retType::ReturnType
 end
 
-function getUnivExtrema(thisUniv)
+"""
+    getUnivExtrema(thisUniv::Univ)
+
+Get minimum and maximum values of mu and sigma for a given universe.
+Helpful to determine mu / sigma targets for investment strategies.
+"""
+function getUnivExtrema(thisUniv::Univ)
     muRange = extrema(thisUniv.mus)
     sigRange = extrema(sqrt.(diag(thisUniv.covs)))
     muRange, sigRange
@@ -32,7 +38,7 @@ function size(thisUniv::Univ)
 end
 
 """
-    UnivEvol(manyUnivs, manyDates, assetLabels)
+    UnivEvol(manyUnivs::Array{Univ, 1}, manyDates::Array{Date, 1}, assetLabels::Array{String, 1})
 
 Robust implementation of series of universes. In contrast to a
 simple array of Univs, a UnivEvol also contains metadata like
@@ -108,6 +114,11 @@ function applyOverTime(thisEstimator::EWMA, rets::Returns, minObs::Int)
 end
 
 ## percentage scaling
+"""
+    getStdInPercentages(thisStd::Float64, retType::ReturnType)
+
+Transform value of standard deviation into percentage scale if necessary.
+"""
 function getStdInPercentages(thisStd::Float64, retType::ReturnType)
 
     if retType.isPercent
@@ -117,6 +128,11 @@ function getStdInPercentages(thisStd::Float64, retType::ReturnType)
     end
 end
 
+"""
+    getMuInPercentages(thisMu::Float64, retType::ReturnType)
+
+Transform value of expected return into percentage scale if necessary.
+"""
 function getMuInPercentages(thisMu::Float64, retType::ReturnType)
 
     if retType.isPercent
@@ -126,6 +142,11 @@ function getMuInPercentages(thisMu::Float64, retType::ReturnType)
     end
 end
 
+"""
+    getInPercentages(thisUniv::Univ)
+
+Transform values of universe into percentage scale if necessary.
+"""
 function getInPercentages(thisUniv::Univ)
 
     retType = thisUniv.retType
@@ -147,6 +168,11 @@ function getInPercentages(thisUniv::Univ)
     end
 end
 
+"""
+    annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)
+
+Convert risk and return values to annual scale.
+"""
 function annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)
     if retType.isPercent
         mu = mu / 100;
@@ -174,6 +200,10 @@ function annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)
     return mu, sig
 end
 
+"""
+    annualizeRiskReturn(mus::Array{Float64, 1}, sigs::Array{Float64, 1}, retType::ReturnType)
+
+"""
 function annualizeRiskReturn(mus::Array{Float64, 1}, sigs::Array{Float64, 1}, retType::ReturnType)
     # preallocation
     nVals = length(mus)
@@ -193,7 +223,7 @@ end
 ## derive series of financial environments from matlab .csv files
 
 """
-    getUnivEvolFromMatlabFormat(musTab, covsTab)
+    getUnivEvolFromMatlabFormat(muTab::DataFrame, covsTab::DataFrame)
 
 Transform Matlab long format of estimated moments into UnivEvol type.
 """

@@ -26,6 +26,7 @@ export
     getEwmaMean,
     getEwmaStd,
     getEwmaCov,
+    getInPercentages,
     standardizeReturns,
     computeReturns,
     aggregateReturns,
