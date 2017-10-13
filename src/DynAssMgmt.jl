@@ -20,6 +20,7 @@ export
     DivFrontSigmaTarget,
     DivFront,
     apply,
+    applyOverTime,
     pfMoments,
     pfDivers,
     normalizePrices,
