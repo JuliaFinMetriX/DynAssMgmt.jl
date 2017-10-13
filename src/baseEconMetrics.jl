@@ -3,6 +3,19 @@
 # - sampleMean (regular, exp. weighted)
 # - price2ret
 
+"""
+    ReturnType(isPercent::Bool, isLog::Bool, period::Dates.DatePeriod, isGross::Bool)
+
+Specification of return type. Returns could differ with regards
+to following properties:
+
+- fractional / percentage returns
+- discrete / logarithmic returns
+- daily, monthly, yearly, ... returns
+- net / gross returns
+
+Standard return type is *fractional*, *discrete*, *net* daily returns.
+"""
 struct ReturnType
     isPercent::Bool
     isLog::Bool
@@ -24,11 +37,22 @@ end
 
 ReturnType() = ReturnType(false, false, Dates.Day(1), false)
 
+"""
+    Returns(data::TimeSeries.TimeArray, retType::ReturnType)
+
+Data type to store return data together with meta-data.
+"""
 struct Returns
     data::TimeSeries.TimeArray
     retType::ReturnType
 end
 
+"""
+    standardizeReturns(rets::Returns)
+
+Convert return data to default return type:
+*fractional*, *discrete* and *net* returns.
+"""
 function standardizeReturns(rets::Returns)
     retsTA = rets.data
     retType = rets.retType
@@ -289,28 +313,10 @@ end
 """
 function normalizePrices(prices::TimeSeries.TimeArray)
     # get normalized values
-    normedPrices = normalizePrretType::ReturnType, ices(prices.values)
+    normedPrices = normalizePrices(prices.values)
 
     # put together TimeArray again
-    normedPrices = Timeay, prependStart=falsSeries.TimeArray(prices.timestamp, normedPricretType, es, prices.colnames)
-end
-
-function ewmaObsWgtPower(nObs::Int)
-    return Int[ii for ii=nObs-1:-1:0]
-end
-
-function ewmaObsWgts(obsPowers::Array{Int, 1}, persistenceVal::Float64)
-    wgts = persistenceVal.^obsPowers
-    obsWgts = wgts ./ sum(wgts)
-    return obsWgts
-end
-
-function normalizePrices(prices::TimeSeries.TimeArray)
-    # get normalized rets
-    ReturnsrmalizePrices(prices.values)
-
-    # put together TimeArray again
-    normedPrices = Timeay, prependStart=falsSeries.TimeArray(prices.timestamp, normedPricretType, es, prices.colnames)
+    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
 end
 
 function ewmaObsWgtPower(nObs::Int)

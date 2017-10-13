@@ -1,8 +1,6 @@
-Return data always needs to be associated with meta-data:
-
-- frequency
-- discrete or logarithmic
-- percentage or not
+Return data should always come with additional meta-data to explicitly
+determine return properties. Therefore, the following data types
+exist. 
 
 ## Composite types
 
@@ -18,16 +16,20 @@ fieldnames(ReturnType)
 fieldnames(Returns)
 ```
 
-## Functions
+## Price and return data handling
 
 ```@docs
-DynAssMgmt.locf!
-DynAssMgmt.locf
-DynAssMgmt.nocb!
-DynAssMgmt.nocb
 normalizePrices
 computeReturns
 aggregateReturns
 rets2prices
 ```
 
+## Data imputation
+
+```@docs
+DynAssMgmt.locf!
+DynAssMgmt.locf
+DynAssMgmt.nocb!
+DynAssMgmt.nocb
+```
