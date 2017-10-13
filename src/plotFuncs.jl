@@ -86,33 +86,27 @@ end
 
 
 ##
-
-function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
-    plot(thisUniv)
-
-    # calculate pf moments
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
-    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
-
-    plot!([pfVola], [mu], seriestype=:scatter)
-end
-
-function vizPf(thisUniv::Univ, pf::PF)
-    vizPf(thisUniv, pf.Wgts)
-end
-
 function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
     # calculate pf moments
     percUniv = DynAssMgmt.getInPercentages(thisUniv)
     mu, pfVola = pfMoments(percUniv, pfWgts, "std")
     mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
 
-    plot!([pfVola], [mu], seriestype=:scatter)
+    plot!([pfVola], [mu], seriestype=:scatter, m=(0.5, [:hex], 12))
 end
 
 function vizPf!(thisUniv::Univ, pf::PF)
     vizPf!(thisUniv, pf.Wgts)
+end
+
+function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
+    plot(thisUniv)
+
+    vizPf!(thisUniv, pfWgts)
+end
+
+function vizPf(thisUniv::Univ, pf::PF)
+    vizPf(thisUniv, pf.Wgts)
 end
 
 function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{PF, 1})

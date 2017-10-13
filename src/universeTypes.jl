@@ -41,7 +41,7 @@ dates and asset names.
 struct UnivEvol
     universes::Array{Univ, 1}
     dates::Array{Date, 1}
-    assetLabels::Array{Symbol, 1}
+    assetLabels::Array{String, 1}
 end
 
 """

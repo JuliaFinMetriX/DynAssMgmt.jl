@@ -3,7 +3,7 @@
 """
 ```julia
 PF(wgts::Array{Float64, 1})
-```    
+```
 
 Implementation of a single portfolio. Weights have to be
 positive (short-selling is not allowed) and need to add up to 1.
@@ -49,8 +49,8 @@ end
 
 """
 ```julia
-Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{Symbol, 1})
-```    
+Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{String, 1})
+```
 
 Implementation of investments as collection of portfolios. Portfolios
 are equipped with additional descriptive meta-data: which strategies were used,
@@ -60,10 +60,10 @@ struct Invest
     pfs::Array{PF, 2}
     strategies::Array{SinglePeriodTarget, 1}
     dates::Array{Date, 1}
-    assetLabels::Array{Symbol, 1}
+    assetLabels::Array{String, 1}
 end
 
-function Invest(pfs::Array{PF, 2}, spectrum::SinglePeriodSpectrum, dates::Array{Date, 1}, assetLabels::Array{Symbol, 1})
+function Invest(pfs::Array{PF, 2}, spectrum::SinglePeriodSpectrum, dates::Array{Date, 1}, assetLabels::Array{String, 1})
     strats = getSingleTargets(spectrum)
     return Invest(pfs, strats, dates, assetLabels)
 end

@@ -29,6 +29,26 @@ struct Returns
     retType::ReturnType
 end
 
+function standardizeReturns(rets::Returns)
+    retsTA = rets.data
+    retType = rets.retType
+    if retType.isGross
+        retsTA.values = retsTA.value - 1
+    end
+
+    if retType.isPercent
+        retsTA.values = retsTA.value / 100
+    end
+
+    if retType.isLog
+        retsTA.values = exp(retsTA.values) - 1
+    end
+
+    standRetType = ReturnType(false, false, retType.period, false)
+    standRets = Returns(retsTA, standRetType)
+
+end
+
 """
     computeReturns(prices::Array{Float64, 1}, retType = ReturnType())
 

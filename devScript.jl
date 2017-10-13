@@ -18,12 +18,16 @@ end
 
 ##
 
-plotlyjs()
+Plots.plotlyjs()
 Plots.gr()
 
 ## load test data
 fxRates = DynAssMgmt.loadTestData("fx")
 fxRets = computeReturns(fxRates, ReturnType())
+
+## plot fx-rates
+
+DynAssMgmt.tsPlot(fxRates, doNorm = true)
 
 ## estimate moments
 
@@ -41,57 +45,67 @@ thisUniv = univList.universes[end]
 percUniv = DynAssMgmt.getInPercentages(thisUniv)
 percUniv2 = DynAssMgmt.getInPercentages(percUniv)
 
-## dev: risk-return scaling
+## visualize universe with labels
 
-Plots.plot(percUniv, fxRets.data.colnames)
+Plots.plot(percUniv, univList.assetLabels)
 
 ## define efficient frontier / diversfication frontier strategies
 DynAssMgmt.getUnivExtrema(thisUniv)
 sigTargets = [linspace(0.003, 0.0083, 15)...]
 diversTarget = 0.8
 
+# get as strategy types
 divFrontStrats = DivFront(diversTarget, sigTargets)
 effFrontStrats = EffFront(10)
 
-# apply to single universe as test
+## apply strategies to single universe as test
+
 divFrontWgts = apply(divFrontStrats, thisUniv)
 effFrontWgts = apply(effFrontStrats, thisUniv)
 
+## visualize outcomes
 
-assLabs = fxRets.data.colnames
+# universe together with single found portfolio
 DynAssMgmt.vizPf(thisUniv, divFrontWgts[end])
-Plots.plot(thisUniv)
+
+# portfolio weights for single portfolio
+assLabs = fxRets.data.colnames
 Plots.plot(divFrontWgts[end], assLabs)
 
+# portfolio weights for full series of portfolios
+DynAssMgmt.wgtsOverStrategies(divFrontWgts)
+
+# mu/sigma results for full series of portfolios
 DynAssMgmt.vizPfSpectrum(thisUniv, effFrontWgts[:])
 DynAssMgmt.vizPfSpectrum!(thisUniv, divFrontWgts[:])
 
+## apply GMVP
 gmvpPf = apply(GMVP(), thisUniv)
-DynAssMgmt.vizPf!(thisUniv, gmvpPf)
-pfMoments(thisUniv, gmvpPf, "std")
-minimum(sqrt.(diag(thisUniv.covs)))
-
+DynAssMgmt.vizPf(thisUniv, gmvpPf)
 Plots.plot(gmvpPf)
 
-scalFact = 100
-newMus = thisUniv.mus
-newMus = newMus*scalFact
-
-thisUnivScaled = Univ(newMus, thisUniv.covs*scalFact^2)
-minimum(sqrt.(diag(thisUnivScaled.covs)))
-gmvpPf = apply(GMVP(), thisUnivScaled)
-pfMoments(thisUnivScaled, gmvpPf, "std")
-
-DynAssMgmt.vizPf(thisUnivScaled, gmvpPf)
-
 # apply to all historic universes
-@time divFrontInvs = apply(divFrontStrats, univHistory)
+@time divFrontInvs = apply(divFrontStrats, univList)
 @time effFrontInvs = apply(effFrontStrats, univHistoryShort)
 
+## evaluate performance
+perfTA = DynAssMgmt.evalPerf(divFrontInvs, fxRets)
+
+DynAssMgmt.wgtsOverTime(divFrontInvs, 10)
+divFrontStrats
+perfTA.values
+
+DynAssMgmt.tsPlot(perfTA)
+DynAssMgmt.tsPlot(fxRates, doNorm = true)
+
+# calculate ddowns
+ddowns = DynAssMgmt.evalDDowns(perfTA)
+tsPlot(ddowns)
+
+tsPlot(ddowns["_1"])
 
 ## plot normalized prices
 
-DynAssMgmt.tsPlot(fxRates, doNorm = true)
 
 ## load data from disk and transform to reasonable format
 rawMus = readcsv("inputData/jochenMus.csv")
@@ -112,18 +126,6 @@ idxRets = rawInputsToTimeArray(rawIdxRets)
 # what can we do with investments object?
 # - show weights over time
 # - evaluate performance
-
-wgtsOverTime(divFrontInvs, 12)
-
-## evaluate performance
-@time perfTA = evalPerf(divFrontInvs, idxRets)
-tsPlot(perfDf)
-
-# calculate ddowns
-ddowns = evalDDowns(perfTA)
-tsPlot(ddowns)
-
-tsPlot(ddowns["_1"])
 
 ## statistics
 # - fullPercPerf
@@ -188,35 +190,6 @@ outcomes[10]
 
 wgtsOverStrategies(divFrontWgts, univHistory.assetLabels)
 
-## parallel computation
-thisUniv = univHistory.universes[100]
-
-apply(GMVP(), thisUniv)
-xx = apply(TargetVola(0.6), thisUniv)
-plot(xx, univHistoryShort.assetLabels)
-plot(xx)
-
-apply(MaxSharpe(), thisUniv)
-apply(TargetMu(0.1), thisUniv)
-
-@time xx = apply(GMVP(), univHistory)
-
-##
-
-thisTarget = GMVP()
-allPfs = apply(thisTarget, thisUniv)
-allPfs = apply(thisTarget, univHistoryShort)
-
-thisTarget = EffFront(10)
-allPfs = apply(thisTarget, thisUniv)
-
-thisTarget = EffFront(10)
-allPfs = apply(thisTarget, univHistoryShort)
-
-##
-
-
-
 
 ##
 # investmentPerformances(allPfs, discRets)
@@ -227,16 +200,7 @@ allPfs = apply(thisTarget, univHistoryShort)
 # reshape
 # squeeze
 
-
-
-## plot weights over time
-
-wgtsAsArray = convert(Array{Float64, 2}, allPfs[:, 4])
-wgtsOverTime(wgtsAsArray)
-
 ##
-
-@time xx = apply(EffFront(10), univHistory)
 
 ## define collection of targets
 # - over time
@@ -251,77 +215,6 @@ wgtsOverTime(wgtsAsArray)
 # - nObs x nStrats x nAss,
 #   where nStrats is possibly grouped into sub-groups (e.g. due to spectra)
 
-## without parallel computation -> for enhanced error checking
-
-nObs, nAss = size(univHistory)
-testSigWgts = zeros(Float64, nObs, nAss)
-xxps = []
-for ii=1:nObs
-    xx, xxp = sigmaTarget(univHistory.universes[ii], sigTarget)
-    testSigWgts[ii, :] = xx'
-    push!(xxps, xxp)
-end
-testSigWgts
-
-##
-
-thisUniv = univHistory.universes[1757]
-sigmaTargetFallback(thisUniv, sigTarget)
-xxWgts = sigmaTarget_biSect_quadForm(thisUniv, sigTarget)
-xxWgts = sigmaTarget(thisUniv, sigTarget)
-pfMoments(thisUniv, )
-
-## visualize given universe
-
-thisUniv = univHistory.universes[1757]
-
-# visualize efficient frontier
-effWgts = effFront(thisUniv)
-xx1, xx2 = pfMoments(thisUniv, effWgts)
-
-vizPfSpectrum(thisUniv, effWgts)
-
-# visualize gmvp
-xxGmvp = gmvp(thisUniv)
-vizPf!(thisUniv, xxGmvp)
-
-# visualize maximum sharpe
-xxMaxSharpe = maxSharpe(thisUniv)
-vizPf!(thisUniv, xxMaxSharpe)
-
-# visualize target sigma
-sigTarget = 1.2
-xxSigWgts = sigmaTarget(thisUniv, sigTarget)
-
-vizPf!(thisUniv, xxSigWgts)
-
-
-plot!(sigTarget*sqrt(52)*ones(Float64, 2), [0; 35], seriestype=:line)
-
-
-##
-effMus, effVars = pfMoments(thisUniv, effWgts)
-
-##
-
-plot(sqrt.(effVars), effMus)
-
-##
-
-xxMus, xxVar = pfMoments(univHistory.universes[280], testSigWgts[280, :][:])
-sqrt.(xxVar)
-
-##
-
-absDiffs = sum(abs(testSigWgts .- allSigWgts[1:500, :]), 2)
-
-## evaluate all sigma-target portfolios
-dailyMus, dailyVars = pfMoments(univHistory, allSigWgts)
-
-## check distances to target
-
-xxCloseEnough = abs.(sqrt.(dailyVars) - sigTarget) .<= 0.001
-sum(xxCloseEnough)
 
 ##
 # inspect days with too much deviation
@@ -405,71 +298,3 @@ sigTarget = 1.12
 @time allSigWgtsDistributed = map(x -> cappedSigma(x, sigTarget), DUnivs)
 allSigWgts = convert(Array, allSigWgtsDistributed)
 allSigWgts = vcat([ii[:]' for ii in allSigWgts]...)
-
-## make area plot for weights
-xxGrid = univHistory.dates
-xxDats = getNumDates(xxGrid)
-xxLabs = univHistory.assetLabels
-
-default(show = true, size=(1400,800))
-p = wgtsOverTime(allSigWgts, xxDats, xxLabs)
-display(p)
-
-# plot first weights
-
-
-plot(dailyPfSigs)
-
-## do some checks
-xx = sum(allSigWgts, 2)
-bar(mean(allSigWgts, 1))
-
-##
-
-@userplot PortfolioComposition
-
-# this shows the shifting composition of a basket of something over a variable
-# - "returns" are the dependent variable
-# - "weights" are a matrix where the ith column is the composition for returns[i]
-# - since each polygon is its own series, you can assign labels easily
-@recipe function f(pc::PortfolioComposition)
-    weights, returns = pc.args
-    n = length(returns)
-    weights = cumsum(weights,2)
-    seriestype := :shape
-
-	# create a filled polygon for each item
-    for c=1:size(weights,2)
-        sx = vcat(weights[:,c], c==1 ? zeros(n) : reverse(weights[:,c-1]))
-        sy = vcat(returns, reverse(returns))
-        @series Plots.isvertical(d) ? (sx, sy) : (sy, sx)
-    end
-end
-
-tickers = ["IBM", "Google", "Apple", "Intel"]
-N = 10
-D = length(tickers)
-weights = rand(N,D)
-weights ./= sum(weights, 2)
-returns = sort!((1:N) + D*randn(N))
-
-portfoliocomposition(weights, returns, labels = tickers)
-
-##
-
-plot([0, 0, 1, 1], [0, 1, 1, 0], seriestype=:shape)
-
-##
-
-plot([1.; xxGrid[1:3]; 3], [0.; ones(3); 0], seriestype=:shape)
-
-##
-xxGrid = Float64[ii for ii=1:size(allSigWgts, 1)]
-xxGrid = [1.; xxGrid; 1.]
-plot([1.; xxGrid; xxGrid[end]+1], [0; allSigWgts[:, 1]; 0], seriestype=:shape)
-
-## compute max-sharpe portfolios
-
-@time allMaxSharpeWgtsDistributed = map(x -> maxSharpe(x), DUnivs)
-allMaxSharpeWgts = convert(Array, allMaxSharpeWgtsDistributed)
-allMaxSharpeWgts = vcat([ii[:]' for ii in allMaxSharpeWgts]...)
