@@ -185,11 +185,14 @@ function rets2prices(rets::Array{Float64, 2}, retType::ReturnType, startPrice=1.
     nObs, ncols = size(rets)
 
     if prependStart
-        prices = zeros(Float64, nObs, ncols)
+        prices = zeros(Float64, nObs+1, ncols)
     else
-        prices = zeros(Float64, nObs-1, ncols)
+        prices = zeros(Float64, nObs, ncols)
     end
-    prices[:, ii] = rets2prices(rets[:, ii], retType, startPrice, prependStart)
+
+    for ii=1:ncols
+        prices[:, ii] = rets2prices(rets[:, ii], retType, startPrice, prependStart)
+    end
 
     return prices
 end
@@ -274,8 +277,8 @@ end
 """
 function aggregateReturns(rets::Returns, prependStart=false)
     prices = rets2prices(rets.data, rets.retType, 1.0, prependStart)
-    prices.values = prices.values - 1
-    return prices
+    newValues = prices.values - 1
+    return TimeSeries.TimeArray(prices.timestamp, prices.values, prices.colnames)
 end
 
 
