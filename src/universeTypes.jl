@@ -196,6 +196,7 @@ function annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)
             sig = sig * sqrt.(252)
         end
     else
+        # TODO: introduce better scaling for discrete returns
         if retType.period == Base.Dates.Day(1)
             mu = mu * 252
             sig = sig * sqrt.(252)

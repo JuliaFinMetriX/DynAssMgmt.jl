@@ -27,6 +27,7 @@ export
     getEwmaStd,
     getEwmaCov,
     getInPercentages,
+    annualizeRiskReturn,
     standardizeReturns,
     computeReturns,
     aggregateReturns,
