@@ -19,6 +19,13 @@ using DynAssMgmt
 fieldnames(EWMA)
 ```
 
+## Usage
+
+```@docs
+apply(thisEstimator::UnivEstimator, rets::Returns)
+applyOverTime
+```
+
 ## Functions
 
 ```@docs

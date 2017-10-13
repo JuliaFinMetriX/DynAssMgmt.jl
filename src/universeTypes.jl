@@ -75,7 +75,7 @@ Exponential weighted moving average estimator of asset moments.
 `muPersistence` is the lambda value of the estimator of mean asset returns,
 and `covPersistence` is the lambda value for the covariance matrix.
 """
-struct EWMA
+struct EWMA <: UnivEstimator
     muPersistence::Float64
     covPersistence::Float64
 end
@@ -87,12 +87,27 @@ function apply(thisEstimator::EWMA, rets::TimeSeries.TimeArray, retType::ReturnT
     return Univ(musHat[:], covsHat, retType)
 end
 
-function apply(thisEstimator::EWMA, rets::Returns)
+"""
+    apply(thisEstimator::UnivEstimator, rets::Returns)
+
+Apply some moment estimator to return data. In the background, `apply`
+needs to be defined for each possible estimator.
+"""
+function apply(thisEstimator::UnivEstimator, rets::Returns)
     apply(thisEstimator, rets.data, rets.retType)
 end
 
-function applyOverTime(thisEstimator::EWMA, rets::TimeSeries.TimeArray,
-    retType::ReturnType, minObs::Int)
+"""
+    applyOverTime(thisEstimator::UnivEstimator, retsData::Returns, minObs::Int)
+
+Successively apply given moment estimator to return data. `minObs`
+determines the minimum number of observations. This bascially defines
+the first subsample where the estimator will be applied.
+"""
+function applyOverTime(thisEstimator::UnivEstimator, retsData::Returns, minObs::Int)
+
+    rets = retsData.data
+    retType = retsData.retType
 
     univList = []
     nStartInd = minObs
@@ -107,10 +122,6 @@ function applyOverTime(thisEstimator::EWMA, rets::TimeSeries.TimeArray,
 
     # put all components together
     histEnv = UnivEvol(univList, rets.timestamp[nStartInd:nObs], rets.colnames)
-end
-
-function applyOverTime(thisEstimator::EWMA, rets::Returns, minObs::Int)
-    applyOverTime(thisEstimator, rets.data, rets.retType, minObs)
 end
 
 ## percentage scaling
