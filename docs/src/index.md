@@ -6,7 +6,7 @@ management strategies.
 
 ## Dynamic asset management types
 
-![Type relations](https://raw.github.com/cgroll/DynAssMgmt/master/docs/pics/type_interactions.png)
+![Type relations](https://raw.github.com/JuliaFinMetriX/DynAssMgmt/master/docs/pics/type_interactions.png)
 
 
 ## Utilities
