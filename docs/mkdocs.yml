@@ -1,5 +1,5 @@
 site_name:           DynAssMgmt
-repo_url:            https://github.com/cgroll/DynAssMgmt
+repo_url:            https://github.com/JuliaFinMetriX/DynAssMgmt.jl
 site_description:    First draft of a Julia implementation
 site_author:         Christian Groll
 theme:               readthedocs
