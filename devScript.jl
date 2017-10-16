@@ -2,6 +2,7 @@
 
 cd("/home/chris/scalable/julia/DynAssMgmt/")
 using DynAssMgmt
+using EconDatasets
 
 # using Gadfly
 # using Query

@@ -222,13 +222,6 @@ function rets2prices(rets::Returns, startPrice=1., prependStart=false)
     # get values
     prices = rets2prices(rets.data, rets.retType, startPrice, prependStart)
 
-    if prependStart
-        dats = [rets.timestamp[1] - Dates.Day(1); rets.timestamp]
-        prices = TimeSeries.TimeArray(dats, prices, rets.colnames)
-    else
-        prices = TimeSeries.TimeArray(rets.timestamp, prices, rets.colnames)
-    end
-
     return prices
 end
 
