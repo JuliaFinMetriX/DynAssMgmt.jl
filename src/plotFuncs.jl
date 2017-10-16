@@ -227,11 +227,11 @@ function tsPlot(df::DataFrame)
     # get values and convert to Float64
     xxVals = convert(Array, df[:, 2:end])
 
-    p = plot(dats, xxVals, label = assNams)
+    p = plot(dats, xxVals; label = assNams)
 
 end
 
-function tsPlot(ta::TimeArray; doNorm = false)
+function tsPlot(ta::TimeArray; doNorm = false, plotSettings...)
     # get dates column and convert to numbers
     dats = getNumDates(ta.timestamp)
 
@@ -246,6 +246,6 @@ function tsPlot(ta::TimeArray; doNorm = false)
     # get labels
     assNams = ta.colnames
 
-    p = plot(dats, xxVals, label = assNams)
+    p = plot(dats, xxVals; label = assNams, plotSettings...)
 
 end
