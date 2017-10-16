@@ -1,8 +1,8 @@
-# DynAssMgmt
+# DynAssMgmt.jl
 
-[![Build Status](https://travis-ci.org/cgroll/DynAssMgmt.svg?branch=master)](https://travis-ci.org/cgroll/DynAssMgmt)
-[![Coverage Status](https://coveralls.io/repos/github/cgroll/DynAssMgmt/badge.svg?branch=master)](https://coveralls.io/github/cgroll/DynAssMgmt?branch=master)
+[![Build Status](https://travis-ci.org/JuliaFinMetrix/DynAssMgmt.jl.svg?branch=master)](https://travis-ci.org/JuliaFinMetrix/DynAssMgmt.jl)
+[![Coverage Status](https://coveralls.io/repos/github/JuliaFinMetrix/DynAssMgmt.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaFinMetrix/DynAssMgmt.jl?branch=master)
 
 # Documentation
 
-https://cgroll.github.io/DynAssMgmt/latest/
+https://JuliaFinMetrix.github.io/DynAssMgmt/latest/
