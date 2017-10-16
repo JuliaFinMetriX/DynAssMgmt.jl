@@ -5,4 +5,4 @@
 
 # Documentation
 
-https://JuliaFinMetrix.github.io/DynAssMgmt/latest/
+https://JuliaFinMetrix.github.io/DynAssMgmt.jl/latest/
