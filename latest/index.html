@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="First draft of a Julia implementation">
+  <meta name="author" content="Christian Groll">
+  <link rel="shortcut icon" href="./img/favicon.ico">
+  <title>Introduction - DynAssMgmt</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/highlight.css">
+  <link href="./assets/Documenter.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Introduction";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/";
+  </script>
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> DynAssMgmt</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Introduction</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#dynassmgmtjl-documentation">DynAssMgmt.jl Documentation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#dynamic-asset-management-types">Dynamic asset management types</a></li>
+        
+            <li><a class="toctree-l3" href="#utilities">Utilities</a></li>
+        
+            <li><a class="toctree-l3" href="#index">Index</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Types</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="types/dataTypes/">Return data</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="types/estimatorTypes/">Moment estimators</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="types/universeTypes/">Asset moments</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="types/strategies/">Strategies</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="types/investmentTypes/">Investments</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="types/bktestTypes/">Performance</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">DynAssMgmt</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Introduction</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/JuliaFinMetriX/DynAssMgmt.jl/edit/master/docs/index.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='DynAssMgmt.jl-Documentation-1'></a></p>
+<h1 id="dynassmgmtjl-documentation">DynAssMgmt.jl Documentation</h1>
+<p>This package implements a framework to set up and test dynamic asset management strategies.</p>
+<p><a id='Dynamic-asset-management-types-1'></a></p>
+<h2 id="dynamic-asset-management-types">Dynamic asset management types</h2>
+<p><img alt="Type relations" src="https://raw.github.com/JuliaFinMetriX/DynAssMgmt/master/docs/pics/type_interactions.png" /></p>
+<p><a id='Utilities-1'></a></p>
+<h2 id="utilities">Utilities</h2>
+<p><a id='DynAssMgmt.loadTestData-Tuple{String}' href='#DynAssMgmt.loadTestData-Tuple{String}'>#</a>
+<strong><code>DynAssMgmt.loadTestData</code></strong> &mdash; <em>Method</em>.</p>
+<pre class="codehilite"><code>loadTestData(dataName::String)</code></pre>
+
+
+<p>Load one of the predefined test data.</p>
+<p><strong>fx / Fx:</strong></p>
+<p><strong>Garch</strong> dataset from <a href="https://cran.r-project.org/web/packages/Ecdat/Ecdat.pdf">Ecdat R package</a>.</p>
+<p>Daily observations of exchange rate data from 1980–01 to 1987–05–21. Following exchange rates are part of it:</p>
+<ul>
+<li>dm: exchange rate Dollar/Deutsch Mark</li>
+<li>bp: exchange rate of Dollar/British Pound</li>
+<li>cd: exchange rate of Dollar/Canadian Dollar</li>
+<li>dy: exchange rate of Dollar/Yen</li>
+<li>sf: exchange rate of Dollar/Swiss Franc</li>
+</ul>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5f85c2a24e5b42761be82266621f56db98b1321c/src/utils.jl#L72-L89' class='documenter-source'>source</a><br></p>
+<p><a id='Index-1'></a></p>
+<h2 id="index">Index</h2>
+<ul>
+<li><a href="types/strategies/#DynAssMgmt.DivFront"><code>DynAssMgmt.DivFront</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.DivFrontSigmaTarget"><code>DynAssMgmt.DivFrontSigmaTarget</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.EWMA"><code>DynAssMgmt.EWMA</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.EffFront"><code>DynAssMgmt.EffFront</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.GMVP"><code>DynAssMgmt.GMVP</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.Invest"><code>DynAssMgmt.Invest</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.MaxSharpe"><code>DynAssMgmt.MaxSharpe</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.PF"><code>DynAssMgmt.PF</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.RelativeTargetVola"><code>DynAssMgmt.RelativeTargetVola</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.ReturnType"><code>DynAssMgmt.ReturnType</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.Returns"><code>DynAssMgmt.Returns</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.SinglePeriodSpectrum"><code>DynAssMgmt.SinglePeriodSpectrum</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.SinglePeriodTarget"><code>DynAssMgmt.SinglePeriodTarget</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.TargetMu"><code>DynAssMgmt.TargetMu</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.TargetVola"><code>DynAssMgmt.TargetVola</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.Univ"><code>DynAssMgmt.Univ</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.UnivEstimator"><code>DynAssMgmt.UnivEstimator</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.UnivEvol"><code>DynAssMgmt.UnivEvol</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.aggregateReturns"><code>DynAssMgmt.aggregateReturns</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.annualizeRiskReturn"><code>DynAssMgmt.annualizeRiskReturn</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.apply-Tuple{DynAssMgmt.UnivEstimator,DynAssMgmt.Returns}"><code>DynAssMgmt.apply</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.apply-Tuple{DynAssMgmt.SinglePeriodTarget,DynAssMgmt.UnivEvol}"><code>DynAssMgmt.apply</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.applyOverTime"><code>DynAssMgmt.applyOverTime</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.computeReturns"><code>DynAssMgmt.computeReturns</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.getEwmaCov"><code>DynAssMgmt.getEwmaCov</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.getEwmaMean"><code>DynAssMgmt.getEwmaMean</code></a></li>
+<li><a href="types/estimatorTypes/#DynAssMgmt.getEwmaStd"><code>DynAssMgmt.getEwmaStd</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.getInPercentages"><code>DynAssMgmt.getInPercentages</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.getMuInPercentages"><code>DynAssMgmt.getMuInPercentages</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.getStdInPercentages"><code>DynAssMgmt.getStdInPercentages</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.getUnivEvolFromMatlabFormat"><code>DynAssMgmt.getUnivEvolFromMatlabFormat</code></a></li>
+<li><a href="types/universeTypes/#DynAssMgmt.getUnivExtrema"><code>DynAssMgmt.getUnivExtrema</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.gmvp-Tuple{DynAssMgmt.Univ}"><code>DynAssMgmt.gmvp</code></a></li>
+<li><a href="types/strategies/#DynAssMgmt.gmvp_lev-Tuple{DynAssMgmt.Univ}"><code>DynAssMgmt.gmvp_lev</code></a></li>
+<li><a href=".#DynAssMgmt.loadTestData-Tuple{String}"><code>DynAssMgmt.loadTestData</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.locf"><code>DynAssMgmt.locf</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.locf!"><code>DynAssMgmt.locf!</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.nocb"><code>DynAssMgmt.nocb</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.nocb!"><code>DynAssMgmt.nocb!</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.normalizePrices"><code>DynAssMgmt.normalizePrices</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.pfDivers"><code>DynAssMgmt.pfDivers</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.pfMoments-Tuple{Array{Float64,1},Array{Float64,2},Array{Float64,1},String}"><code>DynAssMgmt.pfMoments</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.pfMu-Tuple{Array{Float64,1},Array{Float64,1}}"><code>DynAssMgmt.pfMu</code></a></li>
+<li><a href="types/investmentTypes/#DynAssMgmt.pfVariance"><code>DynAssMgmt.pfVariance</code></a></li>
+<li><a href="types/dataTypes/#DynAssMgmt.rets2prices"><code>DynAssMgmt.rets2prices</code></a></li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="types/dataTypes/" class="btn btn-neutral float-right" title="Return data">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/JuliaFinMetriX/DynAssMgmt.jl" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+      
+        <span style="margin-left: 15px"><a href="types/dataTypes/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="./js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="./assets/mathjaxhelper.js"></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 0.16.3
+Build Date UTC : 2017-10-16 15:00:36
+-->
