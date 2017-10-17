@@ -56,18 +56,21 @@ Convert return data to default return type:
 function standardizeReturns(rets::Returns)
     retsTA = rets.data
     retType = rets.retType
+    values = retsTA.values
     if retType.isGross
-        retsTA.values = retsTA.value - 1
+        values = values - 1
     end
 
     if retType.isPercent
-        retsTA.values = retsTA.value / 100
+        values = values / 100
     end
 
     if retType.isLog
-        retsTA.values = exp(retsTA.values) - 1
+        values = exp(values) - 1
     end
 
+    retsTA = TimeArray(retsTA.timestamp, values, retsTA.colnames)
+        
     standRetType = ReturnType(false, false, retType.period, false)
     standRets = Returns(retsTA, standRetType)
 

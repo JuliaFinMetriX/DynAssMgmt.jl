@@ -215,7 +215,7 @@ function wgtsOverStrategies(stratWgts::Array{PF, 2}, assLabs::Array{Symbol, 1})
     p
 end
 
-function tsPlot(df::DataFrame)
+function tsPlot(df::DataFrame; plotSettings...)
     colNams = names(df)
 
     assNams = setdiff(colNams, [:Date])
@@ -227,7 +227,7 @@ function tsPlot(df::DataFrame)
     # get values and convert to Float64
     xxVals = convert(Array, df[:, 2:end])
 
-    p = plot(dats, xxVals; label = assNams)
+    p = plot(dats, xxVals; label = assNams, plotSettings...)
 
 end
 

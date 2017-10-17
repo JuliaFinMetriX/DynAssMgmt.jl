@@ -20,6 +20,8 @@ function evalPerf(someInvs::Invest, rets::Returns)
 
     # get common dates
     jointDates = intersect(someInvs.dates, discRets.timestamp)
+    # TODO: use all dates where returns exist by carrying forward
+    # portfolio weights
 
     # get dimensions
     nObs = length(jointDates)
