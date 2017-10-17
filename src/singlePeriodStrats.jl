@@ -644,11 +644,11 @@ function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, div
     xxMu, diversFrontierMaxSig = pfMoments(thisUniv, maxSigWgts, "std")
 
     if !(gmvpSig < diversFrontierMinSig)
-        error("GMVP volatility needs to be smaller than any other volatility")
+        #error("GMVP volatility needs to be smaller than any other volatility")
     end
 
     if !(diversFrontierMinSig < diversFrontierMaxSig)
-        error("Left end of diversification-aware frontier must have lower volatility than right end")
+        #error("Left end of diversification-aware frontier must have lower volatility than right end")
     end
 
     nTargets = length(sigTargets)

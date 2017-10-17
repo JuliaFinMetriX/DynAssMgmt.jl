@@ -96,13 +96,13 @@ sigTargets = [linspace(.8, 1.4, 15)...]
 
 # get efficient frontier
 effFrontStrats = EffFront(10)
-effFrontWgts = apply(effFrontStrats, thisUniv)
+#effFrontWgts = apply(effFrontStrats, thisUniv)
 
 # get as strategy types
 diversTarget = [0.6:0.1:0.9...]
 diversTarget = [0.9]
 divFrontStrats = [DivFront(thisDivTarget, sigTargets) for thisDivTarget in diversTarget]
-divFrontWgts = [apply(thisStrat, thisUniv) for thisStrat in divFrontStrats]
+#divFrontWgts = [apply(thisStrat, thisUniv) for thisStrat in divFrontStrats]
 
 # In[12]:
 
@@ -124,10 +124,9 @@ divFrontWgts = [apply(thisStrat, thisUniv) for thisStrat in divFrontStrats]
 # In[14]:
 
 ## estimate moments
-ewmaEstimator = EWMA(0.95, 0.99)
-startInd = 18000
+ewmaEstimator = EWMA(0.99, 0.95)
+startInd = 1
 @time univList = DynAssMgmt.applyOverTime(ewmaEstimator, rets, startInd)
-
 
 # In[ ]:
 

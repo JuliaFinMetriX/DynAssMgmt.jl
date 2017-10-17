@@ -70,7 +70,7 @@ function standardizeReturns(rets::Returns)
     end
 
     retsTA = TimeArray(retsTA.timestamp, values, retsTA.colnames)
-        
+
     standRetType = ReturnType(false, false, retType.period, false)
     standRets = Returns(retsTA, standRetType)
 
@@ -378,6 +378,15 @@ function getEwmaStd(data::Returns, persistenceVal::Float64)
     return getEwmaStd(data.data, persistenceVal)
 end
 
+function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
+    nObs = size(data, 1)
+
+    if nObs > 2000
+        nObs = 2000
+        data = data[1:nObs, :]
+    end
+    return data
+end
 
 """
     getEwmaMean(data::Array{Float64, 1}, persistenceVal::Float64)
@@ -400,14 +409,20 @@ end
     getEwmaMean(data::Array{Float64, 2}, persistenceVal::Float64)
 """
 function getEwmaMean(data::Array{Float64, 2}, persistenceVal::Float64)
-    ncols = size(data, 2)
+
+    data = cutoffOldData(data, 2000)
+
+    nObs, ncols = size(data)
 
     ewmaVals = zeros(Float64, 1, ncols)
 
-    for ii=1:ncols
-        ewmaVals[ii] = getEwmaMean(data[:, ii], persistenceVal)
-    end
-    return ewmaVals
+    # get observation weights
+    obsPowers = ewmaObsWgtPower(nObs)
+    wgts = ewmaObsWgts(obsPowers, persistenceVal)
+
+    wgtedObs = data .* repmat(wgts, 1, ncols)
+
+    return sum(wgtedObs, 1)
 end
 
 """
@@ -424,6 +439,16 @@ function getEwmaMean(data::Returns, persistenceVal::Float64)
     return getEwmaMean(data.data, persistenceVal)
 end
 
+function isPosSemiDef(A::Array{Float64, 2})
+    V = eigvals(Symmetric(full(A)))
+
+    if !all(V .>= 0) & !all(V .<= 0)
+        return false
+    else
+        return true
+    end
+end
+
 
 """
     getEwmaCov(data::Array{Float64, 1}, persistenceVal::Float64)
@@ -433,6 +458,8 @@ much weight historic observations get, and hence implicitly also
 defines the weight of the most recent observation.
 """
 function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
+    data = cutoffOldData(data, 2000)
+
     nObs, nAss = size(data)
 
     # get observation weights
@@ -449,7 +476,13 @@ function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
     # enforce numerical symmetry
     covMatr = 0.5 * (covMatr + covMatr')
 
+    # check positive semidefinite-ness
+    if !DynAssMgmt.isPosSemiDef(covMatr)
+        error("Here is the fucking strang covariance matrix")
+    end
+
 end
+
 
 """
     getEwmaCov(data::TimeArray, persistenceVal::Float64)
