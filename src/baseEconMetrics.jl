@@ -255,6 +255,7 @@ end
 """
 function aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prependStart=false)
     prices = rets2prices(discRets, retType, 1.0, prependStart)
+    perfVals = prices - 1
 end
 
 """
@@ -263,8 +264,8 @@ end
 """
 function aggregateReturns(discRets::TimeSeries.TimeArray, retType::ReturnType, prependStart=false)
     prices = rets2prices(discRets, retType, 1.0, prependStart)
-    prices.values = prices.values - 1
-    return prices
+    newValues = prices.values - 1
+	 return TimeSeries.TimeArray(prices.timestamp, newValues, prices.colnames)
 end
 
 """
@@ -274,7 +275,7 @@ end
 function aggregateReturns(rets::Returns, prependStart=false)
     prices = rets2prices(rets.data, rets.retType, 1.0, prependStart)
     newValues = prices.values - 1
-    return TimeSeries.TimeArray(prices.timestamp, prices.values, prices.colnames)
+    return TimeSeries.TimeArray(prices.timestamp, newValues, prices.colnames)
 end
 
 
