@@ -4,18 +4,33 @@
 # TODO: create collection of targets
 
 """
-    SinglePeriodTarget
-
-Abstract super type for single-period strategies.
-"""
-abstract type SinglePeriodTarget end
-
-"""
     SinglePeriodSpectrum
 
 Abstract super type for multiple single-period strategies in the cross-section.
 """
 abstract type SinglePeriodSpectrum end
+
+"""
+    SinglePeriodTarget
+
+Abstract super type for single-period strategies.
+"""
+abstract type SinglePeriodTarget <: SinglePeriodSpectrum end
+
+"""
+    EqualWgts()
+
+Simple equal weights strategy.
+"""
+struct EqualWgts <: SinglePeriodTarget
+
+end
+
+function apply(xx::EqualWgts, thisUniv::Univ)
+    nAss = size(thisUniv)
+    equWgts = ones(Float64, nAss) ./ nAss
+    PF(equWgts[:])
+end
 
 """
 ```julia
@@ -156,39 +171,4 @@ function getSingleTargets(someDivFront::DivFront)
 
     nPfs = length(sigTargets)
     allSingleStrats = [DivFrontSigmaTarget(diversTarget, sigTargets[ii]) for ii=1:nPfs]
-end
-
-
-## generalization of apply
-
-# make generalization to UnivEvols including potential parallelization
-"""
-```julia
-apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
-```
-
-Apply some single-period strategy to multiple universes. Automatically uses
-parallelization when multiple processes are running.
-"""
-function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
-    # check for multiple processes
-
-    nProcesses = nprocs()
-
-    if nProcesses == 1
-        allPfs = [apply(thisTarget, x) for x in univHistory.universes]
-        allPfs = reshape(allPfs, size(allPfs, 1), 1)
-
-    elseif nProcesses > 1
-
-        # distribute historic universes over processes
-        DUnivs = distribute(univHistory.universes)
-
-        allWgtsDistributed = map(x -> apply(thisTarget, x), DUnivs)
-        allPfs = convert(Array, allWgtsDistributed)
-
-        allPfs = reshape(allPfs, size(allPfs, 1), 1)
-
-    end
-
 end

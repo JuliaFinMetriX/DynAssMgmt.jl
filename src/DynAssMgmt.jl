@@ -11,6 +11,7 @@ export
     UnivEvol,
     UnivEstimator,
     EWMA,
+    EqualWgts,
     GMVP,
     TargetVola,
     RelativeTargetVola,

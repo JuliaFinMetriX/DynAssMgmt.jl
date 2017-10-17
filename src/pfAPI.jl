@@ -68,6 +68,12 @@ function Invest(pfs::Array{PF, 2}, spectrum::SinglePeriodSpectrum, dates::Array{
     return Invest(pfs, strats, dates, assetLabels)
 end
 
+function Invest(pfs::Array{PF, 1}, strat::SinglePeriodTarget, dates::Array{Date, 1}, assetLabels::Array{String, 1})
+    pfs = reshape(pfs, length(pfs), 1)
+    return Invest(pfs, [strat], dates, assetLabels)
+end
+
+
 import Base.size
 size(inv::Invest) = (size(inv.dates, 1), size(inv.strategies, 1), size(inv.assetLabels, 1))
 
