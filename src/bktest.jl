@@ -84,72 +84,65 @@ end
 
 
 ## get overall performance statistics
-fullPercRet(perfVals::Array{Float64, 1}) = 100*(perfVals[end] - perfVals[1])./perfVals[1]
+fullPercRet(pfVals::Array{Float64, 1}) = 100*(pfVals[end] - pfVals[1])./pfVals[1]
 spMu(vals::Array{Float64, 1}) = mean(vals)
 spSigma(vals::Array{Float64, 1}) = std(vals)
 spVaR(vals::Array{Float64, 1}, alpha::Float64) = (-1)*quantile(vals, 1-alpha)
-maxDD(perfVals::Array{Float64, 1}) = (-1)*minimum(evalDDowns(perfVals))
+maxDD(pfVals::Array{Float64, 1}) = (-1)*minimum(evalDDowns(pfVals))
 
-function dailyToAnnualMuSigmaScaling(mu, sigma)
-    return naive_dailyToAnnualMuSigmaScaling(mu, sigma)
-end
+function evalPerfStats(singlePfVals::Array{Float64, 1})
+    # define default return type
+    defReturnType = ReturnType(true, false, Dates.Day(1), false)
 
-function naive_dailyToAnnualMuSigmaScaling(mu, sigma)
-    muAnnual = mu*250
-    sigmaAnnual = sigma*sqrt(250)
-    return muAnnual, sigmaAnnual
-end
-
-function evalPerfStats(singlePerfVals::Array{Float64, 1})
     # get returns
-    singleDiscRets = (singlePerfVals[2:end] - singlePerfVals[1:end-1])./singlePerfVals[1:end-1]
+    singleDiscRets = computeReturns(singlePfVals, defReturnType)
 
     # compute performance statistics
     perfStats = Float64[]
     statNames = Symbol[]
 
     # full period percentage return
-    push!(perfStats, fullPercRet(singlePerfVals))
+    push!(perfStats, fullPercRet(singlePfVals))
     push!(statNames, :FullPercRet)
 
     # single period mus
     spmuval = spMu(singleDiscRets)
     push!(perfStats, spmuval)
-    push!(statNames, :SpMu)
+    push!(statNames, :SpMuPerc)
 
     spsigmaval = spSigma(singleDiscRets)
     push!(perfStats, spsigmaval)
-    push!(statNames, :SpSigma)
+    push!(statNames, :SpSigmaPerc)
 
-    muScaled, sigmaScaled = dailyToAnnualMuSigmaScaling(spmuval, spsigmaval)
-    push!(perfStats, muScaled*100)
-    push!(perfStats, sigmaScaled*100)
+    muScaled, sigmaScaled = DynAssMgmt.annualizeRiskReturn(spmuval, spsigmaval, defReturnType)
+    push!(perfStats, muScaled)
+    push!(perfStats, sigmaScaled)
     push!(statNames, :MuDailyToAnnualPerc)
     push!(statNames, :SigmaDailyToAnnualPerc)
 
     push!(perfStats, spVaR(singleDiscRets, 0.95))
-    push!(statNames, :SpVaR)
+    push!(statNames, :SpVaRPerc)
 
-    push!(perfStats, maxDD(singlePerfVals))
+    push!(perfStats, maxDD(singlePfVals))
     push!(statNames, :MaxDD)
 
     return (perfStats, statNames)
 end
 
-function evalPerfStats(singlePerfVals::Array{Float64, 1}, dats::Array{Date, 1})
+function evalPerfStats(singlePfVals::Array{Float64, 1}, dats::Array{Date, 1})
     # TODO: make use of dates array
 
     # get statistics that do not require dates
-    perfStats, statNames = evalPerfStats(singlePerfVals)
+    perfStats, statNames = evalPerfStats(singlePfVals)
 end
 
 type PerfStats
     FullPercRet::Float64
-    SpMu::Float64
-    SpSigma::Float64
+    SpMuPerc::Float64
+    SpSigmaPerc::Float64
     MuDailyToAnnualPerc::Float64
     SigmaDailyToAnnualPerc::Float64
-    SpVaR::Float64
+    SpVaRPerc::Float64
     MaxDD::Float64
     VaR::Float64
     GeoMean::Float64
