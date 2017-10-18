@@ -106,6 +106,10 @@ the first subsample where the estimator will be applied.
 """
 function applyOverTime(thisEstimator::UnivEstimator, retsData::Returns, minObs::Int)
 
+    if minObs < 10
+        error("Moments can not be estimated for less than 10 observations")
+    end
+
     rets = retsData.data
     retType = retsData.retType
 
