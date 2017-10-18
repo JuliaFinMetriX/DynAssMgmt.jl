@@ -114,7 +114,12 @@ function applyOverTime(thisEstimator::UnivEstimator, retsData::Returns, minObs::
     nObs = size(rets.values, 1)
     for ii=nStartInd:nObs
         # apply estimator
-        thisUniv = apply(thisEstimator, rets[1:ii], retType)
+        thisUniv = []
+        try
+            thisUniv = apply(thisEstimator, rets[1:ii], retType)
+        catch
+            error("Moment estimation failed at iteration $ii")
+        end
 
         # push to list of universes
         push!(univList, thisUniv)

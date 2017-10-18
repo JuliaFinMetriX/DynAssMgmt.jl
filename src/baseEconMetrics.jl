@@ -478,8 +478,10 @@ function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
 
     # check positive semidefinite-ness
     if !DynAssMgmt.isPosSemiDef(covMatr)
-        error("Here is the fucking strang covariance matrix")
+        error("Covariance matrix is not positive semidefinite")
     end
+
+    return covMatr
 
 end
 
