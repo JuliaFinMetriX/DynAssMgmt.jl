@@ -383,7 +383,7 @@ function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
 
     if nObs > 2000
         nObs = 2000
-        data = data[1:nObs, :]
+        data = data[(end-nObs+1):end, :]
     end
     return data
 end
