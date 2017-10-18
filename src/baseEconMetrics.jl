@@ -337,6 +337,9 @@ much weight historic observations get, and hence implicitly also
 defines the weight of the most recent observation.
 """
 function getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
+
+    data = cutoffOldData(data, 2000)
+
     nObs = length(data)
 
     # get observation weights
@@ -354,6 +357,7 @@ end
     getEwmaStd(data::Array{Float64, 2}, persistenceVal::Float64)
 """
 function getEwmaStd(data::Array{Float64, 2}, persistenceVal::Float64)
+
     ncols = size(data, 2)
 
     ewmaStdVals = zeros(Float64, 1, ncols)
@@ -381,9 +385,8 @@ end
 function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
     nObs = size(data, 1)
 
-    if nObs > 2000
-        nObs = 2000
-        data = data[(end-nObs+1):end, :]
+    if nObs > nCutoff
+        data = data[(end-nCutoff+1):end, :]
     end
     return data
 end
@@ -396,6 +399,9 @@ much weight historic observations get, and hence implicitly also
 defines the weight of the most recent observation.
 """
 function getEwmaMean(data::Array{Float64, 1}, persistenceVal::Float64)
+
+    data = cutoffOldData(data, 2000)
+
     nObs = length(data)
 
     # get observation weights
