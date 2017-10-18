@@ -338,6 +338,16 @@ function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
     return data
 end
 
+function cutoffOldData(data::Array{Float64, 1}, nCutoff::Int)
+    nObs = length(data)
+
+    if nObs > nCutoff
+        data = data[(end-nCutoff+1):end]
+    end
+    return data
+end
+
+
 """
     getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
