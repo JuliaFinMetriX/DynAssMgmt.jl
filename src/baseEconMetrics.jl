@@ -347,7 +347,7 @@ defines the weight of the most recent observation.
 """
 function getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
-    data = cutoffOldData(data, 2000)
+    data = DynAssMgmt.cutoffOldData(data, 2000)
 
     nObs = length(data)
 
@@ -400,7 +400,7 @@ defines the weight of the most recent observation.
 """
 function getEwmaMean(data::Array{Float64, 1}, persistenceVal::Float64)
 
-    data = cutoffOldData(data, 2000)
+    data = DynAssMgmt.cutoffOldData(data, 2000)
 
     nObs = length(data)
 
@@ -416,7 +416,7 @@ end
 """
 function getEwmaMean(data::Array{Float64, 2}, persistenceVal::Float64)
 
-    data = cutoffOldData(data, 2000)
+    data = DynAssMgmt.cutoffOldData(data, 2000)
 
     nObs, ncols = size(data)
 
@@ -464,7 +464,7 @@ much weight historic observations get, and hence implicitly also
 defines the weight of the most recent observation.
 """
 function getEwmaCov(data::Array{Float64, 2}, persistenceVal::Float64)
-    data = cutoffOldData(data, 2000)
+    data = DynAssMgmt.cutoffOldData(data, 2000)
 
     nObs, nAss = size(data)
 
