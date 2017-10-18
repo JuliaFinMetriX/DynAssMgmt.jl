@@ -5,7 +5,7 @@
 
 
 ## set up parallel computation
-addprocs(2)
+addprocs(3)
 
 ## load code
 @everywhere begin
@@ -125,7 +125,7 @@ divFrontStrats = [DivFront(thisDivTarget, sigTargets) for thisDivTarget in diver
 
 ## estimate moments
 ewmaEstimator = EWMA(0.99, 0.95)
-startInd = 1
+startInd = 300
 @time univList = DynAssMgmt.applyOverTime(ewmaEstimator, rets, startInd)
 
 # In[ ]:
