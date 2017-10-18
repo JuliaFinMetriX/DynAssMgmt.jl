@@ -329,6 +329,15 @@ function ewmaObsWgts(obsPowers::Array{Int, 1}, persistenceVal::Float64)
     return obsWgts
 end
 
+function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
+    nObs = size(data, 1)
+
+    if nObs > nCutoff
+        data = data[(end-nCutoff+1):end, :]
+    end
+    return data
+end
+
 """
     getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)
 
@@ -380,15 +389,6 @@ end
 """
 function getEwmaStd(data::Returns, persistenceVal::Float64)
     return getEwmaStd(data.data, persistenceVal)
-end
-
-function cutoffOldData(data::Array{Float64, 2}, nCutoff::Int)
-    nObs = size(data, 1)
-
-    if nObs > nCutoff
-        data = data[(end-nCutoff+1):end, :]
-    end
-    return data
 end
 
 """
