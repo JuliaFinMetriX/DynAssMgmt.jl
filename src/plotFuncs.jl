@@ -99,6 +99,12 @@ function vizPf!(thisUniv::Univ, pf::PF)
     vizPf!(thisUniv, pf.Wgts)
 end
 
+"""
+vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
+
+Visualize universe and some given portfolio in risk / return space.
+Risk / return is shown as annualized percentage values.
+"""
 function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
     plot(thisUniv)
 
@@ -134,27 +140,27 @@ end
 
 function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs)
 
-# get cumulated weights
-stackedWgts = cumsum(wgts, 2)
+    # get cumulated weights
+    stackedWgts = cumsum(wgts, 2)
 
-# get x-grid
-nObs, nAss = size(wgts)
+    # get x-grid
+    nObs, nAss = size(wgts)
 
-p = []
+    p = []
 
-# create a filled polygon for each item
-for ii=1:nAss
-    sx = vcat(xxDats, reverse(xxDats))
-    sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
+    # create a filled polygon for each item
+    for ii=1:nAss
+        sx = vcat(xxDats, reverse(xxDats))
+        sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
 
-    if ii==1
-        p = plot(sx, sy, seriestype=:shape, label=xxLabs[ii])
-    else
-        plot!(sx, sy, seriestype=:shape, label=xxLabs[ii])
+        if ii==1
+            p = plot(sx, sy, seriestype=:shape, label=xxLabs[ii])
+        else
+            plot!(sx, sy, seriestype=:shape, label=xxLabs[ii])
+        end
     end
-end
 
-p
+    p
 end
 
 function wgtsOverTime(someInvs::Invest, stratNum::Int)
@@ -172,47 +178,47 @@ end
 
 function wgtsOverTime(wgts::Array{Float64, 2})
 
-xxDats = [ii for ii=1:size(wgts, 1)]
+    xxDats = [ii for ii=1:size(wgts, 1)]
 
-# get cumulated weights
-stackedWgts = cumsum(wgts, 2)
+    # get cumulated weights
+    stackedWgts = cumsum(wgts, 2)
 
-# get x-grid
-nObs, nAss = size(wgts)
+    # get x-grid
+    nObs, nAss = size(wgts)
 
-p = []
+    p = []
 
-# create a filled polygon for each item
-for ii=1:nAss
-    sx = vcat(xxDats, reverse(xxDats))
-    sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
+    # create a filled polygon for each item
+    for ii=1:nAss
+        sx = vcat(xxDats, reverse(xxDats))
+        sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
 
-    if ii==1
-        p = plot(sx, sy, seriestype=:shape)
-    else
-        plot!(sx, sy, seriestype=:shape)
+        if ii==1
+            p = plot(sx, sy, seriestype=:shape)
+        else
+            plot!(sx, sy, seriestype=:shape)
+        end
     end
-end
-
-p
-end
-
-function wgtsOverStrategies(stratWgts::Array{PF, 2})
-
-    xxWgts = convert(Array{Float64, 2}, stratWgts[:])
-
-    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7)
 
     p
 end
 
-function wgtsOverStrategies(stratWgts::Array{PF, 2}, assLabs::Array{Symbol, 1})
-    labs = getShortLabels(assLabs)
-    xxWgts = convert(Array{Float64, 2}, stratWgts[:])
 
-    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7, label = hcat(labs...))
+"""
+wgtsOverStrategies(stratWgts::Array{PF, 1})
 
-    p
+Visualize multiple portfolios as stacked bar chart.
+"""
+function wgtsOverStrategies(stratWgts::Array{PF, 1}; plotSettings...)
+    # convert to matrix
+    xxWgts = convert(Array{Float64, 2}, stratWgts)
+
+    # plot
+    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7; plotSettings...)
+end
+
+function wgtsOverStrategies(stratWgts::Array{PF, 2}; plotSettings...)
+    wgtsOverStrategies(stratWgts[:]; plotSettings...)
 end
 
 function tsPlot(df::DataFrame; plotSettings...)
