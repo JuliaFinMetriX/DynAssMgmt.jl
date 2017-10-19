@@ -12,6 +12,8 @@ addprocs(3)
     using DynAssMgmt
 end
 
+ENV["PLOTS_USE_ATOM_PLOTPANE"] = "false"
+using Plots
 using DynAssMgmt
 using EconDatasets
 using TimeSeries
@@ -125,7 +127,7 @@ divFrontStrats = [DivFront(thisDivTarget, sigTargets) for thisDivTarget in diver
 
 ## estimate moments
 ewmaEstimator = EWMA(0.99, 0.95)
-startInd = 300
+startInd = 22500
 @time univList = DynAssMgmt.applyOverTime(ewmaEstimator, rets, startInd)
 
 # In[ ]:
@@ -142,7 +144,76 @@ divFrontInvs = apply(thisStrat, univHistoryShort)
 thisStrat = DynAssMgmt.EqualWgts()
 equWgtsInvs = apply(thisStrat, univHistoryShort)
 
-# In[ ]:
+## plot weights over time
+
+wgtsOverTime(divFrontInvs, 10)
+annualizeRiskReturn
+wgtsOverTime
+# analyse weights
+# - TO
+# - diversification
+# - average
+
+using PyPlot
+using LaTeXStrings
+
+L"$y = \sin(x)$"
+
+# show average diversification over time
+avgDiversification = mean(pfDivers(divFrontInvs), 1)
+Plots.plot(avgDiversification[:], seriestype=:bar,
+    title = "Average diversification level")
+
+# plot diversification during critical time
+diversVals = pfDivers(divFrontInvs)
+Plots.plot(diversVals[20:200, :])
+
+divFrontInvs.strategies
+
+
+Plots.plot(univList.universes[50])
+DynAssMgmt.vizPf(univList.universes[50], divFrontInvs.pfs[50, 10])
+
+DynAssMgmt.vizPfSpectrum(univList.universes[50], divFrontInvs.pfs[50, :][:])
+wgtsOverStrategies(divFrontInvs.pfs[50, :], labels = divFrontInvs.assetLabels)
+
+
+DynAssMgmt.wgtsOverStrategies(divFrontInvs.pfs[50, :],
+    label = divFrontInvs.assetLabels, size = (300, 300),
+    legendfont = Plots.Font("sans-serif",6,:hcenter,:vcenter,0.0,Plots.RGB(0., 0., 0.)))
+Plots.gui()
+
+dats = DynAssMgmt.getNumDates(rets.data.timestamp)
+Plots.plot(dats, rets.data.values[:, 1:20], layout=(10, 2), legend = false)
+using StatPlots
+Plots.violin(rets.data.values[1:100, 1:4])
+Plots.violin(rets.data.colnames[1:4], rets.data.values[1:100, 1:4]', leg=false)
+
+Plots.plot(rets.data.values[1, :], seriestype = :bar, leg=false)
+Plots.default(:legend)
+
+using Plots
+dats = DynAssMgmt.getNumDates(logSynthPrices.timestamp)
+anim = Plots.@animate for ii=1:500:length(dats)
+    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
+end
+
+animGif = Plots.@gif for ii=1:100:length(dats)
+    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
+end
+
+gui(animGif)
+display(animGif)
+
+@recipe function f(rets::Returns)
+    x = DynAssMgmt.getNumDates(rets.data.timestamp)[:]
+    y = rets.data.values
+    x, y
+end
+
+nams = rets.data.colnames[1:4]
+smallRets = Returns(rets.data[nams...], rets.retType)
+plot(smallRets, seriestype=:line, layout=(4,1), leg=false)
 
 ## evaluate performance
 perfTA = DynAssMgmt.evalPerf(divFrontInvs, rets)

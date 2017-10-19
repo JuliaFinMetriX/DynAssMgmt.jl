@@ -33,18 +33,24 @@ export
     standardizeReturns,
     computeReturns,
     aggregateReturns,
-    rets2prices
+    rets2prices,
+    wgtsOverTime,
+    wgtsOverStrategies
 
 using DataFrames
 using Convex
+using SCS
 using DistributedArrays
+
+ENV["PLOTS_USE_ATOM_PLOTPANE"] = "false"
 using Plots
+
 using StatPlots
 using TimeSeries
 using IterableTables
 using RDatasets
 
-#set_default_solver(SCS.SCSSolver(verbose=0))
+set_default_solver(SCS.SCSSolver(verbose=0))
 
 include("utils.jl")
 include("baseEconMetrics.jl")

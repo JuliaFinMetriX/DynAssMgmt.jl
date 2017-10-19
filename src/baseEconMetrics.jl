@@ -1,3 +1,11 @@
+## data types
+# Returns
+# Perform
+# - nothing else than aggregated returns
+# - should also be built around ReturnType
+# Prices
+# - could be log / discrete prices
+
 ## econometrics functions
 # - sampleStd (regular, exp. weighted)
 # - sampleMean (regular, exp. weighted)

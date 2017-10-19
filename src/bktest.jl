@@ -64,32 +64,54 @@ end
 
 
 # ddowns
-function evalDDowns(perfVals::Array{Float64, 1})
-    cumMaxPrices = cummax(perfVals)
-    ddowns = 100*(perfVals ./ cumMaxPrices - 1)
+function evalDDowns(pfVals::Array{Float64, 1})
+    cumMaxPrices = cummax(pfVals)
+    ddowns = 100*(pfVals ./ cumMaxPrices - 1)
 end
 
-function evalDDowns(perfTA::TimeArray)
+function evalDDowns(pfTA::TimeArray)
     # get values only
-    perfVals = perfTA.values
+    pfVals = pfTA.values
 
-    ddownsVals = zeros(Float64, size(perfVals))
-    for ii=1:size(perfVals, 2)
-        ddownsVals[:, ii] = evalDDowns(perfVals[:, ii])
+    ddownsVals = zeros(Float64, size(pfVals))
+    for ii=1:size(pfVals, 2)
+        ddownsVals[:, ii] = evalDDowns(pfVals[:, ii])
     end
 
     # build TimeArray again
-    return TimeArray(perfTA.timestamp, ddownsVals, perfTA.colnames)
+    return TimeArray(pfTA.timestamp, ddownsVals, pfTA.colnames)
 end
 
 
-## get overall performance statistics
+## performance statistics functions
+
+"""
+    fullPercRet(pfVals::Array{Float64, 1})
+
+Get overall performance as percentage return.
+"""
 fullPercRet(pfVals::Array{Float64, 1}) = 100*(pfVals[end] - pfVals[1])./pfVals[1]
-spMu(vals::Array{Float64, 1}) = mean(vals)
-spSigma(vals::Array{Float64, 1}) = std(vals)
+
+"""
+    spVaR(vals::Array{Float64, 1}, alpha::Float64)
+
+Empricial VaR to confidence level `alpha`.
+"""
 spVaR(vals::Array{Float64, 1}, alpha::Float64) = (-1)*quantile(vals, 1-alpha)
+
+
+"""
+    maxDD(pfVals::Array{Float64, 1})
+
+Get maximum drawdown from price series.
+"""
 maxDD(pfVals::Array{Float64, 1}) = (-1)*minimum(evalDDowns(pfVals))
 
+"""
+    evalPerfStats(singlePfVals::Array{Float64, 1})
+
+Derive risk / return metrics for single vector of prices.
+"""
 function evalPerfStats(singlePfVals::Array{Float64, 1})
     # define default return type
     defReturnType = ReturnType(true, false, Dates.Day(1), false)
@@ -106,11 +128,11 @@ function evalPerfStats(singlePfVals::Array{Float64, 1})
     push!(statNames, :FullPercRet)
 
     # single period mus
-    spmuval = spMu(singleDiscRets)
+    spmuval = mean(singleDiscRets)
     push!(perfStats, spmuval)
     push!(statNames, :SpMuPerc)
 
-    spsigmaval = spSigma(singleDiscRets)
+    spsigmaval = std(singleDiscRets)
     push!(perfStats, spsigmaval)
     push!(statNames, :SpSigmaPerc)
 
@@ -136,6 +158,12 @@ function evalPerfStats(singlePfVals::Array{Float64, 1}, dats::Array{Date, 1})
     perfStats, statNames = evalPerfStats(singlePfVals)
 end
 
+"""
+    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
+
+Performance statistics type, collecting risk / return metrics for single
+realized portfolio price path.
+"""
 type PerfStats
     FullPercRet::Float64
     SpMuPerc::Float64
@@ -151,6 +179,11 @@ end
 
 PerfStats() = PerfStats(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
 
+"""
+    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
+
+Outer constructor for `PerfStats` type.
+"""
 function PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
     # preallocate
     perfStatInstance = PerfStats()

@@ -1,9 +1,7 @@
 # portfolio moments
 
 """
-```julia
-pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
-```
+    pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
 
 Compute the portfolio variance without any re-scaling or annualization.
 """
@@ -12,9 +10,7 @@ function pfVariance(covs::Array{Float64, 2}, wgts::Array{Float64, 1})
 end
 
 """
-```julia
-pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
-```
+    pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})
 
 Compute the portfolio expectation without any re-scaling or annualization.
 """
@@ -24,9 +20,7 @@ end
 
 
 """
-```julia
-pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
-```
+    pfMoments(mus::Array{Float64, 1}, covs::Array{Float64, 2}, wgts::Array{Float64, 1}, riskType::String)
 
 Compute portfolio expectation and variance or standard deviation
 without any re-scaling or annualization. Allowed risk type keywords are
@@ -190,9 +184,7 @@ function pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String
 end
 
 """
-```julia
-pfDivers(wgts::Array{Float64, 1})
-```
+    pfDivers(wgts::Array{Float64, 1})
 
 Compute portfolio diversification as
 
@@ -212,11 +204,55 @@ function pfDivers(wgts::Array{Float64, 1})
     1 - norm(wgts .- eqWgts)
 end
 
+"""
+    pfDivers(pf::PF)
 
 """
-```julia
-pfDivers(allWgts::Array{Float64, 2})
-```
+function pfDivers(pf::PF)
+    return pfDivers(pf.Wgts)
+end
+
+"""
+    pfDivers(pf::Array{PF, 1})
+
+"""
+function pfDivers(pf::Array{PF, 1})
+    nPfs = length(pf)
+    divVals = zeros(Float64, nPfs)
+    for ii=1:nPfs
+        divVals[ii] = pfDivers(pf[ii])
+    end
+    return divVals
+end
+
+"""
+    pfDivers(pf::Array{PF, 2})
+
+"""
+function pfDivers(pf::Array{PF, 2})
+    nrows, ncols = size(pf)
+
+    divVals = zeros(Float64, nrows, ncols)
+    for ii=1:nrows
+        for jj=1:ncols
+            divVals[ii, jj] = pfDivers(pf[ii, jj])
+        end
+    end
+    return divVals
+end
+
+"""
+    pfDivers(invests::Invest)
+
+"""
+function pfDivers(invests::Invest)
+    return pfDivers(invests.pfs)
+end
+
+
+
+"""
+    pfDivers(allWgts::Array{Float64, 2})
 
 Applies to series of portfolio weights, with individual weights
 given in rows.
