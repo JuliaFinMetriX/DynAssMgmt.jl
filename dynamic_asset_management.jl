@@ -29,11 +29,13 @@ using TimeSeries
 
 # Load the industry return data in raw version
 
-# In[4]:
-
 # load data
 xxRets = dataset("IndustryPfs");
 
+# visualize some time series
+Plots.gr()
+Plots.gui()
+Plots.plot(xxRets[xxRets.colnames[1:4]...], layout = (4, 1), leg=false)
 
 # Transform into more robust data type
 
@@ -64,7 +66,6 @@ logSynthPrices = getLogPrices(synthPrices);
 # In[8]:
 
 # plot prices over time
-Plots.gr()
 
 #Plots.default(size = (800, 800))
 #p = DynAssMgmt.tsPlot(logSynthPrices[1:200:end];
@@ -143,6 +144,33 @@ divFrontInvs = apply(thisStrat, univHistoryShort)
 
 thisStrat = DynAssMgmt.EqualWgts()
 equWgtsInvs = apply(thisStrat, univHistoryShort)
+
+## analyse appropriateness
+
+dayToAnalyse = 50
+univToAnalyse = univHistoryShort.universes[dayToAnalyse]
+
+Plots.plot(univToAnalyse)
+univHistoryShort
+
+divFrontSpectrum = divFrontInvs.pfs[dayToAnalyse, :]
+pfMoments(univToAnalyse, divFrontSpectrum, "std")
+
+sigTargets
+
+gmvpPf = apply(GMVP(), univToAnalyse)
+pfMoments(univToAnalyse, gmvpPf, "std")
+
+Plots.plot(gmvpPf, label = hcat(univHistoryShort.assetLabels...), legend=true)
+
+Plots.plot(gmvpPf)
+Plots.plot(gmvpPf, univHistoryShort.assetLabels)
+
+labs = univHistoryShort.assetLabels
+Plots.plot(labs, gmvpPf.Wgts, seriestype = :bar, xrotation=45, leg=false)
+
+Plots.plot(univToAnalyse, doAnnualize=false, label=labs, legend=true)
+
 
 ## plot weights over time
 

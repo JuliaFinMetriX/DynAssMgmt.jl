@@ -137,7 +137,7 @@ function pfMoments(univHist::Univ, pfWgts::Array{PF, 1}, riskType::String)
 end
 
 """
-    pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)
+    pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)
 
 Applies to single universe and multiple portfolio weights.
 """
@@ -152,6 +152,24 @@ function pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)
     end
     return pfMus, pfRisks
 end
+
+"""
+    pfMoments(univHist::Univ, pfs::Array{PF, 1}, riskType::String)
+
+Applies to single universe and multiple portfolio weights.
+"""
+function pfMoments(univHist::Univ, pfs::Array{PF, 1}, riskType::String)
+    # get dimensions
+    npfs = length(pfs)
+
+    pfMus, pfRisks = (zeros(Float64, npfs), zeros(Float64, npfs))
+
+    for ii=1:npfs
+        pfMus[ii], pfRisks[ii] = pfMoments(univHist, pfs[ii], riskType)
+    end
+    return pfMus, pfRisks
+end
+
 
 """
     pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)

@@ -1,6 +1,6 @@
 
-# define default visualization
-@recipe function f(thisUniv::Univ)
+# define default visualization for Univ types
+@recipe function f(thisUniv::Univ; doAnnualize=true)
     linecolor   --> :blue
     seriestype  :=  :scatter
     title --> "Asset moments"
@@ -8,34 +8,15 @@
     xaxis --> "Sigma"
     yaxis --> "Mu"
 
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
-    transpose(x), transpose(y)
-end
+    x = []
+    y = []
 
-@recipe function f(thisUniv::Univ, assLabs::Array{Symbol, 1})
-    linecolor   --> :blue
-    seriestype  :=  :scatter
-    title --> "Asset moments"
-    label --> hcat(assLabs...)
-    xaxis --> "Sigma"
-    yaxis --> "Mu"
-
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
-    transpose(x), transpose(y)
-end
-
-@recipe function f(thisUniv::Univ, assLabs::Array{String, 1})
-    linecolor   --> :blue
-    seriestype  :=  :scatter
-    title --> "Asset moments"
-    label --> hcat(assLabs...)
-    xaxis --> "Sigma"
-    yaxis --> "Mu"
-
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
+    if doAnnualize
+        percUniv = DynAssMgmt.getInPercentages(thisUniv)
+        y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
+    else
+        y, x = thisUniv.mus, sqrt.(diag(thisUniv.covs))
+    end
     transpose(x), transpose(y)
 end
 
@@ -49,24 +30,8 @@ end
     yaxis --> "Weight"
 
     nAss = size(pf)
-    x = [1:nAss][:]
     y = pf.Wgts[:]
-    x, y
-end
-
-@recipe function f(pf::PF, assLabs::Array{Symbol, 1})
-    seriestype  :=  :bar
-    title --> "Asset weights"
-    legend --> false
-    xaxis --> "Asset"
-    yaxis --> "Weight"
-    labs = getShortLabels(assLabs)
-    label --> labs
-    rotation --> 45
-
-    x = labs[:]
-    y = pf.Wgts[:]
-    x, y
+    y
 end
 
 @recipe function f(pf::PF, assLabs::Array{String, 1})
@@ -75,14 +40,17 @@ end
     legend --> false
     xaxis --> "Asset"
     yaxis --> "Weight"
+
     labs = getShortLabels(assLabs)
     label --> labs
-    rotation --> 45
-
-    x = labs[:]
+    xrotation --> 45
+    legend --> true
+    x = labs
     y = pf.Wgts[:]
     x, y
 end
+
+Plots.@userplot
 
 
 ##
