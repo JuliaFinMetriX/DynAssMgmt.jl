@@ -30,12 +30,15 @@ using TimeSeries
 # Load the industry return data in raw version
 
 # load data
-xxRets = dataset("IndustryPfs");
+xxRets = dataset("IndustryPfs")
 
 # visualize some time series
 Plots.gr()
 Plots.gui()
 Plots.plot(xxRets[xxRets.colnames[1:4]...], layout = (4, 1), leg=false)
+
+Plots.plot(rand(100), group = rand(1:3, 100), marker = (10,0.3,[:s :o :x]), seriestype=:line)
+
 
 # Transform into more robust data type
 

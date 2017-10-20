@@ -50,7 +50,51 @@ end
     x, y
 end
 
-Plots.@userplot
+# define "portfolio opportunities" plot
+# PlotRecipes.@userplot PfOpts
+
+# User recipes:
+# - to allow multiple dispatch:
+#   - portfolio itself: bar chart
+#   - portfolio with universe information: evaluate mu / sigma
+# Type recipes:
+# - tell the plotting engine where to find values
+# - allow default settings for attributes
+# -> get sigmas from universe diagonal, visualize mu/sigmas as scatter plot
+# -> plot Returns by transferring request to data field (TimeSeries type)
+# Plot recipes:
+# - marginalhist
+# Series recipes:
+# - rebuild histogram from bar chart
+# - apply histogram counting operation before plotting
+
+## Desired functionality
+# - mu / sigma visualizations:
+#   - allow optional scaling of moments
+#   - plot mus / sigmas of given universe
+#   - plot mus / sigmas together with efficient frontiers
+#   - plot mus / sigmas together with given portfolios
+
+# call to plot(univ, pfs): scatter plot of asset moments, portfolios included
+# call to plot(univ): simple scatter plot of asset moments
+# call to plot(univ, seriestype=:pfOpts):
+# - first: calculate relevant portfolios
+# - then: call plot(univ, pfs)
+
+# Desired workflow:
+# - visualize universe with prominent portfolio choices, without scaling
+# - add actually chosen portfolios, without scaling
+# - plot!(univ, pf::PF): add single portfolio as dot
+# - plot!(univ, pfs::Array{PF, 1}): add individual portfolios as dots
+# - plot!(univ, pfs::Array{PF, 2}): add portfolios as line
+# OR:
+# - plot!(univ, pfs::Array{PF, 1}, :scatter): add individual portfolios as dots
+# - plot!(univ, pfs::Array{PF, 1}, :line): add portfolios as line
+
+# plot(univ, seriestype=:pfOpts)
+# - compute prominent portfolios
+# - call plot(univ)
+# - call plot!(univ, PF) and plot!(univ, Array{PF, 1}) respectively
 
 
 ##
