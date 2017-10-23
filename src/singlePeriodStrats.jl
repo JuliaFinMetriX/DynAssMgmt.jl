@@ -676,3 +676,54 @@ function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, div
     end
     return allWgts
 end
+
+"""
+    diversTargetFrontier(thisUniv::Univ, nSigTargets::Int, diversTarget::Float64)
+
+Automatically pick sigma targets for given diversification frontier.
+"""
+function diversTargetFrontier(thisUniv::Univ, nSigTargets::Int, diversTarget::Float64)
+
+    # get gmvp
+    gmvpWgts = gmvp(thisUniv)
+    xxMu, gmvpSig = pfMoments(thisUniv, gmvpWgts, "std")
+
+    # get minimum sigma on diversification-aware frontier
+    minSigWgts = diversTargetMinSigma(thisUniv, diversTarget)
+    xxMu, diversFrontierMinSig = pfMoments(thisUniv, minSigWgts, "std")
+
+    # get maximum sigma on diversification-aware frontier
+    maxSigWgts = diversTargetMaxSigma(thisUniv, diversTarget)
+    xxMu, diversFrontierMaxSig = pfMoments(thisUniv, maxSigWgts, "std")
+
+    if !(gmvpSig < diversFrontierMinSig)
+        error("GMVP volatility needs to be smaller than any other volatility")
+    end
+
+    if !(diversFrontierMinSig < diversFrontierMaxSig)
+        error("Left end of diversification-aware frontier must have lower volatility than right end")
+    end
+
+    nAss = size(thisUniv)
+    allWgts = Array{Float64, 1}[]
+    sigTargets = linspace(gmvpSig, diversFrontierMaxSig, nSigTargets)
+
+    for ii=1:nSigTargets
+        currTarget = sigTargets[ii]
+
+        if currTarget <= gmvpSig
+            currWgts = gmvpWgts
+        elseif gmvpSig < currTarget <= diversFrontierMinSig
+            currWgts = sigmaTargetMaxDivers(thisUniv, currTarget)
+        elseif diversFrontierMinSig < currTarget <= diversFrontierMaxSig
+            currWgts = sigmaAndDiversTarget_noFallBacks(thisUniv, currTarget, diversTarget)
+        elseif diversFrontierMaxSig < currTarget
+            currWgts = maxSigWgts
+        end
+
+        # store result
+        push!(allWgts, currWgts[:])
+        #allWgts[ii, :] = currWgts'
+    end
+    return allWgts
+end

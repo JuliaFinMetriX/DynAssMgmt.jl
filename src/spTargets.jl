@@ -158,6 +158,26 @@ end
 
 """
 ```julia
+DivFrontRelativeSigmas(divTarget::Float64, nSigTarget::Int)
+```
+
+Multiple portfolios with target diversification level and multiple relative
+volatility targets.
+"""
+struct DivFrontRelativeSigmas <: SinglePeriodSpectrum
+    diversTarget::Float64
+    NSigTargets::Int64
+end
+
+function apply(xx::DivFrontRelativeSigmas, thisUniv::Univ)
+    wgtsArray = diversTargetFrontier(thisUniv, xx.NSigTargets, xx.diversTarget)
+    pfArray = map(x -> PF(x), wgtsArray)
+    pfArray = reshape(pfArray, 1, size(pfArray, 1))
+end
+
+
+"""
+```julia
 getSingleTargets(someDivFront::DivFront)
 ```
 
