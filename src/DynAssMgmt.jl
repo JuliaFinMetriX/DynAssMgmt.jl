@@ -35,7 +35,8 @@ export
     aggregateReturns,
     rets2prices,
     wgtsOverTime,
-    wgtsOverStrategies
+    wgtsOverStrategies,
+    pfopts
 
 using DataFrames
 using Convex
@@ -46,6 +47,7 @@ ENV["PLOTS_USE_ATOM_PLOTPANE"] = "false"
 using Plots
 
 using StatPlots
+#using RecipesBase
 using TimeSeries
 using IterableTables
 using RDatasets

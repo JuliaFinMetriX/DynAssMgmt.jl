@@ -12,49 +12,20 @@ addprocs(3)
     using DynAssMgmt
 end
 
+## setup
+
 ENV["PLOTS_USE_ATOM_PLOTPANE"] = "false"
 using Plots
 using DynAssMgmt
 using EconDatasets
 using TimeSeries
 
-
-# Use `EconDatasets` package to download return data on Fama / French industry portfolios
-
-# In[3]:
-
-# download data
-# getDataset("IndustryPfs")
-
-
-# Load the industry return data in raw version
-
 # load data
 xxRets = dataset("IndustryPfs")
-
-# visualize some time series
-Plots.gr()
-Plots.gui()
-Plots.plot(xxRets[xxRets.colnames[1:4]...], layout = (4, 1), leg=false)
-
-Plots.plot(rand(100), group = rand(1:3, 100), marker = (10,0.3,[:s :o :x]), seriestype=:line)
-
-
-# Transform into more robust data type
-
-# In[5]:
-
-size(xxRets.values)
-
-
-# In[6]:
 
 # store with information regarding the return type
 retType = ReturnType(true, false, Dates.Day(1), false)
 rets = Returns(xxRets, retType);
-
-
-# In[7]:
 
 # derive associated prices
 synthPrices = rets2prices(rets, 1.0, true)
@@ -65,8 +36,62 @@ end
 
 logSynthPrices = getLogPrices(synthPrices);
 
+# visualize universe
+ewmaEstimator = EWMA(1, 1)
+thisUniv = apply(ewmaEstimator, rets)
 
-# In[8]:
+## dev plotting
+
+assLabs = rets.data.colnames
+
+# visualize some time series
+Plots.gr()
+Plots.gui()
+Plots.plot(xxRets[xxRets.colnames[1:4]...], layout = (4, 1), leg=false)
+
+# visualize universe
+Plots.plot(thisUniv, doScale=false)
+Plots.plot(thisUniv)
+
+# use different built-in options
+fontSpec = Plots.Font("sans-serif",6,:hcenter,:vcenter,0.0,Plots.RGB(0., 0., 0.))
+figSize = (300, 300)
+Plots.plot(thisUniv, label=assLabs, leg=true,
+    legendfont = fontSpec, size = figSize)
+
+pfopts(thisUniv, doScale=true, title = "Universe")
+Plots.plot(PfOpts([thisUniv]), title = "Also universe") # also works
+
+# add equal weights again
+equWgtsPf = apply(EqualWgts(), thisUniv)
+Plots.plot!(thisUniv, equWgtsPf, true, markershape = :star)
+
+gmvpPf = apply(GMVP(), thisUniv)
+Plots.plot(gmvpPf)
+# relabeling of xaxis doesn't work
+Plots.plot(gmvpPf, xlim=(1,5), xaxis=("sldkjf"), legend=true)
+
+
+
+Plots.plot(thisUniv, equWgtsPf, true)
+
+pfs = apply(EffFront(10), thisUniv)
+Plots.plot(pfs[1])
+Plots.plot(pfs[:])
+DynAssMgmt.wgtsOverStrategies(pfs, leg=false)
+
+
+# try call to groupedbar with seriestype
+xxWgts = convert(Array{Float64, 2}, pfs[:])
+xxGrid = vcat(1:size(xxWgts, 1))
+Plots.plot(xxWgts, seriestype = :groupedbar, bar_position = :stack, bar_width=0.7)
+# different way to do grouped bar plot
+Plots.plot(StatPlots.GroupedBar((xxGrid, xxWgts)), bar_position = :stack, bar_width=0.7)
+
+
+# download data
+# getDataset("IndustryPfs")
+
 
 # plot prices over time
 
@@ -78,9 +103,6 @@ logSynthPrices = getLogPrices(synthPrices);
 
 # In[9]:
 
-# visualize universe
-ewmaEstimator = EWMA(1, 1)
-thisUniv = apply(ewmaEstimator, rets)
 
 # test equal weights
 DynAssMgmt.apply(DynAssMgmt.EqualWgts(), thisUniv)

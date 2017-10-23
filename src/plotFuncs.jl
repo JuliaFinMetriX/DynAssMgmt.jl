@@ -1,33 +1,38 @@
+@recipe function f(stratWgts::Array{PF, 1})
+    # convert to matrix
+    y = convert(Array{Float64, 2}, stratWgts)
 
-# define default visualization for Univ types
-@recipe function f(thisUniv::Univ; doAnnualize=true)
-    linecolor   --> :blue
-    seriestype  :=  :scatter
-    title --> "Asset moments"
-    legend --> false
-    xaxis --> "Sigma"
-    yaxis --> "Mu"
+    bar_width --> 0.7
+    seriestype := :bar
+    bar_position = :stack
 
-    x = []
-    y = []
-
-    if doAnnualize
-        percUniv = DynAssMgmt.getInPercentages(thisUniv)
-        y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
-    else
-        y, x = thisUniv.mus, sqrt.(diag(thisUniv.covs))
-    end
-    transpose(x), transpose(y)
+    y
 end
 
+@recipe function f(thisUniv::Univ, pf::PF, doScale=true)
+    # calculate pf moments
+    seriestype := :scatter
+    #marker --> (0.5, [:hex], 12)
+    x = []
+    y = []
+    if doScale
+        percUniv = DynAssMgmt.getInPercentages(thisUniv)
+        mu, pfVola = pfMoments(percUniv, pf, "std")
+        y, x = DynAssMgmt.annualizeRiskReturn([mu], [pfVola], percUniv.retType)
+    else
+        mu, pfVola = pfMoments(thisUniv, pf, "std")
+        y, x = [mu], [pfVola]
+    end
+    x, y
+end
 
 # define default visualization for PF types
 @recipe function f(pf::PF)
     seriestype  :=  :bar
     title --> "Asset weights"
     legend --> false
-    xaxis --> "Asset"
-    yaxis --> "Weight"
+    xlabel --> "Asset"
+    ylabel --> "Weight"
 
     nAss = size(pf)
     y = pf.Wgts[:]
@@ -38,8 +43,8 @@ end
     seriestype  :=  :bar
     title --> "Asset weights"
     legend --> false
-    xaxis --> "Asset"
-    yaxis --> "Weight"
+    xlabel --> "Asset"
+    ylabel --> "Weight"
 
     labs = getShortLabels(assLabs)
     label --> labs
@@ -49,6 +54,117 @@ end
     y = pf.Wgts[:]
     x, y
 end
+
+# define default visualization for Univ types
+@recipe function f(thisUniv::Univ; doScale=true)
+    linecolor   --> :blue
+    seriestype  --> :scatter
+    title --> "Asset moments"
+    legend --> false
+    xaxis --> "Sigma"
+    yaxis --> "Mu"
+
+    x = []
+    y = []
+
+    if doScale
+        percUniv = DynAssMgmt.getInPercentages(thisUniv)
+        y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
+    else
+        y, x = thisUniv.mus, sqrt.(diag(thisUniv.covs))
+    end
+    transpose(x), transpose(y)
+
+end
+
+@userplot PfOpts
+
+@recipe function f(g::PfOpts; doScale=true)
+    # do some calculations
+    thisUniv = g.args[1]
+
+    # compute efficient frontier
+    effFrontPfs = apply(EffFront(15), thisUniv)
+    effMus, effVolas = DynAssMgmt.pfMoments(thisUniv, effFrontPfs[:], "std")
+
+    # compute diversification-aware frontier
+
+    # equally weighted portfolio
+    eqPf = apply(EqualWgts(), thisUniv)
+    equWgtsMus, equWgtsSigmas = DynAssMgmt.pfMoments(thisUniv, eqPf, "std")
+
+    x = []
+    y = []
+
+    if doScale
+        percUniv = DynAssMgmt.getInPercentages(thisUniv)
+        y, x = DynAssMgmt.annualizeRiskReturn(percUniv.mus, sqrt.(diag(percUniv.covs)), percUniv.retType)
+    else
+        y, x = thisUniv.mus, sqrt.(diag(thisUniv.covs))
+    end
+
+    legend = true
+    labels := ["Assets"; "Equal weights"; "Efficient frontier";
+                "Div. frontier 0.6"; "Div. frontier 0.7"; "Div. frontier 0.8";
+                "Div. frontier 0.9"]
+
+    xlabel --> "Sigma"
+    ylabel --> "Mu"
+
+    RecipesBase.@series begin
+        seriestype := :scatter
+        #Plots.plot(thisUniv)
+        x, y
+    end
+
+    RecipesBase.@series begin
+        seriestype := :scatter
+        markershape := :star
+        #Plots.plot(thisUniv)
+
+        if doScale
+            percUniv = DynAssMgmt.getInPercentages(thisUniv)
+            y, x = DynAssMgmt.annualizeRiskReturn([equWgtsMus], [equWgtsSigmas], percUniv.retType)
+        end
+        x, y
+    end
+
+    RecipesBase.@series begin
+        seriestype := :line
+
+        if doScale
+            percUniv = DynAssMgmt.getInPercentages(thisUniv)
+            y, x = DynAssMgmt.annualizeRiskReturn(effMus, effVolas, percUniv.retType)
+        end
+        #Plots.plot(thisUniv)
+        x, y
+    end
+
+    sigTargets = []
+    diversTarget = [0.6:0.1:0.9...]
+    for thisDivTarget in diversTarget
+
+        relDivFront = DynAssMgmt.DivFrontRelativeSigmas(thisDivTarget, 10)
+        pfs = apply(relDivFront, thisUniv)
+
+    RecipesBase.@series begin
+        seriestype := :line
+
+        y, x = pfMoments(thisUniv, pfs[:], "std")
+
+        if doScale
+            percUniv = DynAssMgmt.getInPercentages(thisUniv)
+            y, x = DynAssMgmt.annualizeRiskReturn(y, x, percUniv.retType)
+        end
+
+        #Plots.plot(thisUniv)
+        x, y
+    end
+
+    end
+
+end
+
 
 # define "portfolio opportunities" plot
 # PlotRecipes.@userplot PfOpts
