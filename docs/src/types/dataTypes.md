@@ -7,6 +7,8 @@ exist.
 ```@docs
 ReturnType
 Returns
+Prices
+Performances
 ```
 ### Fields of composite types
 
@@ -14,6 +16,8 @@ Returns
 using DynAssMgmt
 fieldnames(ReturnType)
 fieldnames(Returns)
+fieldnames(Prices)
+fieldnames(Performances)
 ```
 
 ## Price and return data handling

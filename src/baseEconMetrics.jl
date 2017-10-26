@@ -55,6 +55,102 @@ struct Returns
     retType::ReturnType
 end
 
+
+"""
+    Prices(data::TimeSeries.TimeArray, isLog::Bool)
+
+Data type to store prices together with meta-data. This basically allows
+to robustly identify logarithmic prices.
+"""
+struct Prices
+    data::TimeSeries.TimeArray
+    isLog::Bool
+end
+
+"""
+    standardizePrices(prices::Prices)
+
+Convert price data to default price type: discrete, not logarithmic prices.
+"""
+function standardizePrices(prices::Prices)
+    if prices.isLog
+        prices = getDiscretePrices(prices)
+    end
+    return prices
+end
+
+"""
+    getLogPrices(prices::Prices)
+
+Transform prices to logarithmic prices if necessary.
+"""
+function getLogPrices(prices::Prices)
+    if prices.isLog
+        return prices
+    else
+        priceData = prices.data
+        logData = TimeSeries.TimeArray(priceData.timestamp, log.(priceData.values), priceData.colnames)
+        return Prices(logData, true)
+    end
+end
+
+"""
+    getDiscretePrices(prices::Prices)
+
+Transform prices to discrete values if necessary.
+"""
+function getDiscretePrices(prices::Prices)
+    if prices.isLog
+        priceData = prices.data
+        logData = TimeSeries.TimeArray(priceData.timestamp, exp.(priceData.values), priceData.colnames)
+        return Prices(logData, true)
+    else
+        return prices
+    end
+end
+
+"""
+    Performance(data::TimeSeries.TimeArray, retType::ReturnType)
+
+Data type to store performance data together with meta-data. Performance
+basically can be interpreted as aggregated returns. For the special case of
+gross performance values, performances also can be interpreted as normalized
+prices.
+"""
+struct Performances
+    data::TimeSeries.TimeArray
+    retType::ReturnType
+end
+
+"""
+    standardizePerformances(perfs::Performances)
+
+Convert performance data to default performance type:
+*fractional*, *discrete* and *net* performances.
+"""
+function standardizePerformances(perfs::Performances)
+    perfsTA = perfs.data
+    retType = perfs.retType
+    values = perfsTA.values
+    if retType.isGross
+        values = values - 1
+    end
+
+    if retType.isPercent
+        values = values / 100
+    end
+
+    if retType.isLog
+        values = exp(values) - 1
+    end
+
+    perfsTA = TimeArray(perfsTA.timestamp, values, perfsTA.colnames)
+
+    standRetType = ReturnType(false, false, retType.period, false)
+    standPerfs = Performances(perfsTA, standRetType)
+
+end
+
 """
     standardizeReturns(rets::Returns)
 
@@ -233,7 +329,8 @@ function rets2prices(rets::Returns, startPrice=1., prependStart=false)
     # get values
     prices = rets2prices(rets.data, rets.retType, startPrice, prependStart)
 
-    return prices
+    # get as high-level data type
+    return Prices(prices, false)
 end
 
 
@@ -283,7 +380,10 @@ end
 function aggregateReturns(rets::Returns, prependStart=false)
     prices = rets2prices(rets.data, rets.retType, 1.0, prependStart)
     newValues = prices.values - 1
-    return TimeSeries.TimeArray(prices.timestamp, newValues, prices.colnames)
+
+    data = TimeSeries.TimeArray(prices.timestamp, newValues, prices.colnames)
+
+    return Performances(data, ReturnType())
 end
 
 

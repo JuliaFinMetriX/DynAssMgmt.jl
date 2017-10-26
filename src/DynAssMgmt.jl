@@ -3,6 +3,8 @@ module DynAssMgmt
 export
     ReturnType,
     Returns,
+    Prices,
+    Performances,
     Invest,
     PF,
     SinglePeriodTarget,

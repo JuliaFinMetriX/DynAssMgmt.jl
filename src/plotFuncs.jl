@@ -1,3 +1,48 @@
+@recipe function f(prices::Prices, asLog=false)
+    # convert to desired scale
+    newPrices = []
+    if asLog
+        newPrices = getLogPrices(prices)
+    else
+        newPrices = getDiscretePrices(prices)
+    end
+
+    # get as TimeArray
+    y = newPrices.data
+
+    seriestype := :line
+    y
+end
+
+@recipe function f(perfs::Performances; asPercent=true, asLog=false, asGross=false)
+    # convert to desired scale
+    standPerfs = standardizePerformances(perfs)
+
+    perfsTA = standPerfs.data
+    retType = standPerfs.retType
+    values = perfsTA.values
+
+    if asLog
+        values = log.(values + 1)
+    end
+
+    if asPercent
+        values = values .* 100
+    end
+
+    if asGross
+        values = values + 1
+    end
+
+    perfsTA = TimeArray(perfsTA.timestamp, values, perfsTA.colnames)
+
+    # get as TimeArray
+    y = perfsTA
+
+    seriestype := :line
+    y
+end
+
 @recipe function f(stratWgts::Array{PF, 1})
     # convert to matrix
     y = convert(Array{Float64, 2}, stratWgts)

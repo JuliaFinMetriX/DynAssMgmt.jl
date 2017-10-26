@@ -25,16 +25,23 @@ xxRets = dataset("IndustryPfs")
 
 # store with information regarding the return type
 retType = ReturnType(true, false, Dates.Day(1), false)
-rets = Returns(xxRets, retType);
+rets = Returns(xxRets, retType)
 
 # derive associated prices
 synthPrices = rets2prices(rets, 1.0, true)
 
-function getLogPrices(prices::TimeSeries.TimeArray)
-    return TimeSeries.TimeArray(prices.timestamp, log.(prices.values), prices.colnames)
-end
+# plot TimeArray itself
+Plots.plot(synthPrices.data[1:500], leg=false)
+Plots.gui()
 
-logSynthPrices = getLogPrices(synthPrices);
+# plot Prices directly
+Plots.plot(synthPrices, false, leg=false)
+Plots.plot(synthPrices, true, leg=false)
+
+# get performances
+perfs = aggregateReturns(rets, false)
+
+Plots.plot(perfs, asLog=true, asPercent=false)
 
 # visualize universe
 ewmaEstimator = EWMA(1, 1)
