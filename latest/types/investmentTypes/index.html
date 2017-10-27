@@ -139,14 +139,14 @@
 
 
 <p>Implementation of a single portfolio. Weights have to be positive (short-selling is not allowed) and need to add up to 1.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfAPI.jl#L3-L10' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfAPI.jl#L3-L10' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.Invest' href='#DynAssMgmt.Invest'>#</a>
 <strong><code>DynAssMgmt.Invest</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{String, 1})</code></pre>
 
 
 <p>Implementation of investments as collection of portfolios. Portfolios are equipped with additional descriptive meta-data: which strategies were used, which universe and which time period.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfAPI.jl#L50-L58' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfAPI.jl#L50-L58' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code class="language-julia-repl">julia&gt; using DynAssMgmt
 
 julia&gt; fieldnames(PF)
@@ -189,7 +189,7 @@ pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)</code></pre
 <pre class="codehilite"><code class="language-julia">pfMoments(univHist::UnivEvol, wgts::Array{Float64, 2}, riskType::String)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L22-L57' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L22-L57' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.pfDivers' href='#DynAssMgmt.pfDivers'>#</a>
 <strong><code>DynAssMgmt.pfDivers</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>pfDivers(wgts::Array{Float64, 1})</code></pre>
@@ -201,28 +201,28 @@ pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)</code></pre
 \mathcal{D}=1 - \sqrt{\sum_{i=1}^{d}\left|w_{i} - \frac{1}{d}\right|^2}
 </script>
 </p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L204-L213' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L204-L213' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>pfDivers(pf::PF)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L225-L228' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L225-L228' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>pfDivers(pf::Array{PF, 1})</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L233-L236' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L233-L236' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>pfDivers(pf::Array{PF, 2})</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L246-L249' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L246-L249' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>pfDivers(invests::Invest)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L262-L265' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L262-L265' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>pfDivers(allWgts::Array{Float64, 2})</code></pre>
 
 
 <p>Applies to series of portfolio weights, with individual weights given in rows.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L272-L277' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L272-L277' class='documenter-source'>source</a><br></p>
 <p><a id='Internal-1'></a></p>
 <h2 id="internal">Internal</h2>
 <p><a id='DynAssMgmt.pfVariance' href='#DynAssMgmt.pfVariance'>#</a>
@@ -231,14 +231,14 @@ pfMoments(univHist::Univ, wgts::Array{Float64, 2}, riskType::String)</code></pre
 
 
 <p>Compute the portfolio variance without any re-scaling or annualization.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L3-L7' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L3-L7' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.pfMu-Tuple{Array{Float64,1},Array{Float64,1}}' href='#DynAssMgmt.pfMu-Tuple{Array{Float64,1},Array{Float64,1}}'>#</a>
 <strong><code>DynAssMgmt.pfMu</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>pfMu(mus::Array{Float64, 1}, wgts::Array{Float64, 1})</code></pre>
 
 
 <p>Compute the portfolio expectation without any re-scaling or annualization.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/pfFuncs.jl#L12-L16' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/069aca5d3cb214e25b6467b9ae29b53bc73c7f67/src/pfFuncs.jl#L12-L16' class='documenter-source'>source</a><br></p>
               
             </div>
           </div>
