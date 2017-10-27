@@ -199,14 +199,14 @@ julia&gt; fieldnames(DivFront)
 
 
 <p>Abstract super type for single-period strategies.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L13-L17' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L13-L17' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.SinglePeriodSpectrum' href='#DynAssMgmt.SinglePeriodSpectrum'>#</a>
 <strong><code>DynAssMgmt.SinglePeriodSpectrum</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>SinglePeriodSpectrum</code></pre>
 
 
 <p>Abstract super type for multiple single-period strategies in the cross-section.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L6-L10' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L6-L10' class='documenter-source'>source</a><br></p>
 <p><a id='Composite-types-1'></a></p>
 <h3 id="composite-types">Composite types</h3>
 <p><a id='DynAssMgmt.GMVP' href='#DynAssMgmt.GMVP'>#</a>
@@ -215,21 +215,21 @@ julia&gt; fieldnames(DivFront)
 
 
 <p>Global minimum variance portfolio strategy.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L35-L41' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L35-L41' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.TargetVola' href='#DynAssMgmt.TargetVola'>#</a>
 <strong><code>DynAssMgmt.TargetVola</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">TargetVola(vol::Float64)</code></pre>
 
 
 <p>Target portfolio volatility strategy.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L48-L54' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L48-L54' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.RelativeTargetVola' href='#DynAssMgmt.RelativeTargetVola'>#</a>
 <strong><code>DynAssMgmt.RelativeTargetVola</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">RelativeTargetVola(vol::Float64)</code></pre>
 
 
 <p>Target portfolio volatility strategy, with volatility target given in relative terms. Target is relative with regards to maximum mu and gmvp.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L62-L69' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L62-L69' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.MaxSharpe' href='#DynAssMgmt.MaxSharpe'>#</a>
 <strong><code>DynAssMgmt.MaxSharpe</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">MaxSharpe()
@@ -237,35 +237,35 @@ MaxSharpe(rf::Float64)</code></pre>
 
 
 <p>Maximum Sharpe-ratio portfolio strategy. Optional input can be used to specify the risk-free rate.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L74-L82' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L74-L82' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.TargetMu' href='#DynAssMgmt.TargetMu'>#</a>
 <strong><code>DynAssMgmt.TargetMu</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">TargetMu(mu::Float64)</code></pre>
 
 
 <p>Target portfolio expectation strategy.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L90-L96' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L90-L96' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.EffFront' href='#DynAssMgmt.EffFront'>#</a>
 <strong><code>DynAssMgmt.EffFront</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">EffFront(npfs::Int64)</code></pre>
 
 
 <p>Efficient frontier portfolio spectrum. Single input determines the number of portfolios on the efficient frontier.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L103-L110' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L103-L110' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.DivFrontSigmaTarget' href='#DynAssMgmt.DivFrontSigmaTarget'>#</a>
 <strong><code>DynAssMgmt.DivFrontSigmaTarget</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">DivFrontSigmaTarget(divTarget::Float64, sigTarget::Float64)</code></pre>
 
 
 <p>Portfolio strategy with target diversification level and target volatility.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L128-L134' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L128-L134' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.DivFront' href='#DynAssMgmt.DivFront'>#</a>
 <strong><code>DynAssMgmt.DivFront</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code class="language-julia">DivFront(divTarget::Float64, sigTarget::Array{Float64, 1})</code></pre>
 
 
 <p>Multiple portfolios with target diversification level and multiple volatility targets.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/spTargets.jl#L140-L147' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/spTargets.jl#L140-L147' class='documenter-source'>source</a><br></p>
 <p><a id='Internal-1'></a></p>
 <h2 id="internal">Internal</h2>
 <p><a id='DynAssMgmt.gmvp-Tuple{DynAssMgmt.Univ}' href='#DynAssMgmt.gmvp-Tuple{DynAssMgmt.Univ}'>#</a>
@@ -274,14 +274,14 @@ MaxSharpe(rf::Float64)</code></pre>
 
 
 <p>Get global minimum variance portfolio without short-selling. Leverage is not allowed.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/singlePeriodStrats.jl#L28-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/singlePeriodStrats.jl#L28-L35' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.gmvp_lev-Tuple{DynAssMgmt.Univ}' href='#DynAssMgmt.gmvp_lev-Tuple{DynAssMgmt.Univ}'>#</a>
 <strong><code>DynAssMgmt.gmvp_lev</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code class="language-julia">gmvp_lev(thisUniv::Univ)</code></pre>
 
 
 <p>Get global minimum variance portfolio without any constraints on short-selling. In other words: leverage is allowed.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/singlePeriodStrats.jl#L10-L17' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/singlePeriodStrats.jl#L10-L17' class='documenter-source'>source</a><br></p>
               
             </div>
           </div>

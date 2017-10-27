@@ -153,7 +153,7 @@
 
 
 <p>Abstract super type for asset moment estimators.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/universeTypes.jl#L64-L68' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/universeTypes.jl#L64-L68' class='documenter-source'>source</a><br></p>
 <p><a id='Estimators-1'></a></p>
 <h2 id="estimators">Estimators</h2>
 <p><a id='DynAssMgmt.EWMA' href='#DynAssMgmt.EWMA'>#</a>
@@ -162,7 +162,7 @@
 
 
 <p>Exponential weighted moving average estimator of asset moments. <code>muPersistence</code> is the lambda value of the estimator of mean asset returns, and <code>covPersistence</code> is the lambda value for the covariance matrix.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/universeTypes.jl#L71-L77' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/universeTypes.jl#L71-L77' class='documenter-source'>source</a><br></p>
 <p><a id='Fields-of-composite-types-1'></a></p>
 <h3 id="fields-of-composite-types">Fields of composite types</h3>
 <pre class="codehilite"><code class="language-julia-repl">julia&gt; using DynAssMgmt
@@ -181,14 +181,14 @@ julia&gt; fieldnames(EWMA)
 
 
 <p>Apply some moment estimator to return data. In the background, <code>apply</code> needs to be defined for each possible estimator.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/universeTypes.jl#L90-L95' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/universeTypes.jl#L90-L95' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.applyOverTime' href='#DynAssMgmt.applyOverTime'>#</a>
 <strong><code>DynAssMgmt.applyOverTime</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>applyOverTime(thisEstimator::UnivEstimator, retsData::Returns, minObs::Int)</code></pre>
 
 
 <p>Successively apply given moment estimator to return data. <code>minObs</code> determines the minimum number of observations. This bascially defines the first subsample where the estimator will be applied.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/universeTypes.jl#L100-L106' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/universeTypes.jl#L100-L106' class='documenter-source'>source</a><br></p>
 <p><a id='Functions-1'></a></p>
 <h2 id="functions">Functions</h2>
 <p><a id='DynAssMgmt.getEwmaMean' href='#DynAssMgmt.getEwmaMean'>#</a>
@@ -197,53 +197,53 @@ julia&gt; fieldnames(EWMA)
 
 
 <p>EWMA estimator of expected value. <code>persistenceVal</code> defines how much weight historic observations get, and hence implicitly also defines the weight of the most recent observation.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L512-L518' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L526-L532' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaMean(data::Array{Float64, 2}, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L532-L534' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L546-L548' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaMean(data::TimeArray, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L552-L554' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L566-L568' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaMean(data::Returns, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L559-L561' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L573-L575' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getEwmaStd' href='#DynAssMgmt.getEwmaStd'>#</a>
 <strong><code>DynAssMgmt.getEwmaStd</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getEwmaStd(data::Array{Float64, 1}, persistenceVal::Float64)</code></pre>
 
 
 <p>EWMA estimator of standard deviation. <code>persistenceVal</code> defines how much weight historic observations get, and hence implicitly also defines the weight of the most recent observation.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L459-L465' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L473-L479' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaStd(data::Array{Float64, 2}, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L483-L485' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L497-L499' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaStd(data::TimeArray, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L498-L500' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L512-L514' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaStd(data::Returns, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L505-L507' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L519-L521' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getEwmaCov' href='#DynAssMgmt.getEwmaCov'>#</a>
 <strong><code>DynAssMgmt.getEwmaCov</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getEwmaCov(data::Array{Float64, 1}, persistenceVal::Float64)</code></pre>
 
 
 <p>EWMA estimator of covariance matrix. <code>persistenceVal</code> defines how much weight historic observations get, and hence implicitly also defines the weight of the most recent observation.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L577-L583' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L591-L597' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaCov(data::TimeArray, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L613-L615' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L627-L629' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>getEwmaCov(data::Returns, persistenceVal::Float64)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/5973e58b6d123b2223c81a666ca091f4a8d67598/src/baseEconMetrics.jl#L620-L622' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/3570881620d6970c3dd71680cde66bef77dace08/src/baseEconMetrics.jl#L634-L636' class='documenter-source'>source</a><br></p>
               
             </div>
           </div>
