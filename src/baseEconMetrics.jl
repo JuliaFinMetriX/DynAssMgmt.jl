@@ -427,6 +427,20 @@ function normalizePrices(prices::TimeSeries.TimeArray)
     normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
 end
 
+"""
+    normalizePrices(xx::Prices)
+"""
+function normalizePrices(prices::Prices)
+    # get standard format for prices
+    standPrices = standardizePrices(prices)
+
+    # get normalized values
+    normedPrices = normalizePrices(standPrices.data)
+
+    # put together TimeArray again
+    normedPrices = Prices(normedPrices, false)
+end
+
 function ewmaObsWgtPower(nObs::Int)
     return Int[ii for ii=nObs-1:-1:0]
 end

@@ -30,96 +30,6 @@ rets = Returns(xxRets, retType)
 # derive associated prices
 synthPrices = rets2prices(rets, 1.0, true)
 
-# plot TimeArray itself
-Plots.plot(synthPrices.data[1:500], leg=false)
-Plots.gui()
-
-# plot Prices directly
-Plots.plot(synthPrices, false, leg=false)
-Plots.plot(synthPrices, true, leg=false)
-
-# get performances
-perfs = aggregateReturns(rets, false)
-
-Plots.plot(perfs, asLog=true, asPercent=false)
-
-# visualize universe
-ewmaEstimator = EWMA(1, 1)
-thisUniv = apply(ewmaEstimator, rets)
-
-## dev plotting
-
-assLabs = rets.data.colnames
-
-# visualize some time series
-Plots.gr()
-Plots.gui()
-Plots.plot(xxRets[xxRets.colnames[1:4]...], layout = (4, 1), leg=false)
-
-# visualize universe
-Plots.plot(thisUniv, doScale=false)
-Plots.plot(thisUniv)
-
-# use different built-in options
-fontSpec = Plots.Font("sans-serif",6,:hcenter,:vcenter,0.0,Plots.RGB(0., 0., 0.))
-figSize = (300, 300)
-Plots.plot(thisUniv, label=assLabs, leg=true,
-    legendfont = fontSpec, size = figSize)
-
-pfopts(thisUniv, doScale=true, title = "Universe")
-Plots.plot(PfOpts([thisUniv]), title = "Also universe") # also works
-
-# add equal weights again
-equWgtsPf = apply(EqualWgts(), thisUniv)
-Plots.plot!(thisUniv, equWgtsPf, true, markershape = :star)
-
-gmvpPf = apply(GMVP(), thisUniv)
-Plots.plot(gmvpPf)
-# relabeling of xaxis doesn't work
-Plots.plot(gmvpPf, xlim=(1,5), xaxis=("sldkjf"), legend=true)
-
-
-
-Plots.plot(thisUniv, equWgtsPf, true)
-
-pfs = apply(EffFront(10), thisUniv)
-Plots.plot(pfs[1])
-Plots.plot(pfs[:])
-DynAssMgmt.wgtsOverStrategies(pfs, leg=false)
-
-
-# try call to groupedbar with seriestype
-xxWgts = convert(Array{Float64, 2}, pfs[:])
-xxGrid = vcat(1:size(xxWgts, 1))
-Plots.plot(xxWgts, seriestype = :groupedbar, bar_position = :stack, bar_width=0.7)
-# different way to do grouped bar plot
-Plots.plot(StatPlots.GroupedBar((xxGrid, xxWgts)), bar_position = :stack, bar_width=0.7)
-
-
-# download data
-# getDataset("IndustryPfs")
-
-
-# plot prices over time
-
-#Plots.default(size = (800, 800))
-#p = DynAssMgmt.tsPlot(logSynthPrices[1:200:end];
-#    title = "Logarithmic prices of industry portfolios", legend = :topleft)
-#Plots.xlabel!("Year")
-
-
-# In[9]:
-
-
-# test equal weights
-DynAssMgmt.apply(DynAssMgmt.EqualWgts(), thisUniv)
-
-# Plots.plotlyjs()
-#Plots.default(size = (800, 700))
-#Plots.plot(thisUniv, rets.data.colnames)
-
-
-# In[10]:
 
 ## define efficient frontier / diversfication frontier strategies
 DynAssMgmt.getUnivExtrema(thisUniv)
@@ -137,26 +47,6 @@ effFrontStrats = EffFront(10)
 diversTarget = [0.6:0.1:0.9...]
 diversTarget = [0.9]
 divFrontStrats = [DivFront(thisDivTarget, sigTargets) for thisDivTarget in diversTarget]
-#divFrontWgts = [apply(thisStrat, thisUniv) for thisStrat in divFrontStrats]
-
-# In[12]:
-
-## mu/sigma results for full series of portfolios
-#Plots.gr()
-#DynAssMgmt.vizPfSpectrum(thisUniv, effFrontWgts[:])
-#for thisDivFront in divFrontWgts
-#    p = DynAssMgmt.vizPfSpectrum!(thisUniv, thisDivFront[:])
-#end
-#p
-
-
-# In[13]:
-
-#Plots.gr()
-#DynAssMgmt.wgtsOverStrategies(divFrontWgts[end])
-
-
-# In[14]:
 
 ## estimate moments
 ewmaEstimator = EWMA(0.99, 0.95)
