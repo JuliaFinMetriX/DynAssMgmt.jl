@@ -1,5 +1,9 @@
-@recipe function f(prices::Prices, asLog=false)
+@recipe function f(prices::Prices; asLog=false, asNormed=false)
     # convert to desired scale
+    if asNormed
+        prices = normalizePrices(prices)
+    end
+
     newPrices = []
     if asLog
         newPrices = getLogPrices(prices)
@@ -67,6 +71,29 @@ end
     else
         mu, pfVola = pfMoments(thisUniv, pf, "std")
         y, x = [mu], [pfVola]
+    end
+    x, y
+end
+
+@recipe function f(thisUniv::Univ, pfs::Array{PF, 1}, doScale=true)
+    # calculate pf moments
+    seriestype --> :scatter
+    #marker --> (0.5, [:hex], 12)
+    npfs = length(pfs)
+    x = zeros(Float64, npfs)
+    y = zeros(Float64, npfs)
+    if doScale
+        percUniv = DynAssMgmt.getInPercentages(thisUniv)
+        for ii=1:npfs
+            pf = pfs[ii]
+            mu, pfVola = pfMoments(percUniv, pf, "std")
+            y[ii], x[ii] = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
+        end
+    else
+        for ii=1:npfs
+            pf = pfs[ii]
+            y[ii], x[ii] = pfMoments(thisUniv, pf, "std")
+        end
     end
     x, y
 end
@@ -258,59 +285,6 @@ end
 # - call plot!(univ, PF) and plot!(univ, Array{PF, 1}) respectively
 
 
-##
-function vizPf!(thisUniv::Univ, pfWgts::Array{Float64, 1})
-    # calculate pf moments
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
-    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
-
-    plot!([pfVola], [mu], seriestype=:scatter, m=(0.5, [:hex], 12))
-end
-
-function vizPf!(thisUniv::Univ, pf::PF)
-    vizPf!(thisUniv, pf.Wgts)
-end
-
-"""
-vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
-
-Visualize universe and some given portfolio in risk / return space.
-Risk / return is shown as annualized percentage values.
-"""
-function vizPf(thisUniv::Univ, pfWgts::Array{Float64, 1})
-    plot(thisUniv)
-
-    vizPf!(thisUniv, pfWgts)
-end
-
-function vizPf(thisUniv::Univ, pf::PF)
-    vizPf(thisUniv, pf.Wgts)
-end
-
-function vizPfSpectrum(thisUniv::Univ, pfWgts::Array{PF, 1})
-    plot(thisUniv)
-
-    # calculate pf moments
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
-    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
-
-    plot!([pfVola], [mu], seriestype=:line)
-
-end
-
-function vizPfSpectrum!(thisUniv::Univ, pfWgts::Array{PF, 1})
-
-    # calculate pf moments
-    percUniv = DynAssMgmt.getInPercentages(thisUniv)
-    mu, pfVola = pfMoments(percUniv, pfWgts, "std")
-    mu, pfVola = DynAssMgmt.annualizeRiskReturn(mu, pfVola, percUniv.retType)
-
-    plot!([pfVola], [mu], seriestype=:line)
-
-end
-
 function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs)
 
     # get cumulated weights
@@ -374,24 +348,6 @@ function wgtsOverTime(wgts::Array{Float64, 2})
     end
 
     p
-end
-
-
-"""
-wgtsOverStrategies(stratWgts::Array{PF, 1})
-
-Visualize multiple portfolios as stacked bar chart.
-"""
-function wgtsOverStrategies(stratWgts::Array{PF, 1}; plotSettings...)
-    # convert to matrix
-    xxWgts = convert(Array{Float64, 2}, stratWgts)
-
-    # plot
-    p = groupedbar(xxWgts, bar_position = :stack, bar_width=0.7; plotSettings...)
-end
-
-function wgtsOverStrategies(stratWgts::Array{PF, 2}; plotSettings...)
-    wgtsOverStrategies(stratWgts[:]; plotSettings...)
 end
 
 function tsPlot(df::DataFrame; plotSettings...)
