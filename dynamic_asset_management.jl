@@ -27,78 +27,85 @@ xxRets = dataset("IndustryPfs")
 retType = ReturnType(true, false, Dates.Day(1), false)
 rets = Returns(xxRets, retType)
 
-# derive associated prices
-synthPrices = rets2prices(rets, 1.0, true)
+# visualize returns
+# shortRets = Returns(rets.data[end-1000:end], rets.retType)
+# xx = shortRets.data[shortRets.data.colnames[1:8]...]
+# shortRets = Returns(xx, rets.retType)
+# Plots.plot(shortRets, layout=(4, 2), leg=false)
 
+# estimate overall moments
+fullUniv = apply(EWMA(1, 1), rets)
+
+## find appropriate targets for strategies
+
+# get extreme asset moments
+DynAssMgmt.getUnivExtrema(fullUniv)
+
+# get risk of gmvp
+gmvpPf = apply(GMVP(), fullUniv)
+pfMoments(fullUniv, gmvpPf, "std")
+
+# visualize portfolio opportunities
+pfopts(fullUniv, doScale = false)
+Plots.gui()
 
 ## define efficient frontier / diversfication frontier strategies
-DynAssMgmt.getUnivExtrema(thisUniv)
+sigTargets = [linspace(.7, 1.4, 15)...]
+diversTarget = 0.9
+divFrontStrat = DivFront(diversTarget, sigTargets)
 
-
-# In[11]:
-
-sigTargets = [linspace(.8, 1.4, 15)...]
-
-# get efficient frontier
-effFrontStrats = EffFront(10)
-#effFrontWgts = apply(effFrontStrats, thisUniv)
-
-# get as strategy types
-diversTarget = [0.6:0.1:0.9...]
-diversTarget = [0.9]
-divFrontStrats = [DivFront(thisDivTarget, sigTargets) for thisDivTarget in diversTarget]
-
-## estimate moments
+## estimate historic moments
 ewmaEstimator = EWMA(0.99, 0.95)
 startInd = 22500
 @time univList = DynAssMgmt.applyOverTime(ewmaEstimator, rets, startInd)
 
-# In[ ]:
-
-## get subsets
+# get subsets
 univHistoryShort = UnivEvol(univList.universes[1:50], univList.dates[1:50],
     univList.assetLabels)
-univHistoryShort = univList
+btUniverses = univList
 
+## backtest strategies
+divFrontInvs = apply(divFrontStrat, btUniverses)
+equWgtsInvs = apply(DynAssMgmt.EqualWgts(), btUniverses)
 
-thisStrat = divFrontStrats[end]
-divFrontInvs = apply(thisStrat, univHistoryShort)
+## inspect chosen portfolios
+xxInd = 10
+sigTarget = divFrontStrat.sigTargets[xxInd]
+stratName = "Sigma target $sigTarget"
+wgtsOverTime(divFrontInvs, xxInd, leg=false, title = stratName)
 
-thisStrat = DynAssMgmt.EqualWgts()
-equWgtsInvs = apply(thisStrat, univHistoryShort)
+# analyse diversification levels
+diversVals = pfDivers(divFrontInvs)
+stratLabels = [*("Sigma", " $sigTarget") for sigTarget in divFrontStrat.sigTargets]
+Plots.plot(divFrontInvs.dates, diversVals, labels = stratLabels)
 
-## analyse appropriateness
+# show average diversification over time
+avgDiversification = mean(diversVals, 1)
+Plots.plot(stratLabels, avgDiversification[:], seriestype=:bar, leg=false,
+    xrotation = 45, xlabel = "Strategy", title = "Average diversification level", )
 
+# analyse sigma levels
+divFrontInvs
+nDays, nStrats, nAss = size(divFrontInvs)
+allCondSigs = zeros(nDays, nStrats)
+for ii=1:nDays
+    for jj=1:nStrats
+        mu, sig = pfMoments(btUniverses.universes[ii], divFrontInvs.pfs[ii, jj], "std")
+        allCondSigs[ii, jj] = sig
+    end
+end
+
+Plots.plot(divFrontInvs.dates, allCondSigs, labels = stratLabels)
+
+## analyse single peculiar universe
 dayToAnalyse = 50
-univToAnalyse = univHistoryShort.universes[dayToAnalyse]
+univToAnalyse = btUniverses.universes[dayToAnalyse]
 
-Plots.plot(univToAnalyse)
-univHistoryShort
-
-divFrontSpectrum = divFrontInvs.pfs[dayToAnalyse, :]
-pfMoments(univToAnalyse, divFrontSpectrum, "std")
-
-sigTargets
-
-gmvpPf = apply(GMVP(), univToAnalyse)
-pfMoments(univToAnalyse, gmvpPf, "std")
-
-Plots.plot(gmvpPf, label = hcat(univHistoryShort.assetLabels...), legend=true)
-
-Plots.plot(gmvpPf)
-Plots.plot(gmvpPf, univHistoryShort.assetLabels)
-
-labs = univHistoryShort.assetLabels
-Plots.plot(labs, gmvpPf.Wgts, seriestype = :bar, xrotation=45, leg=false)
-
-Plots.plot(univToAnalyse, doAnnualize=false, label=labs, legend=true)
-
+pfopts(univToAnalyse, doScale=true)
 
 ## plot weights over time
 
-wgtsOverTime(divFrontInvs, 10)
-annualizeRiskReturn
-wgtsOverTime
+
 # analyse weights
 # - TO
 # - diversification
@@ -109,38 +116,6 @@ using LaTeXStrings
 
 L"$y = \sin(x)$"
 
-# show average diversification over time
-avgDiversification = mean(pfDivers(divFrontInvs), 1)
-Plots.plot(avgDiversification[:], seriestype=:bar,
-    title = "Average diversification level")
-
-# plot diversification during critical time
-diversVals = pfDivers(divFrontInvs)
-Plots.plot(diversVals[20:200, :])
-
-divFrontInvs.strategies
-
-
-Plots.plot(univList.universes[50])
-DynAssMgmt.vizPf(univList.universes[50], divFrontInvs.pfs[50, 10])
-
-DynAssMgmt.vizPfSpectrum(univList.universes[50], divFrontInvs.pfs[50, :][:])
-wgtsOverStrategies(divFrontInvs.pfs[50, :], labels = divFrontInvs.assetLabels)
-
-
-DynAssMgmt.wgtsOverStrategies(divFrontInvs.pfs[50, :],
-    label = divFrontInvs.assetLabels, size = (300, 300),
-    legendfont = Plots.Font("sans-serif",6,:hcenter,:vcenter,0.0,Plots.RGB(0., 0., 0.)))
-Plots.gui()
-
-dats = DynAssMgmt.getNumDates(rets.data.timestamp)
-Plots.plot(dats, rets.data.values[:, 1:20], layout=(10, 2), legend = false)
-using StatPlots
-Plots.violin(rets.data.values[1:100, 1:4])
-Plots.violin(rets.data.colnames[1:4], rets.data.values[1:100, 1:4]', leg=false)
-
-Plots.plot(rets.data.values[1, :], seriestype = :bar, leg=false)
-Plots.default(:legend)
 
 using Plots
 dats = DynAssMgmt.getNumDates(logSynthPrices.timestamp)
@@ -155,16 +130,6 @@ end
 gui(animGif)
 display(animGif)
 
-@recipe function f(rets::Returns)
-    x = DynAssMgmt.getNumDates(rets.data.timestamp)[:]
-    y = rets.data.values
-    x, y
-end
-
-nams = rets.data.colnames[1:4]
-smallRets = Returns(rets.data[nams...], rets.retType)
-plot(smallRets, seriestype=:line, layout=(4,1), leg=false)
-
 ## evaluate performance
 perfTA = DynAssMgmt.evalPerf(divFrontInvs, rets)
 equWgtsPerfTA = DynAssMgmt.evalPerf(equWgtsInvs, rets)
@@ -178,7 +143,7 @@ perfTA = TimeSeries.TimeArray(perfTA.timestamp, xxVals, perfTA.colnames[xxGoodIn
 function perf2prices(perfs::TimeSeries.TimeArray)
     prices = perfs.values + 1
     return TimeSeries.TimeArray(perfs.timestamp, prices, perfs.colnames)
-    end
+end
 
 # In[ ]:
 

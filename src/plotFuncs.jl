@@ -18,6 +18,10 @@
     y
 end
 
+@recipe function f(rets::Returns)
+    y = rets.data
+end
+
 @recipe function f(perfs::Performances; asPercent=true, asLog=false, asGross=false)
     # convert to desired scale
     standPerfs = standardizePerformances(perfs)
@@ -197,6 +201,8 @@ end
         if doScale
             percUniv = DynAssMgmt.getInPercentages(thisUniv)
             y, x = DynAssMgmt.annualizeRiskReturn([equWgtsMus], [equWgtsSigmas], percUniv.retType)
+        else
+            y, x = ([equWgtsMus], [equWgtsSigmas])
         end
         x, y
     end
@@ -207,6 +213,8 @@ end
         if doScale
             percUniv = DynAssMgmt.getInPercentages(thisUniv)
             y, x = DynAssMgmt.annualizeRiskReturn(effMus, effVolas, percUniv.retType)
+        else
+            y, x = (effMus, effVolas)
         end
         #Plots.plot(thisUniv)
         x, y
@@ -285,7 +293,7 @@ end
 # - call plot!(univ, PF) and plot!(univ, Array{PF, 1}) respectively
 
 
-function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs)
+function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs; plotSettings...)
 
     # get cumulated weights
     stackedWgts = cumsum(wgts, 2)
@@ -301,16 +309,16 @@ function wgtsOverTime(wgts::Array{Float64, 2}, xxDats, xxLabs)
         sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
 
         if ii==1
-            p = plot(sx, sy, seriestype=:shape, label=xxLabs[ii])
+            p = plot(sx, sy, seriestype=:shape, label=xxLabs[ii]; plotSettings...)
         else
-            plot!(sx, sy, seriestype=:shape, label=xxLabs[ii])
+            plot!(sx, sy, seriestype=:shape, label=xxLabs[ii]; plotSettings...)
         end
     end
 
     p
 end
 
-function wgtsOverTime(someInvs::Invest, stratNum::Int)
+function wgtsOverTime(someInvs::Invest, stratNum::Int; plotSettings...)
     # get PFs as normal Float64 array
     xxWgts = convert(Array{Float64, 2}, someInvs.pfs[:, stratNum])
 
@@ -319,11 +327,11 @@ function wgtsOverTime(someInvs::Invest, stratNum::Int)
     labs = getShortLabels(someInvs.assetLabels)
 
     # call plot function
-    p = wgtsOverTime(xxWgts, dats, labs)
+    p = wgtsOverTime(xxWgts, dats, labs; plotSettings...)
 
 end
 
-function wgtsOverTime(wgts::Array{Float64, 2})
+function wgtsOverTime(wgts::Array{Float64, 2}; plotSettings...)
 
     xxDats = [ii for ii=1:size(wgts, 1)]
 
@@ -341,9 +349,9 @@ function wgtsOverTime(wgts::Array{Float64, 2})
         sy = vcat(stackedWgts[:,ii], ii==1 ? zeros(nObs) : reverse(stackedWgts[:,ii-1]))
 
         if ii==1
-            p = plot(sx, sy, seriestype=:shape)
+            p = plot(sx, sy, seriestype=:shape; plotSettings...)
         else
-            plot!(sx, sy, seriestype=:shape)
+            plot!(sx, sy, seriestype=:shape; plotSettings)
         end
     end
 
