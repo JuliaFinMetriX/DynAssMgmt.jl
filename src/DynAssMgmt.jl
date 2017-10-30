@@ -40,7 +40,11 @@ export
     rets2prices,
     wgtsOverTime,
     wgtsOverStrategies,
-    pfopts
+    pfopts,
+    evalPerf,
+    evalDDowns,
+    evalPerfStats,
+    PerfStats
 
 using DataFrames
 using Convex

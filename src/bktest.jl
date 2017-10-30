@@ -63,13 +63,19 @@ function evalPerf(someInvs::Invest, rets::Returns)
 
 end
 
+"""
+    evalDDowns(pfVals::Array{Float64, 1})
 
-# ddowns
+Compute drawdowns from discrete prices. Drawdowns are given as percentage values.
+"""
 function evalDDowns(pfVals::Array{Float64, 1})
-    cumMaxPrices = cummax(pfVals)
+    cumMaxPrices = accumulate(max, pfVals, 1)
     ddowns = 100*(pfVals ./ cumMaxPrices - 1)
 end
 
+"""
+    evalDDowns(pfTA::TimeArray)
+"""
 function evalDDowns(pfTA::TimeArray)
     # get values only
     pfVals = pfTA.values
@@ -83,6 +89,61 @@ function evalDDowns(pfTA::TimeArray)
     return TimeArray(pfTA.timestamp, ddownsVals, pfTA.colnames)
 end
 
+"""
+    evalDDowns(prices::Prices)
+"""
+function evalDDowns(prices::Prices)
+    stdPrices = standardize(prices)
+    return evalDDowns(stdPrices.data)
+end
+
+"""
+    evalDDowns(perfs::Performances)
+"""
+function evalDDowns(perfs::Performances)
+    prices = convert(Prices, perfs)
+    stdPrices = standardize(prices)
+    return evalDDowns(stdPrices.data)
+end
+
+## performance statistics type
+
+"""
+    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
+
+Performance statistics type, collecting risk / return metrics for single
+realized portfolio price path.
+"""
+type PerfStats
+    FullPercRet::Float64
+    SpMuPerc::Float64
+    SpSigmaPerc::Float64
+    MuDailyToAnnualPerc::Float64
+    SigmaDailyToAnnualPerc::Float64
+    SpVaRPerc::Float64
+    MaxDD::Float64
+    VaR::Float64
+    GeoMean::Float64
+    # DateRange::Array{Date, 1}
+end
+
+PerfStats() = PerfStats(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+
+"""
+    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
+
+Outer constructor for `PerfStats` type.
+"""
+function PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
+    # preallocate
+    perfStatInstance = PerfStats()
+
+    for ii=1:length(vals)
+        setfield!(perfStatInstance, statNams[ii], vals[ii])
+    end
+
+    return perfStatInstance
+end
 
 ## performance statistics functions
 
@@ -152,46 +213,37 @@ function evalPerfStats(singlePfVals::Array{Float64, 1})
     return (perfStats, statNames)
 end
 
+"""
+    evalPerfStats(prices::Prices)
+
+Derive risk / return metrics for Prices and return as PerfStats type.
+"""
+function evalPerfStats(prices::Prices)
+    stdPrices = standardize(prices)
+
+    nObs, nTimeSeries = size(prices.data.values)
+    allPerfStats = Array(PerfStats, 1, nTimeSeries)
+    for ii=1:nTimeSeries
+        xxVals, xxNams = evalPerfStats(prices.data.values[:, ii])
+        thisPerfStats = DynAssMgmt.PerfStats(xxVals, xxNams)
+        allPerfStats[1, ii] = thisPerfStats
+    end
+    return allPerfStats
+end
+
+"""
+    evalPerfStats(perfs::Performances)
+
+Derive risk / return metrics for Performances and return as PerfStats type.
+"""
+function evalPerfStats(perfs::Performances)
+    prices = standardize(perfs)
+    return evalPerfStats(prices)
+end
+
 function evalPerfStats(singlePfVals::Array{Float64, 1}, dats::Array{Date, 1})
     # TODO: make use of dates array
 
     # get statistics that do not require dates
     perfStats, statNames = evalPerfStats(singlePfVals)
-end
-
-"""
-    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
-
-Performance statistics type, collecting risk / return metrics for single
-realized portfolio price path.
-"""
-type PerfStats
-    FullPercRet::Float64
-    SpMuPerc::Float64
-    SpSigmaPerc::Float64
-    MuDailyToAnnualPerc::Float64
-    SigmaDailyToAnnualPerc::Float64
-    SpVaRPerc::Float64
-    MaxDD::Float64
-    VaR::Float64
-    GeoMean::Float64
-    # DateRange::Array{Date, 1}
-end
-
-PerfStats() = PerfStats(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
-
-"""
-    PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
-
-Outer constructor for `PerfStats` type.
-"""
-function PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})
-    # preallocate
-    perfStatInstance = PerfStats()
-
-    for ii=1:length(vals)
-        setfield!(perfStatInstance, statNams[ii], vals[ii])
-    end
-
-    return perfStatInstance
 end
