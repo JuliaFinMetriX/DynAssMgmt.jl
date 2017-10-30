@@ -476,10 +476,11 @@ function convert(::Type{Performances}, prices::Prices)
     # transform values
     vals = standPrices.data.values
     nObs, nAss = size(vals)
-    perfVals = vals ./ repmat(vals[1, :], nObs, 1)
+    initVals = reshape(vals[1, :], 1, nAss)
+    perfVals = vals ./ repmat(initVals, nObs, 1) - 1
 
     # attach meta-data again
-    perfTa = TimeSeries.TimeArray(prices.timestamp, perfVals, prices.colnames)
+    perfTa = TimeSeries.TimeArray(prices.data.timestamp, perfVals, prices.data.colnames)
     perfs = Performances(perfTa, ReturnType())
 end
 

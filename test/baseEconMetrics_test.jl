@@ -38,6 +38,35 @@ actOut = normalizePrices(xx)
 @test actOut[2:end] == expOut[2:end]
 
 
+# load data as Prices and Returns
+fxPrices = Prices(fxRates, false)
+rets = convert(Returns, fxPrices)
+shortRets = Returns(rets.data[end-250:end], rets.retType)
+
+# convert returns to performances and back
+perfs = convert(Performances, shortRets)
+retsAgain = convert(Returns, perfs)
+origStd = standardize(shortRets)
+actStd = standardize(retsAgain)
+
+@test origStd.data.values[5, 3] ≈ actStd.data.values[5, 3]
+
+# convert performances to prices
+prices = convert(Prices, perfs)
+@test prices.data.values[1] ≈ 1
+@test !prices.isLog
+@test prices.data.values[end, :] ≈ 1 + perfs.data.values[end, :]
+
+# convert back to performances
+perfsAgain = convert(Performances, prices)
+@test perfs.data.values[end, :] ≈ perfsAgain.data.values[end, :]
+
+# convert prices to returns
+retsAgain = convert(Returns, prices)
+actStd = standardize(retsAgain)
+@test origStd.data.values[end, :] ≈ actStd.data.values[end, :]
+
+
 
 # test that results of different input types are consistent
 fxRets = DynAssMgmt.computeReturns(fxRates)

@@ -21,24 +21,6 @@ xxRets = dataset("IndustryPfs")
 retType = ReturnType(true, false, Dates.Day(1), false)
 rets = Returns(xxRets, retType)
 
-## dev of conversions
-perfs = convert(Performances, rets)
-retsAgain = convert(Returns, perfs)
-
-perfs.data.values[1:10, 1:4]
-perfs.retType
-DynAssMgmt.tsPlot(perfs.data)
-Plots.gui()
-
-synthPrices = convert(Prices, rets)
-logSynthPrices = getLogPrices(synthPrices)
-DynAssMgmt.tsPlot(logSynthPrices.data)
-Plots.gui()
-
-vals = rets.data.values
-vals = exp(cumsum(log.(1 + vals / 100))) - 1
-Plots.plot(vals)
-
 # visualize returns
 # shortRets = Returns(rets.data[end-1000:end], rets.retType)
 # xx = shortRets.data[shortRets.data.colnames[1:8]...]
