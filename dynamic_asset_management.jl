@@ -101,46 +101,57 @@ pfopts(univToAnalyse, doScale=true)
 perfs = DynAssMgmt.evalPerf(divFrontInvs, rets)
 equWgtsPerfs = DynAssMgmt.evalPerf(equWgtsInvs, rets)
 
+# rename performance columns
+xx = rename(perfs.data, stratLabels)
+perfs = Performances(xx, perfs.retType)
 
+# show performances
+Plots.plot(perfs, leg=:topleft)
+Plots.plot!(equWgtsPerfs.data.timestamp, equWgtsPerfs.data.values*100, lab="Equal weights", line = (2, :red))
 
-any(isnan(perfTA.values))
+## get drawdowns
+ddowns = DynAssMgmt.evalDDowns(perfs)
+Plots.plot(ddowns, leg=:bottomright)
 
-# quick hack to eliminate NaNs
-xxGoodInds = !any(isnan(perfTA.values), 1)
+## compute performance measures
+perfStats = evalPerfStats(perfs)
 
-xxVals = perfTA.values[:, xxGoodInds[:]]
-perfTA = TimeSeries.TimeArray(perfTA.timestamp, xxVals, perfTA.colnames[xxGoodInds[:]])
+prices = convert(Prices, perfs)
+stdPrices = standardize(prices)
 
-function perf2prices(perfs::TimeSeries.TimeArray)
-    prices = perfs.values + 1
-    return TimeSeries.TimeArray(perfs.timestamp, prices, perfs.colnames)
+nObs, nTimeSeries = size(prices.data.values)
+allPerfStats = Array(PerfStats, nTimeSeries)
+for ii=1:nTimeSeries
+    xxVals, xxNams = evalPerfStats(prices.data.values[:, ii])
+    thisPerfStats = DynAssMgmt.PerfStats(xxVals, xxNams)
+    allPerfStats[ii] = thisPerfStats
 end
 
-# In[ ]:
+allPerfStats.FullPercRet
 
-# DynAssMgmt.wgtsOverTime(divFrontInvs, 10)
+allFields = fieldnames(allPerfStats[1])
+nMetrics = length(allFields)
+nStrats = length(allPerfStats)
+metricsSummary = zeros(Float64, nStrats, nMetrics)
+for ii=1:nStrats
+    thisResults = allPerfStats[ii]
+    for jj=1:nMetrics
+        metricsSummary[ii, jj] = getfield(thisResults, allFields[jj])
+    end
+end
 
+metricsNames = String[thisField for thisField in allFields]
+xx = NamedArray(metricsSummary, (stratLabels, metricsNames), ("Strategies", "Metrics"))
 
-# In[ ]:
-
-#DynAssMgmt.tsPlot(perfTA)
-correspondingPrices = synthPrices[startInd:end]
-xx = computeReturns(correspondingPrices, ReturnType())
-assPerfs = aggregateReturns(xx, false)
-#DynAssMgmt.tsPlot(assPerfs; doNorm = false, legend = :bottomleft)
-
-assDdowns = DynAssMgmt.evalDDowns(correspondingPrices)
-# DynAssMgmt.tsPlot(assDdowns)
-
-# In[ ]:
-
-# calculate ddowns
-pricesTA = perf2prices(perfTA)
+convert(Array{Float64, 1}, xx[:, "FullPercRet"])
 
 
+Plots.plot(xx[:, "SigmaDailyToAnnualPerc"], xx[:, "MuDailyToAnnualPerc"], seriestype = :scatter)
+Plots.plot(xx[:, "MaxDD"], xx[:, "MuDailyToAnnualPerc"], seriestype = :scatter)
 
-ddowns = DynAssMgmt.evalDDowns(pricesTA)
-#DynAssMgmt.tsPlot(ddowns)
+
+
+using NamedArrays
 
 function getRealizedRiskReturn(prices::TimeSeries.TimeArray)
 
@@ -159,15 +170,25 @@ function getRealizedRiskReturn(prices::TimeSeries.TimeArray)
     return stratMus, stratSigmas
 end
 
-assMus, assSigmas = getRealizedRiskReturn(correspondingPrices)
-Plots.plot(assSigmas, assMus, seriestype = :scatter)
+xxInds = rets.data.timestamp .>= realizedPrices.data.timestamp[1]
+btAssRets = Returns(rets.data[xxInds], rets.retType)
+assPrices = convert(Prices, btAssRets)
+assMus, assSigmas = getRealizedRiskReturn(assPrices.data)
+Plots.plot(assSigmas, assMus, seriestype = :scatter, label="Assets")
 
-stratMus, stratSigmas = getRealizedRiskReturn(pricesTA)
-Plots.plot!(stratSigmas, stratMus, seriestype = :scatter)
+realizedPrices = convert(Prices, perfs)
+stratMus, stratSigmas = getRealizedRiskReturn(realizedPrices.data)
+Plots.plot!(stratSigmas, stratMus, seriestype = :scatter, label="Strategies")
 
-equWgtsPricesTA = perf2prices(equWgtsPerfTA)
-equWgtsMus, equWgtsSigmas = getRealizedRiskReturn(equWgtsPricesTA)
-Plots.plot!(equWgtsSigmas, equWgtsMus, seriestype = :scatter)
+equWgtsPrices = convert(Prices, equWgtsPerfs)
+equWgtsMus, equWgtsSigmas = getRealizedRiskReturn(equWgtsPrices.data)
+Plots.plot!(equWgtsSigmas, equWgtsMus, seriestype = :scatter, label="Equal weights")
+
+##
+
+prices = convert(Prices, perfs)
+xxVals, xxNams = DynAssMgmt.evalPerfStats(prices.data.values[:, 5])
+thisPerfStats = DynAssMgmt.PerfStats(xxVals, xxNams)
 
 
 # analyse weights
