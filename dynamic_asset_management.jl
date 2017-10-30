@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[2]:
-
-
 ## set up parallel computation
 addprocs(3)
 
@@ -26,6 +20,24 @@ xxRets = dataset("IndustryPfs")
 # store with information regarding the return type
 retType = ReturnType(true, false, Dates.Day(1), false)
 rets = Returns(xxRets, retType)
+
+## dev of conversions
+perfs = convert(Performances, rets)
+retsAgain = convert(Returns, perfs)
+
+perfs.data.values[1:10, 1:4]
+perfs.retType
+DynAssMgmt.tsPlot(perfs.data)
+Plots.gui()
+
+synthPrices = convert(Prices, rets)
+logSynthPrices = getLogPrices(synthPrices)
+DynAssMgmt.tsPlot(logSynthPrices.data)
+Plots.gui()
+
+vals = rets.data.values
+vals = exp(cumsum(log.(1 + vals / 100))) - 1
+Plots.plot(vals)
 
 # visualize returns
 # shortRets = Returns(rets.data[end-1000:end], rets.retType)
@@ -103,36 +115,13 @@ univToAnalyse = btUniverses.universes[dayToAnalyse]
 
 pfopts(univToAnalyse, doScale=true)
 
-## plot weights over time
-
-
-# analyse weights
-# - TO
-# - diversification
-# - average
-
-using PyPlot
-using LaTeXStrings
-
-L"$y = \sin(x)$"
-
-
-using Plots
-dats = DynAssMgmt.getNumDates(logSynthPrices.timestamp)
-anim = Plots.@animate for ii=1:500:length(dats)
-    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
-end
-
-animGif = Plots.@gif for ii=1:100:length(dats)
-    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
-end
-
-gui(animGif)
-display(animGif)
-
 ## evaluate performance
-perfTA = DynAssMgmt.evalPerf(divFrontInvs, rets)
-equWgtsPerfTA = DynAssMgmt.evalPerf(equWgtsInvs, rets)
+perfs = DynAssMgmt.evalPerf(divFrontInvs, rets)
+equWgtsPerfs = DynAssMgmt.evalPerf(equWgtsInvs, rets)
+
+
+
+any(isnan(perfTA.values))
 
 # quick hack to eliminate NaNs
 xxGoodInds = !any(isnan(perfTA.values), 1)
@@ -197,3 +186,28 @@ Plots.plot!(stratSigmas, stratMus, seriestype = :scatter)
 equWgtsPricesTA = perf2prices(equWgtsPerfTA)
 equWgtsMus, equWgtsSigmas = getRealizedRiskReturn(equWgtsPricesTA)
 Plots.plot!(equWgtsSigmas, equWgtsMus, seriestype = :scatter)
+
+
+# analyse weights
+# - TO
+# - diversification
+# - average
+
+using PyPlot
+using LaTeXStrings
+
+L"$y = \sin(x)$"
+
+
+using Plots
+dats = DynAssMgmt.getNumDates(logSynthPrices.timestamp)
+anim = Plots.@animate for ii=1:500:length(dats)
+    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
+end
+
+animGif = Plots.@gif for ii=1:100:length(dats)
+    Plots.plot(dats[1:ii], logSynthPrices.values[1:ii, :], leg=false)
+end
+
+gui(animGif)
+display(animGif)

@@ -55,6 +55,34 @@ struct Returns
     retType::ReturnType
 end
 
+"""
+    standardize(rets::Returns)
+
+Convert return data to default return type:
+*fractional*, *discrete* and *net* returns.
+"""
+function standardize(rets::Returns)
+    retsTA = rets.data
+    retType = rets.retType
+    values = retsTA.values
+    if retType.isGross
+        values = values - 1
+    end
+
+    if retType.isPercent
+        values = values / 100
+    end
+
+    if retType.isLog
+        values = exp(values) - 1
+    end
+
+    retsTA = TimeArray(retsTA.timestamp, values, retsTA.colnames)
+
+    standRetType = ReturnType(false, false, retType.period, false)
+    standRets = Returns(retsTA, standRetType)
+
+end
 
 """
     Prices(data::TimeSeries.TimeArray, isLog::Bool)
@@ -67,12 +95,14 @@ struct Prices
     isLog::Bool
 end
 
+Prices() = Prices(data::TimeSeries.TimeArray, false)
+
 """
-    standardizePrices(prices::Prices)
+    standardize(prices::Prices)
 
 Convert price data to default price type: discrete, not logarithmic prices.
 """
-function standardizePrices(prices::Prices)
+function standardize(prices::Prices)
     if prices.isLog
         prices = getDiscretePrices(prices)
     end
@@ -109,6 +139,60 @@ function getDiscretePrices(prices::Prices)
     end
 end
 
+## normalize prices
+
+"""
+    normalizePrices(xx::Array{Float64, 1})
+
+Rescale prices such that first observation starts at 1.
+"""
+function normalizePrices(prices::Array{Float64, 1})
+    nObs = size(prices, 1)
+
+    # make sure that first observation is not NaN
+    imputedPrices = DynAssMgmt.nocb(DynAssMgmt.locf(prices))
+
+    repeatedInitVals = imputedPrices[1] .* ones(Float64, nObs)
+    normedValues = prices ./ repeatedInitVals
+end
+
+"""
+    normalizePrices(xx::Array{Float64, 2})
+"""
+function normalizePrices(prices::Array{Float64, 2})
+    nrows, ncols = size(prices)
+    normedValues = copy(prices)
+    for ii=1:ncols
+        normedValues[:, ii] = normalizePrices(prices[:, ii])
+    end
+    return normedValues
+end
+
+"""
+    normalizePrices(xx::TimeArray)
+"""
+function normalizePrices(prices::TimeSeries.TimeArray)
+    # get normalized values
+    normedPrices = normalizePrices(prices.values)
+
+    # put together TimeArray again
+    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
+end
+
+"""
+    normalizePrices(xx::Prices)
+"""
+function normalizePrices(prices::Prices)
+    # get standard format for prices
+    standPrices = standardize(prices)
+
+    # get normalized values
+    normedPrices = normalizePrices(standPrices.data)
+
+    # put together TimeArray again
+    normedPrices = Prices(normedPrices, false)
+end
+
 """
     Performance(data::TimeSeries.TimeArray, retType::ReturnType)
 
@@ -123,12 +207,12 @@ struct Performances
 end
 
 """
-    standardizePerformances(perfs::Performances)
+    standardize(perfs::Performances)
 
 Convert performance data to default performance type:
 *fractional*, *discrete* and *net* performances.
 """
-function standardizePerformances(perfs::Performances)
+function standardize(perfs::Performances)
     perfsTA = perfs.data
     retType = perfs.retType
     values = perfsTA.values
@@ -151,33 +235,21 @@ function standardizePerformances(perfs::Performances)
 
 end
 
-"""
-    standardizeReturns(rets::Returns)
-
-Convert return data to default return type:
-*fractional*, *discrete* and *net* returns.
-"""
-function standardizeReturns(rets::Returns)
-    retsTA = rets.data
-    retType = rets.retType
-    values = retsTA.values
+function getGrossPerformances(perfs::Performances)
+    retType = perfs.retType
     if retType.isGross
-        values = values - 1
+        return perfs
     end
 
-    if retType.isPercent
-        values = values / 100
-    end
+    standPerfs = standardize(perfs)
+    values = standPerfs.data.values
 
-    if retType.isLog
-        values = exp(values) - 1
-    end
+    # make gross returns
+    values = values + 1
 
-    retsTA = TimeArray(retsTA.timestamp, values, retsTA.colnames)
-
-    standRetType = ReturnType(false, false, retType.period, false)
-    standRets = Returns(retsTA, standRetType)
-
+    perfsTA = TimeArray(standPerfs.data.timestamp, values, standPerfs.data.colnames)
+    newRetType = ReturnType(false, false, retType.period, true)
+    return Performances(perfsTA, newRetType)
 end
 
 """
@@ -386,60 +458,51 @@ function aggregateReturns(rets::Returns, prependStart=false)
     return Performances(data, ReturnType())
 end
 
+## define default conversion methods between Prices, Returns and Performances
+import Base.convert
+function convert(::Type{Returns}, prices::Prices)
+    # get prices in standardized format
+    standPrices = standardize(prices)
 
-## normalize prices
+    # compute returns
+    rets = computeReturns(standPrices.data, ReturnType())
 
-"""
-    normalizePrices(xx::Array{Float64, 1})
-
-Rescale prices such that first observation starts at 1.
-"""
-function normalizePrices(prices::Array{Float64, 1})
-    nObs = size(prices, 1)
-
-    # make sure that first observation is not NaN
-    imputedPrices = DynAssMgmt.nocb(DynAssMgmt.locf(prices))
-
-    repeatedInitVals = imputedPrices[1] .* ones(Float64, nObs)
-    normedValues = prices ./ repeatedInitVals
 end
 
-"""
-    normalizePrices(xx::Array{Float64, 2})
-"""
-function normalizePrices(prices::Array{Float64, 2})
-    nrows, ncols = size(prices)
-    normedValues = copy(prices)
-    for ii=1:ncols
-        normedValues[:, ii] = normalizePrices(prices[:, ii])
-    end
-    return normedValues
+function convert(::Type{Performances}, prices::Prices)
+    # get prices in standardized format
+    standPrices = standardize(prices)
+
+    # transform values
+    vals = standPrices.data.values
+    nObs, nAss = size(vals)
+    perfVals = vals ./ repmat(vals[1, :], nObs, 1)
+
+    # attach meta-data again
+    perfTa = TimeSeries.TimeArray(prices.timestamp, perfVals, prices.colnames)
+    perfs = Performances(perfTa, ReturnType())
 end
 
-"""
-    normalizePrices(xx::TimeArray)
-"""
-function normalizePrices(prices::TimeSeries.TimeArray)
-    # get normalized values
-    normedPrices = normalizePrices(prices.values)
-
-    # put together TimeArray again
-    normedPrices = TimeSeries.TimeArray(prices.timestamp, normedPrices, prices.colnames)
+function convert(::Type{Performances}, rets::Returns)
+    # standardize returns
+    perfs = aggregateReturns(rets, true)
 end
 
-"""
-    normalizePrices(xx::Prices)
-"""
-function normalizePrices(prices::Prices)
-    # get standard format for prices
-    standPrices = standardizePrices(prices)
-
-    # get normalized values
-    normedPrices = normalizePrices(standPrices.data)
-
-    # put together TimeArray again
-    normedPrices = Prices(normedPrices, false)
+function convert(::Type{Prices}, perfs::Performances)
+    grossPerfs = getGrossPerformances(perfs)
+    return Prices(grossPerfs.data, false)
 end
+
+function convert(::Type{Prices}, rets::Returns)
+    prices = rets2prices(rets, 1., true)
+end
+
+function convert(::Type{Returns}, perfs::Performances)
+    synthPrices = convert(Prices, perfs)
+    return convert(Returns, synthPrices)
+end
+
+## define EWMA estimators
 
 function ewmaObsWgtPower(nObs::Int)
     return Int[ii for ii=nObs-1:-1:0]

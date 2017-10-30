@@ -15,7 +15,7 @@ end
 function evalPerf(someInvs::Invest, rets::Returns)
 
     # make fractional, discrete returns
-    standardizedRets = standardizeReturns(rets)
+    standardizedRets = standardize(rets)
     discRets = standardizedRets.data
 
     # get common dates
@@ -59,6 +59,7 @@ function evalPerf(someInvs::Invest, rets::Returns)
     end
 
     perfsTimeArray = TimeArray(perfDates[:], perfs)
+    perfs = Performances(perfsTimeArray, ReturnType())
 
 end
 

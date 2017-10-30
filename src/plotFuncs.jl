@@ -24,7 +24,7 @@ end
 
 @recipe function f(perfs::Performances; asPercent=true, asLog=false, asGross=false)
     # convert to desired scale
-    standPerfs = standardizePerformances(perfs)
+    standPerfs = standardize(perfs)
 
     perfsTA = standPerfs.data
     retType = standPerfs.retType
