@@ -147,14 +147,14 @@
 
 
 <p>Universe type, built on Float64 arrays. The universe specifies discrete asset moments: mus and covs.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L5-L10' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L5-L10' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.UnivEvol' href='#DynAssMgmt.UnivEvol'>#</a>
 <strong><code>DynAssMgmt.UnivEvol</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>UnivEvol(manyUnivs::Array{Univ, 1}, manyDates::Array{Date, 1}, assetLabels::Array{String, 1})</code></pre>
 
 
 <p>Robust implementation of series of universes. In contrast to a simple array of Univs, a UnivEvol also contains metadata like dates and asset names.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L40-L46' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L40-L46' class='documenter-source'>source</a><br></p>
 <p><a id='Fields-of-composite-types-1'></a></p>
 <h3 id="fields-of-composite-types">Fields of composite types</h3>
 <pre class="codehilite"><code class="language-julia-repl">julia&gt; using DynAssMgmt
@@ -180,46 +180,46 @@ julia&gt; fieldnames(UnivEvol)
 
 
 <p>Transform values of universe into percentage scale if necessary.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L165-L169' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L165-L169' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.annualizeRiskReturn' href='#DynAssMgmt.annualizeRiskReturn'>#</a>
 <strong><code>DynAssMgmt.annualizeRiskReturn</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>annualizeRiskReturn(mu::Float64, sig::Float64, retType::ReturnType)</code></pre>
 
 
 <p>Convert risk and return values to annual scale.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L191-L195' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L191-L195' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>annualizeRiskReturn(mus::Array{Float64, 1}, sigs::Array{Float64, 1}, retType::ReturnType)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L224-L227' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L224-L227' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getMuInPercentages' href='#DynAssMgmt.getMuInPercentages'>#</a>
 <strong><code>DynAssMgmt.getMuInPercentages</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getMuInPercentages(thisMu::Float64, retType::ReturnType)</code></pre>
 
 
 <p>Transform value of expected return into percentage scale if necessary.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L151-L155' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L151-L155' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getStdInPercentages' href='#DynAssMgmt.getStdInPercentages'>#</a>
 <strong><code>DynAssMgmt.getStdInPercentages</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getStdInPercentages(thisStd::Float64, retType::ReturnType)</code></pre>
 
 
 <p>Transform value of standard deviation into percentage scale if necessary.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L137-L141' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L137-L141' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getUnivExtrema' href='#DynAssMgmt.getUnivExtrema'>#</a>
 <strong><code>DynAssMgmt.getUnivExtrema</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getUnivExtrema(thisUniv::Univ)</code></pre>
 
 
 <p>Get minimum and maximum values of mu and sigma for a given universe. Helpful to determine mu / sigma targets for investment strategies.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L17-L22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L17-L22' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getUnivEvolFromMatlabFormat' href='#DynAssMgmt.getUnivEvolFromMatlabFormat'>#</a>
 <strong><code>DynAssMgmt.getUnivEvolFromMatlabFormat</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getUnivEvolFromMatlabFormat(muTab::DataFrame, covsTab::DataFrame)</code></pre>
 
 
 <p>Transform Matlab long format of estimated moments into UnivEvol type.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/80daac2ce3e4616c8215df7cb3c81fff5d04864e/src/universeTypes.jl#L246-L250' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/cf7ab586c508c7b9a561fcf3765e3711f3a25f57/src/universeTypes.jl#L246-L250' class='documenter-source'>source</a><br></p>
               
             </div>
           </div>
