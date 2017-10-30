@@ -1,5 +1,24 @@
 Investments can be evaluated according to multiple key metrics. 
 
+
 ```@docs
-DynAssMgmt.Bktest
+PerfStats
 ```
+
+### Fields of composite types
+
+```@repl returnTypeFieldNames
+using DynAssMgmt
+fieldnames(PerfStats)
+```
+
+### Functions
+
+```@docs
+evalPerf
+evalDdowns
+evalPerfStats
+```
+
+
+
