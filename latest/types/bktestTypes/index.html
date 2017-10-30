@@ -82,6 +82,12 @@
     <a class="current" href="./">Performance</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#fields-of-composite-types">Fields of composite types</a></li>
+    
+
+    <li class="toctree-l3"><a href="#functions">Functions</a></li>
+    
+
     </ul>
                 </li>
     </ul>
@@ -127,7 +133,35 @@
             <div class="section">
               
                 <p>Investments can be evaluated according to multiple key metrics. </p>
-<pre class="codehilite"><code>DynAssMgmt.Bktest</code></pre>
+<p><a id='DynAssMgmt.PerfStats' href='#DynAssMgmt.PerfStats'>#</a>
+<strong><code>DynAssMgmt.PerfStats</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>PerfStats(vals::Array{Float64, 1}, statNams::Array{Symbol, 1})</code></pre>
+
+
+<p>Performance statistics type, collecting risk / return metrics for single realized portfolio price path.</p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/9a2f306eece604565c81621b3d7d60e9a03cf6b1/src/bktest.jl#L111-L116' class='documenter-source'>source</a><br></p>
+<p><a id='Fields-of-composite-types-1'></a></p>
+<h3 id="fields-of-composite-types">Fields of composite types</h3>
+<pre class="codehilite"><code class="language-julia-repl">julia&gt; using DynAssMgmt
+
+julia&gt; fieldnames(PerfStats)
+9-element Array{Symbol,1}:
+ :FullPercRet
+ :SpMuPerc
+ :SpSigmaPerc
+ :MuDailyToAnnualPerc
+ :SigmaDailyToAnnualPerc
+ :SpVaRPerc
+ :MaxDD
+ :VaR
+ :GeoMean</code></pre>
+
+
+<p><a id='Functions-1'></a></p>
+<h3 id="functions">Functions</h3>
+<pre class="codehilite"><code>evalPerf
+evalDdowns
+evalPerfStats</code></pre>
               
             </div>
           </div>
