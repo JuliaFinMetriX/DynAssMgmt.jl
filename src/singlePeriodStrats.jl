@@ -643,8 +643,9 @@ function sigmaAndDiversTarget(thisUniv::Univ, sigTargets::Array{Float64, 1}, div
     maxSigWgts = diversTargetMaxSigma(thisUniv, diversTarget)
     xxMu, diversFrontierMaxSig = pfMoments(thisUniv, maxSigWgts, "std")
 
-    if !(gmvpSig < diversFrontierMinSig)
-        error("GMVP volatility needs to be smaller than any other volatility")
+    if !(round(gmvpSig, 3) <= round(diversFrontierMinSig, 3))
+        error("GMVP volatility needs to be smaller or equal to any other volatility,
+        but it is $gmvpSig as compared to a left end point of a diversification frontier of $diversFrontierMinSig")
     end
 
     if !(diversFrontierMinSig < diversFrontierMaxSig)
@@ -696,8 +697,9 @@ function diversTargetFrontier(thisUniv::Univ, nSigTargets::Int, diversTarget::Fl
     maxSigWgts = diversTargetMaxSigma(thisUniv, diversTarget)
     xxMu, diversFrontierMaxSig = pfMoments(thisUniv, maxSigWgts, "std")
 
-    if !(gmvpSig < diversFrontierMinSig)
-        error("GMVP volatility needs to be smaller than any other volatility")
+    if !(round(gmvpSig, 3) <= round(diversFrontierMinSig, 3))
+        error("GMVP volatility needs to be smaller or equal to any other volatility,
+        but it is $gmvpSig as compared to a left end point of a diversification frontier of $diversFrontierMinSig")
     end
 
     if !(diversFrontierMinSig < diversFrontierMaxSig)
