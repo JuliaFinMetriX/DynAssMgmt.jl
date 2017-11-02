@@ -21,26 +21,6 @@ xxRets = dataset("IndustryPfs")
 retType = ReturnType(true, false, Dates.Day(1), false)
 rets = Returns(xxRets, retType)
 
-# visualize returns
-# shortRets = Returns(rets.data[end-1000:end], rets.retType)
-# xx = shortRets.data[shortRets.data.colnames[1:8]...]
-# shortRets = Returns(xx, rets.retType)
-# Plots.plot(shortRets, layout=(4, 2), leg=false)
-
-# estimate overall moments
-fullUniv = apply(EWMA(1, 1), rets)
-
-## find appropriate targets for strategies
-
-# get extreme asset moments
-DynAssMgmt.getUnivExtrema(fullUniv)
-
-# get risk of gmvp
-gmvpPf = apply(GMVP(), fullUniv)
-pfMoments(fullUniv, gmvpPf, "std")
-
-# visualize portfolio opportunities
-pfopts(fullUniv, doScale = false)
 Plots.gui()
 
 ## define efficient frontier / diversfication frontier strategies
