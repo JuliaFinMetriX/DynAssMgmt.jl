@@ -32,6 +32,11 @@ function apply(xx::EqualWgts, thisUniv::Univ)
     PF(equWgts[:])
 end
 
+import Base.length
+length(xx::SinglePeriodTarget) = 1
+
+getName(xx::EqualWgts) = "Equal weights"
+
 """
 ```julia
 GMVP()
@@ -44,6 +49,7 @@ struct GMVP <: SinglePeriodTarget
 end
 
 apply(xx::GMVP, thisUniv::Univ) = PF(gmvp(thisUniv))
+getName(xx::GMVP) = "GMVP"
 
 """
 ```julia
@@ -57,6 +63,7 @@ struct TargetVola <: SinglePeriodTarget
 end
 
 apply(xx::TargetVola, thisUniv::Univ) = PF(sigmaTarget(thisUniv, xx.Vola))
+getName(xx::TargetVola) = "Vola target: $(round(xx.Vola, 2))"
 
 # vola relative to efficient frontier (maximum mu / gmvp mu range)
 """
@@ -86,6 +93,7 @@ end
 
 MaxSharpe() = MaxSharpe(0.0)
 apply(xx::MaxSharpe, thisUniv::Univ) = PF(maxSharpe(thisUniv))
+getName(xx::MaxSharpe) = "Maximum Sharpe, risk-free: $xx.RiskFree"
 
 """
 ```julia
@@ -99,6 +107,7 @@ struct TargetMu <: SinglePeriodTarget
 end
 
 apply(xx::TargetMu, thisUniv::Univ) = PF(muTarget(thisUniv, xx.Mu))
+getName(xx::TargetMu) = "Target mu: $(round(xx.Mu, 2))"
 
 """
 ```julia
@@ -117,6 +126,9 @@ function apply(xx::EffFront, thisUniv::Univ)
     pfArray = map(x -> PF(x), wgtsArray)
     pfArray = reshape(pfArray, 1, size(pfArray, 1))
 end
+
+length(xx::EffFront) = xx.NEffPfs
+getName(xx::EffFront) = String["Efficient frontier pf. $ii" for ii=1:xx.NEffPfs]
 
 function getSingleTargets(someFront::EffFront)
     # get number of portfolios
@@ -137,6 +149,8 @@ struct DivFrontSigmaTarget <: SinglePeriodTarget
     sigTarget::Float64
 end
 
+getName(xx::DivFrontSigmaTarget) = "Div. and vola target: $(xx.diversTarget), $(round(xx.sigTarget, 2))"
+
 """
 ```julia
 DivFront(divTarget::Float64, sigTarget::Array{Float64, 1})
@@ -155,6 +169,9 @@ function apply(xx::DivFront, thisUniv::Univ)
     pfArray = map(x -> PF(x), wgtsArray)
     pfArray = reshape(pfArray, 1, size(pfArray, 1))
 end
+
+length(xx::DivFront) = length(xx.sigTargets)
+getName(xx::DivFront) = String["Div. and vola target: $(xx.diversTarget), $(round(thisSig, 2))" for thisSig in xx.sigTargets]
 
 """
 ```julia
@@ -175,6 +192,8 @@ function apply(xx::DivFrontRelativeSigmas, thisUniv::Univ)
     pfArray = reshape(pfArray, 1, size(pfArray, 1))
 end
 
+length(xx::DivFrontRelativeSigmas) = xx.NSigTargets
+getName(xx::DivFrontRelativeSigmas) = String["Div. and relative vola target: $(xx.diversTarget), $ii" for ii=1:xx.NSigTargets]
 
 """
 ```julia
