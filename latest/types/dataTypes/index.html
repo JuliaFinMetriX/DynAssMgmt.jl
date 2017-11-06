@@ -157,28 +157,28 @@
 <li>net / gross returns</li>
 </ul>
 <p>Standard return type is <em>fractional</em>, <em>discrete</em>, <em>net</em> daily returns.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L14-L26' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L14-L26' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.Returns' href='#DynAssMgmt.Returns'>#</a>
 <strong><code>DynAssMgmt.Returns</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>Returns(data::TimeSeries.TimeArray, retType::ReturnType)</code></pre>
 
 
 <p>Data type to store return data together with meta-data.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L48-L52' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L48-L52' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.Prices' href='#DynAssMgmt.Prices'>#</a>
 <strong><code>DynAssMgmt.Prices</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>Prices(data::TimeSeries.TimeArray, isLog::Bool)</code></pre>
 
 
 <p>Data type to store prices together with meta-data. This basically allows to robustly identify logarithmic prices.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L87-L92' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L87-L92' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.Performances' href='#DynAssMgmt.Performances'>#</a>
 <strong><code>DynAssMgmt.Performances</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>Performance(data::TimeSeries.TimeArray, retType::ReturnType)</code></pre>
 
 
 <p>Data type to store performance data together with meta-data. Performance basically can be interpreted as aggregated returns. For the special case of gross performance values, performances also can be interpreted as normalized prices.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L196-L203' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L196-L203' class='documenter-source'>source</a><br></p>
 <p><a id='Fields-of-composite-types-1'></a></p>
 <h3 id="fields-of-composite-types">Fields of composite types</h3>
 <pre class="codehilite"><code class="language-julia-repl">julia&gt; using DynAssMgmt
@@ -215,17 +215,17 @@ julia&gt; fieldnames(Performances)
 
 
 <p>Convert return data to default return type: <em>fractional</em>, <em>discrete</em> and <em>net</em> returns.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L58-L63' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L58-L63' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>standardize(prices::Prices)</code></pre>
 
 
 <p>Convert price data to default price type: discrete, not logarithmic prices.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L100-L104' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L100-L104' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>standardize(perfs::Performances)</code></pre>
 
 
 <p>Convert performance data to default performance type: <em>fractional</em>, <em>discrete</em> and <em>net</em> performances.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L209-L214' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L209-L214' class='documenter-source'>source</a><br></p>
 <p>Defining conversion methods from any possible data scale to this default scale will allow conversion between any arbitrary scales. For example, for <strong>Prices</strong> the following methods exist:</p>
 <p><a id='DynAssMgmt.getLogPrices' href='#DynAssMgmt.getLogPrices'>#</a>
 <strong><code>DynAssMgmt.getLogPrices</code></strong> &mdash; <em>Function</em>.</p>
@@ -233,33 +233,33 @@ julia&gt; fieldnames(Performances)
 
 
 <p>Transform prices to logarithmic prices if necessary.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L112-L116' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L112-L116' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.getDiscretePrices' href='#DynAssMgmt.getDiscretePrices'>#</a>
 <strong><code>DynAssMgmt.getDiscretePrices</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>getDiscretePrices(prices::Prices)</code></pre>
 
 
 <p>Transform prices to discrete values if necessary.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L127-L131' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L127-L131' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.normalizePrices' href='#DynAssMgmt.normalizePrices'>#</a>
 <strong><code>DynAssMgmt.normalizePrices</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>normalizePrices(xx::Array{Float64, 1})</code></pre>
 
 
 <p>Rescale prices such that first observation starts at 1.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L144-L148' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L144-L148' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>normalizePrices(xx::Array{Float64, 2})</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L159-L161' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L159-L161' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>normalizePrices(xx::TimeArray)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L171-L173' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L171-L173' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>normalizePrices(xx::Prices)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L182-L184' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L182-L184' class='documenter-source'>source</a><br></p>
 <p>As <strong>Returns</strong>, <strong>Prices</strong> and <strong>Performances</strong> are closely interconnected, there also exist default conversion methods between them. These methods make use of the following low-level functions:</p>
 <p><a id='DynAssMgmt.computeReturns' href='#DynAssMgmt.computeReturns'>#</a>
 <strong><code>DynAssMgmt.computeReturns</code></strong> &mdash; <em>Function</em>.</p>
@@ -274,15 +274,15 @@ julia&gt; fieldnames(Performances)
 <li>net returns (not gross returns)</li>
 <li>straight-forward application to <code>NaN</code>s also</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L255-L267' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L255-L267' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>computeReturns(prices::Array{Float64, 2}, retType = ReturnType())</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L289-L291' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L289-L291' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>computeReturns(xx::TimeSeries.TimeArray, retType = ReturnType())</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L304-L306' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L304-L306' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.aggregateReturns' href='#DynAssMgmt.aggregateReturns'>#</a>
 <strong><code>DynAssMgmt.aggregateReturns</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>aggregateReturns(rets::Array{Float64, 1}, retType::ReturnType, prependStart=false)</code></pre>
@@ -296,19 +296,19 @@ julia&gt; fieldnames(Performances)
 <li>net returns (not gross returns)</li>
 <li>convention for how to deal with <code>NaN</code>s still needs to be defined</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L410-L422' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L410-L422' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>aggregateReturns(discRets::Array{Float64, 2}, retType::ReturnType, prependStart=false)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L429-L432' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L429-L432' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>aggregateReturns(discRets::TimeSeries.TimeArray, retType::ReturnType, prependStart=false)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L438-L441' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L438-L441' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>aggregateReturns(rets::Returns, prependStart=false)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L448-L451' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L448-L451' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.rets2prices' href='#DynAssMgmt.rets2prices'>#</a>
 <strong><code>DynAssMgmt.rets2prices</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>rets2prices(rets::Array{Float64, 1}, retType::ReturnType, startPrice=1., prependStart=false)</code></pre>
@@ -322,19 +322,19 @@ julia&gt; fieldnames(Performances)
 <li>net returns (not gross returns)</li>
 <li>convention for how to deal with <code>NaN</code>s still needs to be defined</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L319-L331' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L319-L331' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>rets2prices(rets::Array{Float64, 2}, retType::ReturnType)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L360-L362' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L360-L362' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>rets2prices(rets::TimeSeries.TimeArray, retType::ReturnType, startPrice=1., prependStart=false)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L380-L382' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L380-L382' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>rets2prices(rets::Returns, startPrice=1., prependStart=false)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/baseEconMetrics.jl#L397-L399' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/baseEconMetrics.jl#L397-L399' class='documenter-source'>source</a><br></p>
 <p><a id='Data-imputation-1'></a></p>
 <h2 id="data-imputation">Data imputation</h2>
 <p><a id='DynAssMgmt.locf!' href='#DynAssMgmt.locf!'>#</a>
@@ -343,44 +343,44 @@ julia&gt; fieldnames(Performances)
 
 
 <p>Replacing <code>NaN</code> according to <em>last observation carried forward</em>.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L128-L132' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L128-L132' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.locf' href='#DynAssMgmt.locf'>#</a>
 <strong><code>DynAssMgmt.locf</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>locf(xx::Array{Float64, 1})</code></pre>
 
 
 <p>Replacing <code>NaN</code> according to <em>last observation carried forward</em>.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L143-L147' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L143-L147' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>locf(xx::Array{Float64, 2})</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L153-L155' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L153-L155' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>locf(xx::TimeArray)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L164-L166' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L164-L166' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.nocb!' href='#DynAssMgmt.nocb!'>#</a>
 <strong><code>DynAssMgmt.nocb!</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>nocb!(xx::Array{Float64, 1})</code></pre>
 
 
 <p>Replacing <code>NaN</code> according to <em>next observation carried backward</em>.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L175-L179' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L175-L179' class='documenter-source'>source</a><br></p>
 <p><a id='DynAssMgmt.nocb' href='#DynAssMgmt.nocb'>#</a>
 <strong><code>DynAssMgmt.nocb</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>nocb(xx::Array{Float64, 1})</code></pre>
 
 
 <p>Replacing <code>NaN</code> according to <em>next observation carried backward</em>.</p>
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L191-L195' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L191-L195' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>nocb(xx::Array{Float64, 2})</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L202-L204' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L202-L204' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>nocb(xx::TimeArray)</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/49758baab58dfb0996013dcd14896d88e6372b83/src/utils.jl#L213-L215' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaFinMetriX/DynAssMgmt.jl/blob/836b16d06e71d1fe704d07a52ffde8375f8b6281/src/utils.jl#L213-L215' class='documenter-source'>source</a><br></p>
               
             </div>
           </div>
