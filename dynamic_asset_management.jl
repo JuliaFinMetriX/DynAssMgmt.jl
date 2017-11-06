@@ -24,6 +24,7 @@ using DynAssMgmt
 using EconDatasets
 using TimeSeries
 using NamedArrays
+using JLD
 
 # load data
 xxRets = dataset("IndustryPfs")
@@ -101,3 +102,12 @@ Plots.plot!(assPerfStats[:, "SigmaDailyToAnnualPerc"], assPerfStats[:, "MuDailyT
 Plots.plot!(equWgtsSummary[:, "SigmaDailyToAnnualPerc"], equWgtsSummary[:, "MuDailyToAnnualPerc"], seriestype = :scatter,
     labels="Equal weights")
 Plots.gui()
+
+## write portfolios to file
+save("./tmp/divFrontInvestments.jld", "divFrontInvs", divFrontInvs)
+
+
+##
+divFrontInvsLoaded = load("./tmp/divFrontInvestments.jld", "divFrontInvs")
+divFrontInvsLoaded = load("./tmp/divFrontInvestments.jld")
+divFrontInvs = divFrontInvsLoaded["divFrontInvs"]
