@@ -59,6 +59,7 @@ using StatPlots
 using TimeSeries
 using IterableTables
 using RDatasets
+using NamedArrays
 
 set_default_solver(SCS.SCSSolver(verbose=0))
 

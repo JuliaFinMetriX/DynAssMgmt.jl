@@ -58,7 +58,7 @@ function evalPerf(someInvs::Invest, rets::Returns)
         perfs[:, thisStratInd] = pfVals
     end
 
-    perfsTimeArray = TimeArray(perfDates[:], perfs)
+    perfsTimeArray = TimeArray(perfDates[:], perfs, someInvs.stratLabels)
     perfs = Performances(perfsTimeArray, ReturnType())
 
 end
@@ -222,7 +222,7 @@ function evalPerfStats(prices::Prices)
     stdPrices = standardize(prices)
 
     nObs, nTimeSeries = size(prices.data.values)
-    allPerfStats = Array(PerfStats, 1, nTimeSeries)
+    allPerfStats = Array{PerfStats}(1, nTimeSeries)
     for ii=1:nTimeSeries
         xxVals, xxNams = evalPerfStats(prices.data.values[:, ii])
         thisPerfStats = DynAssMgmt.PerfStats(xxVals, xxNams)
@@ -237,7 +237,7 @@ end
 Derive risk / return metrics for Performances and return as PerfStats type.
 """
 function evalPerfStats(perfs::Performances)
-    prices = standardize(perfs)
+    prices = convert(Prices, perfs)
     return evalPerfStats(prices)
 end
 
@@ -246,4 +246,29 @@ function evalPerfStats(singlePfVals::Array{Float64, 1}, dats::Array{Date, 1})
 
     # get statistics that do not require dates
     perfStats, statNames = evalPerfStats(singlePfVals)
+end
+
+
+"""
+    getPerfStatSummary(perfs::Performances)
+
+Get risk / return metrics for multiple strategies in single matrix.
+"""
+function getPerfStatSummary(perfs::Performances)
+    stratNames = perfs.data.colnames
+    allPerfStats = evalPerfStats(perfs)
+
+    allFields = fieldnames(allPerfStats[1])
+    nMetrics = length(allFields)
+    nStrats = length(allPerfStats)
+    metricsSummary = zeros(Float64, nStrats, nMetrics)
+    for ii=1:nStrats
+        thisResults = allPerfStats[ii]
+        for jj=1:nMetrics
+            metricsSummary[ii, jj] = getfield(thisResults, allFields[jj])
+        end
+    end
+    metricsNames = String[thisField for thisField in allFields]
+
+    return NamedArray(metricsSummary, (stratNames, metricsNames), ("Strategies", "Metrics"))
 end

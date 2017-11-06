@@ -49,7 +49,7 @@ end
 
 """
 ```julia
-Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{String, 1})
+Invest(pfs::Array{PF, 2}, spectrum::Array{SinglePeriodTarget, 1}, dates::Array{Date, 1}, assetLabels::Array{String, 1}, stratLabels::Array{String, 1})
 ```
 
 Implementation of investments as collection of portfolios. Portfolios
@@ -61,16 +61,17 @@ struct Invest
     strategies::Array{SinglePeriodTarget, 1}
     dates::Array{Date, 1}
     assetLabels::Array{String, 1}
+    stratLabels::Array{String, 1}
 end
 
-function Invest(pfs::Array{PF, 2}, spectrum::SinglePeriodSpectrum, dates::Array{Date, 1}, assetLabels::Array{String, 1})
+function Invest(pfs::Array{PF, 2}, spectrum::SinglePeriodSpectrum, dates::Array{Date, 1}, assetLabels::Array{String, 1}, stratLabels::Array{String, 1})
     strats = getSingleTargets(spectrum)
-    return Invest(pfs, strats, dates, assetLabels)
+    return Invest(pfs, strats, dates, assetLabels, stratLabels)
 end
 
-function Invest(pfs::Array{PF, 1}, strat::SinglePeriodTarget, dates::Array{Date, 1}, assetLabels::Array{String, 1})
+function Invest(pfs::Array{PF, 1}, strat::SinglePeriodTarget, dates::Array{Date, 1}, assetLabels::Array{String, 1}, stratLabels::Array{String, 1})
     pfs = reshape(pfs, length(pfs), 1)
-    return Invest(pfs, [strat], dates, assetLabels)
+    return Invest(pfs, [strat], dates, assetLabels, stratLabels)
 end
 
 
@@ -79,7 +80,7 @@ size(inv::Invest) = (size(inv.dates, 1), size(inv.strategies, 1), size(inv.asset
 
 
 ## make apply generalization to UnivEvols including potential parallelization
-function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
+function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol, stratLabels::Array{String, 1})
     # check for multiple processes
 
     nProcesses = nprocs()
@@ -99,6 +100,20 @@ function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
 
     end
 
-    firstInv = Invest(allPfs, thisTarget, univHistory.dates, univHistory.assetLabels)
+    firstInv = Invest(allPfs, thisTarget, univHistory.dates, univHistory.assetLabels, stratLabels)
 
+end
+
+function apply(thisTarget::SinglePeriodSpectrum, univHistory::UnivEvol)
+    # get default strategy labels
+    stratLabels = getName(thisTarget)
+
+    return apply(thisTarget, univHistory, stratLabels)
+end
+
+function apply(thisTarget::SinglePeriodTarget, univHistory::UnivEvol)
+    # get default strategy labels
+    stratLabel = getName(thisTarget)
+
+    return apply(thisTarget, univHistory, [stratLabel])
 end
