@@ -8,3 +8,4 @@ DistributedArrays
 IterableTables
 RDatasets
 TimeSeries
+NamedArrays
