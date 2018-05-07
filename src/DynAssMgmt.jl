@@ -44,7 +44,10 @@ export
     evalPerf,
     evalDDowns,
     evalPerfStats,
-    PerfStats
+	 PerfStats,
+	 ewmaObsWgtPower,
+	 ewmaObsWgts,
+	 cutoffOldData
 
 using DataFrames
 using Convex
