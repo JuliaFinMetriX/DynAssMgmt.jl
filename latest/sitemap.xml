@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
      <loc>/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/dataTypes/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/estimatorTypes/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/universeTypes/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/strategies/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/investmentTypes/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>/types/bktestTypes/</loc>
-     <lastmod>2019-05-16</lastmod>
+     <lastmod>2019-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
